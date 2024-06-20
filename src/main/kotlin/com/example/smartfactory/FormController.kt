@@ -1,5 +1,6 @@
 package com.example.smartfactory
 
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 data class FormData(
@@ -14,9 +15,10 @@ data class FormData(
 class FormController {
 
     @PostMapping("/data")
-    fun receiveFormData(@RequestBody formData: FormData): String {
+    fun receiveFormData(@RequestBody formData: FormData): ResponseEntity<Map<String, String>> {
         println("Received data: $formData")
-        // Here you can handle the form data, e.g., save it to a database
-        return "Data received successfully"
+        // Handle the received data, e.g., save it to a database
+        val response = mapOf("message" to "Data received successfully")
+        return ResponseEntity.ok(response)
     }
 }
