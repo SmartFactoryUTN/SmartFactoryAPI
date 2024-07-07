@@ -3,6 +3,7 @@
 ## Configuración
 
 - SDK corretto 21.0.3
+
 ![img.png](readme1.png)
 
 ## API Docs
@@ -33,3 +34,9 @@
 ## How to
 
 - Instalar dependencias https://www.youtube.com/watch?v=FWPk0aD3fYk
+- Plugins IntelliJ
+  - Detekt (linter)
+## Tizada configuration
+![img.png](src/main/kotlin/com/example/smartfactory/docs/img.png)
+
+![img_1.png](src/main/kotlin/com/example/smartfactory/docs/img_1.png)
