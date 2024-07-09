@@ -7,10 +7,8 @@ import com.example.smartfactory.application.Tizada.TizadaService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/tizada")
@@ -27,5 +25,16 @@ class TizadaController(private val tizadaService: TizadaService) {
         val tizadaResponse = tizadaService.createTizada(request)
         return GenericResponse(HttpStatus.CREATED.value(), tizadaResponse.status, tizadaResponse);
     }
-}
 
+
+    @GetMapping("/{id}")
+    @Operation(
+        summary = "Obtiene una tizada",
+        description = "Dado un UUID, obtiene la información de la tizada"
+    )
+    @ApiResponse(responseCode = "200")
+    @ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada")
+    @ApiResponse(responseCode = "404", description = "Tizada no encontrada")
+    @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
+    fun getTizada(@PathVariable id: Long) = tizadaService.getTizada(id)
+}
