@@ -1,9 +1,12 @@
 package com.example.smartfactory.api
 
-import com.example.smartfactory.Domain.Tizada.GenericResponse
+import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Domain.Tizada.Request.TizadaRequest
 import com.example.smartfactory.Domain.Tizada.Tizada
 import com.example.smartfactory.Domain.Tizada.TizadaResponse
+import com.example.smartfactory.Domain.WebTizada.UpdateTizadaRequest
+import com.example.smartfactory.Domain.WebTizada.WebTizada
+import com.example.smartfactory.Domain.WebTizada.WebTizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -14,7 +17,6 @@ import java.util.*
 @RestController
 @RequestMapping("/tizada")
 class TizadaController(private val tizadaService: TizadaService) {
-    // Le agrego este mapping para diferenciarlo del post que hace el front a la API
     @PostMapping("/ext")
     @Operation(
         summary = "Crea una nueva tizada",
@@ -25,10 +27,15 @@ class TizadaController(private val tizadaService: TizadaService) {
     @ApiResponse(responseCode = "500", description = "Ocurrió un error")
     fun createTizada(@RequestBody request: TizadaRequest): GenericResponse<TizadaResponse> {
         val tizadaResponse = tizadaService.createTizada(request)
-        return GenericResponse(HttpStatus.CREATED.value(), tizadaResponse.status, tizadaResponse);
+        return GenericResponse(HttpStatus.CREATED.value(), tizadaResponse.status, tizadaResponse)
     }
 
 
+
+    /* Deberíamos crear un controller aparte para esto? (la comunicación entre front y API)
+    * por ahora, al ser un solo endpoint, decidí a la comunicación de la API con el servicio de tizada agregarle la ruta
+    * /ext.
+    */
     @GetMapping("/{id}")
     @Operation(
         summary = "Obtiene una tizada",
@@ -41,19 +48,49 @@ class TizadaController(private val tizadaService: TizadaService) {
     fun getTizada(@PathVariable id: Long) = tizadaService.getTizada(id)
 
     @PatchMapping("/{id}")
-    fun updateTizada(@PathVariable id: Long, @RequestBody request: TizadaRequest): GenericResponse<Tizada> {
-        val tizadaResponse = tizadaService.updateTizada(id, request)
-        return GenericResponse(HttpStatus.OK.value(), tizadaResponse.status, tizadaResponse.body())
+    @Operation(
+        summary = "Modificar una tizada",
+        description = "Dado un ID, actualiza/modifica la tizada"
+    )
+    @ApiResponse(responseCode = "200")
+    @ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada")
+    @ApiResponse(responseCode = "404", description = "Tizada no encontrada")
+    @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
+    fun updateTizada(@PathVariable id: Long, @RequestBody request: UpdateTizadaRequest): GenericResponse<WebTizada> {
+        val tizadaResponse = tizadaService.updateTizada(id, request.name, request.favorite)
+        return GenericResponse(HttpStatus.OK.value(), HttpStatus.OK.name, tizadaResponse)
     }
 
     @DeleteMapping("/{id}")
-    fun deleteTizada(@PathVariable id: Long): GenericResponse<Void> {
-        val response = tizadaService.deleteTizada(id)
-        return GenericResponse(HttpStatus.NO_CONTENT.value(), response.status, response)
-    }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+        summary = "Eliminar una tizada",
+        description = "Dado un ID, elimina de forma lógica la tizada"
+    )
+    @ApiResponse(responseCode = "204")
+    @ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada")
+    @ApiResponse(responseCode = "404", description = "Tizada no encontrada")
+    @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
+    fun deleteTizada(@PathVariable id: Long): Unit = tizadaService.deleteTizada(id)
 
-    @GetMapping("")
-    fun getAllTizadas() {
-        return tizadaService.getAllTizadas()
-    }
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+        summary = "Obtener todas las tizadas",
+        description = "Obtiene todas las tizadas correspondientes a este usuario"
+    )
+    fun getAllTizadas(): Collection<WebTizada> = tizadaService.getAllTizadas()
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+        summary = "Solicitud de creación de tizada",
+        description = "Solicita a la API que encole una nueva tizada y le envíe al servicio de tizada la petición de " +
+                "creación"
+    )
+    @ApiResponse(responseCode = "204")
+    @ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada")
+    @ApiResponse(responseCode = "404", description = "Tizada no encontrada")
+    @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
+    fun createWebTizada(@RequestBody request: WebTizada): Tizada = tizadaService.createWebTizada(request)
 }
