@@ -1,4 +1,4 @@
-package com.example.smartfactory.Domain.Tizada
+package com.example.smartfactory.Domain
 
 data class GenericResponse<T>(
     val code: Int,
