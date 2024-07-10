@@ -14,7 +14,7 @@ class TizadaService(tizadaDataSource: TizadaDataSource) {
     }
 
     fun getTizada(id: Long): Any {
-        tizada
+        
         return TizadaResponse(id = id, status = "ok", message = "Tizada creada exitosamente")
     }
 }
