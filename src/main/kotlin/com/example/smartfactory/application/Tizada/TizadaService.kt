@@ -1,14 +1,11 @@
 package com.example.smartfactory.application.Tizada
 
-import com.example.smartfactory.Domain.Tizada.Request.TizadaRequest
+import com.example.smartfactory.application.Tizada.Request.TizadaRequest
 import com.example.smartfactory.Domain.Tizada.Tizada
 import com.example.smartfactory.Domain.Tizada.TizadaResponse
 import com.example.smartfactory.Domain.WebTizada.WebTizada
-import com.example.smartfactory.Domain.WebTizada.WebTizadaResponse
 import com.example.smartfactory.ds.TizadaDataSource
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class TizadaService(private val tizadaDataSource: TizadaDataSource) {

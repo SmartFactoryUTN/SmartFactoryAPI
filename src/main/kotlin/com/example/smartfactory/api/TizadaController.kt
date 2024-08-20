@@ -1,18 +1,16 @@
 package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.GenericResponse
-import com.example.smartfactory.Domain.Tizada.Request.TizadaRequest
+import com.example.smartfactory.application.Tizada.Request.TizadaRequest
 import com.example.smartfactory.Domain.Tizada.Tizada
 import com.example.smartfactory.Domain.Tizada.TizadaResponse
-import com.example.smartfactory.Domain.WebTizada.UpdateTizadaRequest
+import com.example.smartfactory.application.Tizada.WebTizada.UpdateTizadaRequest
 import com.example.smartfactory.Domain.WebTizada.WebTizada
-import com.example.smartfactory.Domain.WebTizada.WebTizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import java.util.*
 
 @RestController
 @RequestMapping("/tizada")
@@ -93,4 +91,9 @@ class TizadaController(private val tizadaService: TizadaService) {
     @ApiResponse(responseCode = "404", description = "Tizada no encontrada")
     @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
     fun createWebTizada(@RequestBody request: WebTizada): Tizada = tizadaService.createWebTizada(request)
+
+    @PostMapping("/notification")
+    fun notificationTizada(){
+
+    }
 }

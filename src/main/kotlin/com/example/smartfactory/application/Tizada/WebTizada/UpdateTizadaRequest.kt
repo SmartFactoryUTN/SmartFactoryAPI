@@ -1,4 +1,4 @@
-package com.example.smartfactory.Domain.WebTizada
+package com.example.smartfactory.application.Tizada.WebTizada
 
 data class UpdateTizadaRequest (
     val name: String,

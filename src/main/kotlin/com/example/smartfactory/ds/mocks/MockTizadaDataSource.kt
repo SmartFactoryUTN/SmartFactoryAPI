@@ -1,5 +1,6 @@
 package com.example.smartfactory.ds.mocks
 
+import com.example.smartfactory.Domain.Tizada.Tizada
 import com.example.smartfactory.Domain.WebTizada.WebTizada
 import com.example.smartfactory.ds.TizadaDataSource
 import org.springframework.stereotype.Repository
@@ -19,5 +20,9 @@ class MockTizadaDataSource: TizadaDataSource {
 
     override fun getAllTizadas(): Collection<WebTizada> {
         return tizadas
+    }
+
+    override fun createWebTizada(webTizada: WebTizada): Tizada {
+        TODO("Not yet implemented")
     }
 }
