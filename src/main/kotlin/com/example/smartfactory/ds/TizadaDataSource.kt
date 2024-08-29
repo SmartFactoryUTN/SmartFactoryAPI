@@ -1,11 +1,11 @@
 package com.example.smartfactory.ds
 
 import com.example.smartfactory.Domain.Tizada.Tizada
-import com.example.smartfactory.Domain.WebTizada.WebTizada
+import java.util.*
 
 interface TizadaDataSource {
-    fun getTizada(id: Long): WebTizada?
-    fun createTizada(t: WebTizada)
-    fun getAllTizadas(): Collection<WebTizada>
-    fun createWebTizada(webTizada: WebTizada): Tizada
+    fun getTizada(id: UUID): Tizada?
+    fun createTizada(t: Tizada)
+    fun getAllTizadas(): Collection<Tizada>
+    fun queueTizada(tizada: Tizada): Tizada
 }

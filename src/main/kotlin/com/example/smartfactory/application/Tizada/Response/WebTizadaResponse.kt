@@ -1,4 +1,4 @@
-package com.example.smartfactory.application.Tizada.WebTizada
+package com.example.smartfactory.application.Tizada.Response
 
 data class WebTizadaResponse(
     val code: Int,

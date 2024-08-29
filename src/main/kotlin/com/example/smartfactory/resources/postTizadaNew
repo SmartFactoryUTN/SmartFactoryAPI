@@ -1,0 +1,44 @@
+//POST /tizadas/new este es de BACK a SVGNest
+//RQ
+{
+    "date": "2024-08-24T22:03:55.135Z",
+    "tizada": {
+        "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "configuration": {
+            "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "time": 0,
+            "percentage": 0,
+            "space_between_parts": 0,
+            "curve_tolerance": 0,
+            "part_rotations": 0,
+            "ga_population": 0,
+            "ga_mutation_rate": 0,
+            "part_in_part": true
+        },
+        "parts": [
+            {
+                "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                "url": "string"
+            }
+        ],
+        "bin": {
+            "uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "url": "string"
+        },
+        "state": "WAITING",
+        "createdAt": "2024-08-24T22:03:55.135Z",
+        "updatedAt": "2024-08-24T22:03:55.135Z",
+        "resultado": "string"
+    }
+}
+
+// Response 200:
+{
+  "code": 0,
+  "status": "string",
+  "data": {
+    "id": 0,
+    "status": "string",
+    "message": "string"
+  }
+}

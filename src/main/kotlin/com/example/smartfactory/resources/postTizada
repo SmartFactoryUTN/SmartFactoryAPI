@@ -1,0 +1,10 @@
+//POST /tizada
+RQ:
+{
+    "tableLength": 100, // ancho de la mesa, en metros
+    "tableWidth": 100, // ancho de la mesa, en metros
+    "name": "Tizada de remeras", // nombre de la tizada
+    "type": "RAPIDA", // RAPIDA O MAXIMA EFICIENCIA
+    "wastePercentage": "100", // porcentaje de desperdicio?
+    "maxTime": "100" // tiempo máximo de tizada?
+}
