@@ -1,10 +1,9 @@
 package com.example.smartfactory.application.Tizada
 
-import com.example.smartfactory.application.Tizada.Request.TizadaRequest
 import com.example.smartfactory.Domain.Tizada.Tizada
 import com.example.smartfactory.Domain.Tizada.TizadaConfiguration
+import com.example.smartfactory.application.Tizada.Request.TizadaRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
-import com.example.smartfactory.Domain.WebTizada.WebTizada
 import com.example.smartfactory.ds.TizadaDataSource
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime

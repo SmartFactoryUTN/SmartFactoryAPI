@@ -8,7 +8,7 @@ import java.util.UUID
 open class Tizada(
     val uuid: UUID,
     val configuration: TizadaConfiguration,
-    val parts: ArrayList<TizadaPart>,
+    val parts: List<TizadaPart>,
     val bin: TizadaPart, // ?
     val state: TizadaState,
     val createdAt: LocalDateTime,

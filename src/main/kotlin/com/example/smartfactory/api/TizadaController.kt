@@ -1,11 +1,10 @@
 package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.GenericResponse
-import com.example.smartfactory.application.Tizada.Request.TizadaRequest
 import com.example.smartfactory.Domain.Tizada.Tizada
-import com.example.smartfactory.application.Tizada.Response.TizadaResponse
+import com.example.smartfactory.application.Tizada.Request.TizadaRequest
 import com.example.smartfactory.application.Tizada.Request.UpdateTizadaRequest
-import com.example.smartfactory.Domain.WebTizada.WebTizada
+import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
