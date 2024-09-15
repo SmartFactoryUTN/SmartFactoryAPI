@@ -3,7 +3,7 @@ package com.example.smartfactory.application.Tizada
 import com.example.smartfactory.Domain.Tizada.Tizada
 import com.example.smartfactory.Domain.Tizada.TizadaConfiguration
 import com.example.smartfactory.application.Tizada.Request.TizadaRequest
-import com.example.smartfactory.application.Tizada.Response.TizadaResponse
+import com.example.smartfactory.application.Tizada.Response.GetTizadaResponse
 import com.example.smartfactory.ds.TizadaDataSource
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -11,9 +11,9 @@ import java.util.*
 
 @Service
 class TizadaService(private val tizadaDataSource: TizadaDataSource) {
-    fun createTizada(request: TizadaRequest): TizadaResponse {
+    fun createTizada(request: TizadaRequest): GetTizadaResponse {
         val generatedId = 1L
-        return TizadaResponse(id = generatedId, status = "ok", message = "Tizada creada exitosamente")
+        return GetTizadaResponse(id = generatedId, status = "ok", message = "Tizada creada exitosamente")
     }
 
     fun getTizada(id: UUID): Tizada? {

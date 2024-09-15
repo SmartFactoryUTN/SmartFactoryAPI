@@ -13,7 +13,7 @@ open class Tizada(
     val state: TizadaState,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
-    val resultado: String, // TODO guardar en una lista los resultados intermedios
+    // val resultado: String, // TODO guardar en una lista los resultados intermedios
     val name: String,
     val tableLength: Long,
     val tableWidth: Long,
