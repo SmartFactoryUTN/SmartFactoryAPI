@@ -84,7 +84,7 @@ class TizadaController(private val tizadaService: TizadaService) {
     @ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada")
     @ApiResponse(responseCode = "404", description = "Tizada no encontrada")
     @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
-    fun createWebTizada(@RequestBody request: Tizada): Tizada = tizadaService.queueTizada(request)
+    fun queueTizada(@RequestBody request: Tizada): Tizada = tizadaService.queueTizada(request)
 
     @PostMapping("/notification")
     fun notificationTizada(){

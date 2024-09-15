@@ -1,9 +1,10 @@
-package com.example.smartfactory.ds
+package com.example.smartfactory.repository
 
 import com.example.smartfactory.Domain.Tizada.Tizada
 import java.util.*
 
-interface TizadaDataSource {
+
+interface TizadaRepository {
     fun getTizada(id: UUID): Tizada?
     fun createTizada(t: Tizada)
     fun getAllTizadas(): Collection<Tizada>
