@@ -49,7 +49,7 @@ class TizadaController(private val tizadaService: TizadaService) {
     @ApiResponse(responseCode = "404", description = "Tizada no encontrada")
     @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
     fun updateTizada(@PathVariable id: UUID, @RequestBody request: UpdateTizadaRequest): GenericResponse<Tizada> {
-        val tizadaResponse = tizadaService.updateTizada(id, request.name, request.favorite)
+        val tizadaResponse = tizadaService.updateTizada(id, request.name)
         return GenericResponse(HttpStatus.OK.value(), HttpStatus.OK.name, tizadaResponse)
     }
 

@@ -29,21 +29,25 @@ class TizadaService(
         throw TizadaNoEncontradaException("TIZADA_NO_ENCONTRADA")
     }
 
-    fun updateTizada(id: UUID, name: String, favorite: Boolean): Tizada {
+    fun updateTizada(id: UUID, name: String): Tizada {
         val tizada = tizadaRepo.getTizada(id)
-        return Tizada(
-            uuid = id,
-            TizadaConfiguration(),
-            tizada!!.parts,
-            tizada.parts[0],
-            tizada.state,
-            tizada.createdAt,
-            LocalDateTime.now(),
-            name,
-            tizada.tableLength,
-            tizada.tableWidth,
-            tizada.active
-        )
+        if (tizada != null) {
+            return Tizada(
+                uuid = id,
+                name = tizada.name,
+                configuration = TizadaConfiguration(),
+                parts = tizada.parts,
+                bin = tizada.bin,
+                results = tizada.results,
+                stage = tizada.stage,
+                state = tizada.state,
+                active = tizada.active,
+                createdAt = tizada.createdAt,
+                updatedAt = LocalDateTime.now(),
+                deletedAt = null
+            )
+        }
+        throw TizadaNoEncontradaException("TIZADA_NO_ENCONTRADA")
     }
 
     fun deleteTizada(id: UUID) {

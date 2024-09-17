@@ -1,5 +1,7 @@
 package com.example.smartfactory.Domain.Tizada
 
+import com.example.smartfactory.Domain.Inventario.BatchStage
+import com.example.smartfactory.Domain.Molde.Molde
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -7,22 +9,34 @@ import java.util.UUID
 
 open class Tizada(
     val uuid: UUID,
-    val configuration: TizadaConfiguration,
-    val parts: List<TizadaPart>,
-    val bin: TizadaPart, // ?
-    val state: TizadaState,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
-    // val resultado: String, // TODO guardar en una lista los resultados intermedios
     val name: String,
-    val tableLength: Long,
-    val tableWidth: Long,
-    var active: Boolean
+    val configuration: TizadaConfiguration,
+    val parts: List<Molde>,
+    val bin: TizadaContainer,
+    val results: List<TizadaResult>,
+    val stage: BatchStage,
+    val state: TizadaState,
+    var active: Boolean,
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime?,
+    val deletedAt: LocalDateTime?
 )
 
 enum class TizadaState {
-    WAITING,
+    CREATED,
     IN_PROGRESS,
     FINISHED,
     ERROR
 }
+
+enum class TipoTizada {
+    RAPIDA, CUSTOM
+}
+
+class TizadaContainer (
+    val uuid: UUID,
+    val name: String,
+    val height: Number,
+    val weight: Number,
+    val area: Double
+)
