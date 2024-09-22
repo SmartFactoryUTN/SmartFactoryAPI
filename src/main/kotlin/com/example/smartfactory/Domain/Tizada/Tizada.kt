@@ -6,6 +6,7 @@ import com.example.smartfactory.Domain.Molde.Molde
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
+import jakarta.validation.constraints.NotNull
 import java.time.LocalDateTime
 import java.util.*
 
@@ -14,6 +15,7 @@ import java.util.*
 class Tizada(
     @Id @GeneratedValue(strategy = GenerationType.AUTO) @Column(name = "tizada_id", nullable = false)
     val uuid: UUID,
+    @NotNull
     val name: String,
     @Transient @JsonIgnore
     val configuration: TizadaConfiguration,
@@ -45,11 +47,17 @@ enum class TipoTizada {
 }
 
 @Entity
+@Table(name = "tizada_containers")
 class TizadaContainer (
-    @Id
+    @Id @Column(name = "tizada_container_id")
     val uuid: UUID,
     val name: String,
+    @NotNull
     val height: Number,
+    @NotNull
     val width: Number,
-    val area: Double
-)
+    val area: Double,
+    override var createdAt: LocalDateTime,
+    override var updatedAt: LocalDateTime?,
+    override var deletedAt: LocalDateTime?,
+): Auditable()
