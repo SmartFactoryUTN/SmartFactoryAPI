@@ -1,12 +1,16 @@
 package com.example.smartfactory.repository
 
 import com.example.smartfactory.Domain.Tizada.Tizada
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.stereotype.Repository
 import java.util.*
 
 
-interface TizadaRepository {
-    fun getTizada(id: UUID): Tizada?
-    fun createTizada(t: Tizada)
-    fun getAllTizadas(): Collection<Tizada>
-    fun queueTizada(tizada: Tizada): Tizada
+@Repository
+interface TizadaRepository: JpaRepository<Tizada, UUID> {
+    fun getTizadaByUuid(uuid: UUID): Tizada?
+
+    @Query("select t from Tizada t")
+    fun getAllTizadas():List<Tizada>
 }
