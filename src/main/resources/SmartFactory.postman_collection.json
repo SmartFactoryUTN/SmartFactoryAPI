@@ -1,0 +1,204 @@
+{
+	"info": {
+		"_postman_id": "59ecc328-4217-447f-87dc-e7bb9d77cd18",
+		"name": "SmartFactory",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13970068"
+	},
+	"item": [
+		{
+			"name": "moldes",
+			"item": [
+				{
+					"name": "Obtener todos los moldes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/molde",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"molde"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener molde por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/molde/:uuid",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"molde",
+								":uuid"
+							],
+							"variable": [
+								{
+									"key": "uuid",
+									"value": "68eb32a4-fc78-405f-b86a-8da9e757cc11"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear molde",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Molde 2\",\r\n    \"description\": \"Art.02 algodón, color azul\",\r\n    \"svg\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/molde",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"molde"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "tizadas",
+			"item": [
+				{
+					"name": "Obtener todas las tizadas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tizada",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tizada"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener tizada por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/molde/:uuid",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"molde",
+								":uuid"
+							],
+							"variable": [
+								{
+									"key": "uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear tizada (front --> API)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"width\": 500,\r\n    \"height\": 400,\r\n    \"name\": \"Tizada de ropa interior\",\r\n    \"tizadaType\": \"RAPIDA\",\r\n    \"wastePercentage\": 72,\r\n    \"maxTime\": 10,\r\n    \"molds\": [\r\n        {\r\n            \"uuid\": \"34a8739b-2056-4862-8aa0-cc4a2a679136\",\r\n            \"cantidad\": 5\r\n        },\r\n        {\r\n            \"uuid\": \"68eb32a4-fc78-405f-b86a-8da9e757cc11\",\r\n            \"cantidad\": 3\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/tizada",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tizada"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar tizada",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "//TBD",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "//tbd",
+							"path": [
+								"",
+								"tbd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear tizada (API --> Microservicio)",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
