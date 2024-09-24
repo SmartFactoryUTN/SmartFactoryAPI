@@ -10,7 +10,7 @@ class ExceptionControllerAdvice {
     @ExceptionHandler
     fun handleTizadaNoEncontradaException(ex: TizadaNoEncontradaException): ResponseEntity<ErrorMessage> {
         val errorMessage = ErrorMessage(
-            HttpStatus.NOT_FOUND.value(),
+            HttpStatus.NOT_FOUND.name,
             ex.message
         )
         return ResponseEntity(errorMessage, HttpStatus.NOT_FOUND)

@@ -8,7 +8,7 @@ import java.util.*
 
 @Service
 class MoldeService(private val moldeRepository: MoldeRepository) {
-    fun createMolde(req: CreateMoldeRequest): CreateMoldeResponse {
+    fun createMolde(req: CreateMoldeRequest): Molde {
         val molde = Molde(
             uuid = UUID.randomUUID(),
             name = req.name,
@@ -16,12 +16,13 @@ class MoldeService(private val moldeRepository: MoldeRepository) {
             description = req.description,
             area = null,
             active = true,
+            stock = 0,
             createdAt = LocalDateTime.now(),
             updatedAt = null,
             deletedAt = null
         )
         moldeRepository.save(molde)
-        return CreateMoldeResponse("Molde cargado correctamente.")
+        return molde
     }
 
     fun getMoldeById(id: UUID): Molde? {
