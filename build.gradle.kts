@@ -3,6 +3,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.5"
 	kotlin("jvm") version "1.9.24"
 	kotlin("plugin.spring") version "1.9.24"
+	kotlin("plugin.jpa") version "1.9.24"
 }
 
 group = "com.example"
@@ -20,6 +21,7 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.3.3")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
@@ -27,6 +29,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	runtimeOnly("mysql:mysql-connector-java:8.0.32")
 }
 
 kotlin {
@@ -38,4 +41,14 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.jar {
+	manifest {
+		attributes["Main-Class"] = "com.example.SmartFactoryAPI"
+	}
+	configurations["compileClasspath"].forEach { file: File ->
+		from(zipTree(file.absoluteFile))
+		duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	}
 }
