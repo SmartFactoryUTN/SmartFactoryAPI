@@ -9,6 +9,8 @@
 ## API Docs
 [Swagger - OpenAPI 3.0](http://localhost:8080/swagger-ui/index.html)
 
+## Api Reference
+
 This API contract is made following the [JSend](https://github.com/omniti-labs/jsend) format.
 
 ⚠️ Message errors and exceptions not yet implemented ⚠️
