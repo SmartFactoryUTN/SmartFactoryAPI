@@ -36,3 +36,9 @@
 - Instalar dependencias https://www.youtube.com/watch?v=FWPk0aD3fYk
 - Plugins IntelliJ
   - Detekt (linter)
+### Desarrollo local
+- Instalar Docker & docker-compose localmente
+  - Docker: https://docs.docker.com/engine/install/
+  - docker-compose: https://docs.docker.com/compose/install/
+- Ejecutar el comando `docker-composer up --build`
+- Navegar a localhost:8080 o localhost:8080/swagger-ui/index.html
