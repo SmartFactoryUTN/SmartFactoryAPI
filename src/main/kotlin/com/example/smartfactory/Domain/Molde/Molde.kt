@@ -1,6 +1,7 @@
 package com.example.smartfactory.Domain.Molde
 
 import com.example.smartfactory.Domain.Auditable
+import com.example.smartfactory.Domain.Tizada.Tizada
 import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*
@@ -16,7 +17,25 @@ class Molde(
     val description: String,
     val area: Double?,
     val active: Boolean,
+    val stock: Int,
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime?,
     override var deletedAt: LocalDateTime?
 ): Auditable()
+
+
+@Embeddable
+class MoldeDeTizadaId(
+    @Column(name = "molde_id", nullable = false)
+    val moldeId: UUID,
+    @Column(name = "tizada_id", nullable = false)
+    val tizadaId: UUID
+)
+
+@Entity
+@Table(name = "moldes_de_tizada")
+class MoldeDeTizada(
+    @EmbeddedId
+    val moldeDeTizadaId: MoldeDeTizadaId,
+    val quantity: Int
+)

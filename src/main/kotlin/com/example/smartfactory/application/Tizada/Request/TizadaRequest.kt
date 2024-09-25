@@ -17,7 +17,7 @@ class CreateTizadaRequest(
     val width: Int,
     @Min(value = 0, message = "La altura debe ser un número mayor a 0")
     val height: Int,
-    val name: String?,
+    val name: String,
     val tizadaType: TipoTizada,
     @Min(value = 0, message = "El porcentaje de desperdicio debe ser mayor a 0.")
     val wastePercentage: Int,
@@ -29,7 +29,7 @@ class CreateTizadaRequest(
 class TizadaPartsRequest(
     val uuid: UUID,
     @Min(value = 0, message = "La cantidad de moldes debe ser mayor a 0.")
-    val cantidad: Int,
+    val quantity: Int,
 )
 
 /*

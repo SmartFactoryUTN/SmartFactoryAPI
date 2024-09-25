@@ -8,6 +8,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Entity
+@Table(name = "usuarios")
 class Usuario (
     @Id @Column(name = "usuario_id")
     val uuid: UUID,

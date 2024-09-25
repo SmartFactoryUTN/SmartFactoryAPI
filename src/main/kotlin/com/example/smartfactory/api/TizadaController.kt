@@ -5,11 +5,8 @@ import com.example.smartfactory.Domain.Tizada.Tizada
 import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.TizadaRequest
 import com.example.smartfactory.application.Tizada.Request.UpdateTizadaRequest
-import com.example.smartfactory.application.Tizada.Response.CreateTizadaResponse
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
-import com.example.smartfactory.exceptions.ExceptionControllerAdvice
-import com.example.smartfactory.exceptions.TizadaNoEncontradaException
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -32,7 +29,7 @@ class TizadaController(private val tizadaService: TizadaService) {
     @ApiResponse(responseCode = "500", description = "Ocurrió un error")
     fun createTizada(@RequestBody request: TizadaRequest): GenericResponse<TizadaResponse> {
         val tizadaResponse = tizadaService.createTizada(request)
-        return GenericResponse(HttpStatus.CREATED.value(), tizadaResponse.status, tizadaResponse)
+        return GenericResponse(tizadaResponse.status, tizadaResponse)
     }
 
     @GetMapping("/{id}")
@@ -40,26 +37,35 @@ class TizadaController(private val tizadaService: TizadaService) {
         summary = "Obtener una tizada única",
         description = "Dado un UUID, obtiene la tizada correspondiente a el"
     )
-    @ApiResponse(responseCode = "200")
-    @ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada")
-    @ApiResponse(responseCode = "404", description = "Tizada no encontrada", content = [])
-    @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
-    fun getTizada(@PathVariable id: UUID) = tizadaService.getTizada(id)
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200"),
+            ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada"),
+            ApiResponse(responseCode = "404", description = "Tizada no encontrada", content = []),
+            ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
+        ]
+    )
+    fun getTizada(@PathVariable id: UUID): GenericResponse<Tizada> {
+        val tizada = tizadaService.getTizada(id)!!
+        return GenericResponse(HttpStatus.OK.name, tizada)
+    }
 
     @PatchMapping("/{id}")
     @Operation(
         summary = "WIP: Modificar una tizada",
         description = "Dado un ID, actualiza/modifica la tizada"
     )
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Tizada actualizada"),
-        ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada"),
-        ApiResponse(responseCode = "404", description = "Tizada no encontrada"),
-        ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
-    ])
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Tizada actualizada"),
+            ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada"),
+            ApiResponse(responseCode = "404", description = "Tizada no encontrada"),
+            ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
+        ]
+    )
     fun updateTizada(@PathVariable id: UUID, @RequestBody request: UpdateTizadaRequest): GenericResponse<Tizada> {
         val tizadaResponse = tizadaService.updateTizada(id, request.name)
-        return GenericResponse(HttpStatus.OK.value(), HttpStatus.OK.name, tizadaResponse)
+        return GenericResponse(HttpStatus.OK.name, tizadaResponse)
     }
 
     @DeleteMapping("/{id}")
@@ -68,11 +74,18 @@ class TizadaController(private val tizadaService: TizadaService) {
         summary = "Eliminar una tizada",
         description = "Dado un ID, elimina de forma lógica la tizada"
     )
-    @ApiResponse(responseCode = "204")
-    @ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada")
-    @ApiResponse(responseCode = "404", description = "Tizada no encontrada")
-    @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
-    fun deleteTizada(@PathVariable id: UUID): Unit = tizadaService.deleteTizada(id)
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204"),
+            ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada"),
+            ApiResponse(responseCode = "404", description = "Tizada no encontrada"),
+            ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
+        ]
+    )
+    fun deleteTizada(@PathVariable id: UUID): GenericResponse<String> {
+        tizadaService.deleteTizada(id)
+        return GenericResponse(HttpStatus.NO_CONTENT.name, "")
+    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -80,7 +93,14 @@ class TizadaController(private val tizadaService: TizadaService) {
         summary = "Obtener todas las tizadas",
         description = "Obtiene todas las tizadas correspondientes a este usuario"
     )
-    fun getAllTizadas(): Collection<Tizada> = tizadaService.getAllTizadas()
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Obtener todas las tizadas"),
+        ApiResponse(responseCode = "500", description = "No se pudieron obtener las tizadas.")
+    ])
+    fun getAllTizadas(): GenericResponse<Collection<Tizada>> {
+        val tizadas = tizadaService.getAllTizadas()
+        return GenericResponse(HttpStatus.OK.name, tizadas)
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -93,10 +113,13 @@ class TizadaController(private val tizadaService: TizadaService) {
     @ApiResponse(responseCode = "401", description = "No autorizado para obtener esta tizada")
     @ApiResponse(responseCode = "404", description = "Tizada no encontrada")
     @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
-    fun queueTizada(@RequestBody request: CreateTizadaRequest): CreateTizadaResponse = tizadaService.queueTizada(request)
+    fun queueTizada(@RequestBody request: CreateTizadaRequest): GenericResponse<Tizada> {
+        val res = tizadaService.queueTizada(request)
+        return GenericResponse(HttpStatus.CREATED.name, res)
+    }
 
     @PostMapping("/notification")
-    fun notificationTizada(){
+    fun notificationTizada() {
 
     }
 }
