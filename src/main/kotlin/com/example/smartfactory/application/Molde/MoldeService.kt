@@ -1,7 +1,7 @@
 package com.example.smartfactory.application.Molde
 
 import com.example.smartfactory.Domain.Molde.Molde
-import com.example.smartfactory.repository.MoldeRepository
+import com.example.smartfactory.Repository.MoldeRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*

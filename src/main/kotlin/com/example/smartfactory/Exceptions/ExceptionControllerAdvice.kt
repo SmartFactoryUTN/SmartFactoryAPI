@@ -1,4 +1,4 @@
-package com.example.smartfactory.exceptions
+package com.example.smartfactory.Exceptions
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 @ControllerAdvice
 class ExceptionControllerAdvice {
     @ExceptionHandler
-    fun handleTizadaNoEncontradaException(ex: TizadaNoEncontradaException): ResponseEntity<ErrorMessage> {
+    fun handleTizadaNotFoundException(ex: TizadaNotFoundException): ResponseEntity<ErrorMessage> {
         val errorMessage = ErrorMessage(
             HttpStatus.NOT_FOUND.name,
             ex.message

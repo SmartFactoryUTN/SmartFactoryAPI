@@ -11,6 +11,7 @@ class CorsConfig {
     fun corsConfigurer(): WebMvcConfigurer {
         return object : WebMvcConfigurer {
             override fun addCorsMappings(registry: CorsRegistry) {
+                // FIXME move this to env
                 registry.addMapping("/**").allowedOrigins("http://localhost:5173")
             }
         }
