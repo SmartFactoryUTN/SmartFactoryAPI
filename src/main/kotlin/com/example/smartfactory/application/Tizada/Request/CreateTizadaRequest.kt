@@ -4,8 +4,8 @@ import com.example.smartfactory.Domain.Tizada.Tizada
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
-import java.util.Date
 import kotlinx.serialization.Serializable
+import java.util.*
 
 
 class CreateTizadaRequest(
@@ -27,11 +27,12 @@ data class Part(
 data class Bin(
     @field:NotEmpty(message = "Bin UUID cannot be empty")
     val uuid: String,
-    val quantity: Int = 1
+    @field:Min(value = 1, message = "Quantity must be at least 1")
+    val quantity: Int
 )
 
 @Serializable
-data class Configuration(
+data class InvokeConfiguration(
     @field:Min(value = 1, message = "Max iterations must be at least 1")
     val maxIterations: Int,
 
@@ -55,6 +56,6 @@ data class InvokeTizadaRequest(
     val bin: Bin,
 
     @field:NotNull(message = "Configuration cannot be null")
-    val configuration: Configuration
+    val configuration: InvokeConfiguration
 )
 

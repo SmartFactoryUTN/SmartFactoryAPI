@@ -3,12 +3,11 @@ package com.example.smartfactory.api
 import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Domain.Molde.Molde
 import com.example.smartfactory.application.Molde.CreateMoldeRequest
-import com.example.smartfactory.application.Molde.CreateMoldeResponse
 import com.example.smartfactory.application.Molde.MoldeService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*

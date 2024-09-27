@@ -21,7 +21,32 @@ class LambdaServiceTest {
     @Test
     fun `should invoke lambda function and return payload`() {
         // Given
-        val payload = "{\"key1\":\"value1\"}"
+        val payload = """{
+        "user": "a038a4d2-8502-455f-a154-aa87b1cc3fec",
+        "parts": [
+            {
+                "uuid": "moldeA",
+                "quantity": 5
+            },
+            {
+                "uuid": "moldeB",
+                "quantity": 10
+            },
+            {
+                "uuid": "moldeC",
+                "quantity": 10
+            }
+        ],
+        "bin": {
+            "uuid": "contenedorA",
+            "quantity": 1
+        },
+        "configuration": {
+            "maxIterations": 20,
+            "materialUtilization": 50,
+            "timeout": 0
+        }
+    }"""
         val expectedResponsePayload = "response from lambda"
 
         // Create a mock response
@@ -29,11 +54,13 @@ class LambdaServiceTest {
             every { payload() } returns SdkBytes.fromUtf8String(expectedResponsePayload)
         }
 
+        every { awsProperties.lambdaFunctionName } returns "arn:aws:lambda:us-east-2:593749507085:function:servicio-de-tizada-test-lambda"
+
         // Mock the invoke call
         every { mockLambdaClient.invoke(any<InvokeRequest>()) } returns mockResponse
 
         // When
-        val response = lambdaService.invokeLambda(payload)
+        val response = lambdaService.invokeLambdaAsync(payload)
 
         // Then
         assertEquals(expectedResponsePayload, response)

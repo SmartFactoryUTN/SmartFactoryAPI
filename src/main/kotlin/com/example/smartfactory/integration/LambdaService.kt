@@ -1,6 +1,5 @@
 package com.example.smartfactory.integration
 
-import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.services.lambda.LambdaClient
@@ -11,8 +10,7 @@ import software.amazon.awssdk.services.lambda.model.InvokeResponse
 @Service
 class LambdaService(private val lambdaClient: LambdaClient, private val awsProperties: AwsProperties) {
 
-    @Bean
-    fun invokeLambda(payload: String): String? {
+    fun invokeLambdaAsync(payload: String): String? {
 
         val requestPayload = SdkBytes.fromUtf8String(payload);
         val invokeRequest = InvokeRequest.builder()

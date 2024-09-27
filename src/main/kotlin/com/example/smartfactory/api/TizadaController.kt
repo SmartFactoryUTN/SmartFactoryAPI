@@ -2,8 +2,8 @@ package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Domain.Tizada.Tizada
-import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
+import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.UpdateTizadaRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -27,10 +28,10 @@ class TizadaController(private val tizadaService: TizadaService) {
         summary = "Solicitud de creación de tizada",
         description = "Invoca la ejecución de una nueva tizada"
     )
-    @ApiResponse(responseCode = "204")
+    @ApiResponse(responseCode = "204", description = "Tizada Invocada")
     @ApiResponse(responseCode = "401", description = "No autorizado")
     @ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
-    fun invokeTizada(@RequestBody request: InvokeTizadaRequest): ResponseEntity<TizadaResponse<Any>> {
+    fun invokeTizada(@Valid @RequestBody request: InvokeTizadaRequest): ResponseEntity<TizadaResponse<Any>> {
 
         return try {
             val response = tizadaService.invokeTizada(request)

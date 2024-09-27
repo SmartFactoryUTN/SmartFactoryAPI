@@ -30,11 +30,18 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 	implementation("software.amazon.awssdk:lambda:2.20.50")
 	implementation("software.amazon.awssdk:core:2.20.50")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude(group = "org.mockito", module = "mockito-core")
+	}
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	// Spring Boot WebMvcTest
+	testImplementation("org.springframework.boot:spring-boot-starter-web")
+	// MockK for mocking
 	testImplementation("io.mockk:mockk:1.13.12")
-	testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
-	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+	// JUnit 5
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
+
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	runtimeOnly("mysql:mysql-connector-java:8.0.32")
 }
