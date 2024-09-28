@@ -10,6 +10,7 @@ import com.example.smartfactory.Repository.TizadaRepository
 import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
+import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import jakarta.transaction.Transactional
 import kotlinx.serialization.encodeToString
@@ -90,11 +91,9 @@ class TizadaService(
     }
 
     @Transactional
-    fun invokeTizada(invokeTizadaRequest: InvokeTizadaRequest): String? {
+    fun invokeTizada(invokeTizadaRequest: InvokeTizadaRequest): InvokeTizadaResponse? {
 
         val jsonPayload = Json.encodeToString(invokeTizadaRequest)
-        val response = lambdaService.invokeLambdaAsync(jsonPayload)
-
-        return response
+        return lambdaService.invokeLambdaAsync(jsonPayload)
     }
 }

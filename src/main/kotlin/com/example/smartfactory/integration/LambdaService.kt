@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.lambda.model.InvokeResponse
 @Service
 class LambdaService(private val lambdaClient: LambdaClient, private val awsProperties: AwsProperties) {
 
-    fun invokeLambdaAsync(payload: String): String? {
+    fun invokeLambdaAsync(payload: String): InvokeTizadaResponse {
 
         val requestPayload = SdkBytes.fromUtf8String(payload);
         val invokeRequest = InvokeRequest.builder()
@@ -20,10 +20,12 @@ class LambdaService(private val lambdaClient: LambdaClient, private val awsPrope
             .build()
         val response: InvokeResponse = lambdaClient.invoke(invokeRequest)
 
-        return response.payload().asUtf8String()
+        return InvokeTizadaResponse(response.statusCode().toString(), response.payload().asUtf8String())
     }
 
     fun getS3BucketName(): String {
         return awsProperties.s3BucketName
     }
 }
+
+data class InvokeTizadaResponse(val statusCode: String, val payload: String)

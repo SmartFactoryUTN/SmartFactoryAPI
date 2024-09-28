@@ -1,6 +1,7 @@
 package com.example.smartfactory.integration.unittest
 
 import com.example.smartfactory.integration.AwsProperties
+import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import io.mockk.every
 import io.mockk.mockk
@@ -19,8 +20,8 @@ class LambdaServiceTest {
     private val lambdaService = LambdaService(mockLambdaClient, awsProperties)
 
     @Test
-    fun `should invoke lambda function and return payload`() {
-        // Given
+    fun `should invoke lambda function and return InvokeTizadaResponse`() {
+        // Arrange
         val payload = """{
         "user": "a038a4d2-8502-455f-a154-aa87b1cc3fec",
         "parts": [
@@ -47,25 +48,26 @@ class LambdaServiceTest {
             "timeout": 0
         }
     }"""
-        val expectedResponsePayload = "response from lambda"
 
-        // Create a mock response
+        val expectedResponsePayload = InvokeTizadaResponse("202", "''")
         val mockResponse: InvokeResponse = mockk {
-            every { payload() } returns SdkBytes.fromUtf8String(expectedResponsePayload)
+            every { payload() } returns SdkBytes.fromUtf8String("''")
+            every { statusCode() } returns 202
         }
 
-        every { awsProperties.lambdaFunctionName } returns "arn:aws:lambda:us-east-2:593749507085:function:servicio-de-tizada-test-lambda"
+        every {
+            awsProperties.lambdaFunctionName
+        } returns "arn:aws:lambda:us-east-2:593749507085:function:servicio-de-tizada-test-lambda"
 
-        // Mock the invoke call
+
         every { mockLambdaClient.invoke(any<InvokeRequest>()) } returns mockResponse
 
-        // When
+        // Act
         val response = lambdaService.invokeLambdaAsync(payload)
 
-        // Then
+        // Assert
         assertEquals(expectedResponsePayload, response)
 
-        // Verify that the lambdaClient.invoke method was called once
         verify(exactly = 1) { mockLambdaClient.invoke(any<InvokeRequest>()) }
     }
 

@@ -49,7 +49,6 @@ class TizadaController(private val tizadaService: TizadaService) {
                     code = 500
                 )
             )
-
         }
     }
 
