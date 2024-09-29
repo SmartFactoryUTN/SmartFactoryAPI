@@ -9,9 +9,11 @@ import com.example.smartfactory.Repository.MoldeRepository
 import com.example.smartfactory.Repository.TizadaRepository
 import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
+import com.example.smartfactory.application.Tizada.Request.TizadaNotificationRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.transaction.Transactional
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -32,6 +34,8 @@ class TizadaService(
     @Autowired
     private val lambdaService: LambdaService,
 ) {
+    val logger = KotlinLogging.logger {}
+
     // FIXME save tizada to db
     fun createTizada(request: CreateTizadaRequest): TizadaResponse<Any> {
         val generatedId = 1L
@@ -95,5 +99,12 @@ class TizadaService(
 
         val jsonPayload = Json.encodeToString(invokeTizadaRequest)
         return lambdaService.invokeLambdaAsync(jsonPayload)
+    }
+
+    fun saveTizadaFinalizada(request: TizadaNotificationRequest) {
+        logger.info {
+            "Received save tizada finalizada notification for"+
+                    " tizadaUUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
+        }
     }
 }

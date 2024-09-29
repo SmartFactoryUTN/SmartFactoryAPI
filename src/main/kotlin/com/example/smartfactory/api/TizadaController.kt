@@ -4,6 +4,7 @@ import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Domain.Tizada.Tizada
 import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
+import com.example.smartfactory.application.Tizada.Request.TizadaNotificationRequest
 import com.example.smartfactory.application.Tizada.Request.UpdateTizadaRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
@@ -52,6 +53,37 @@ class TizadaController(private val tizadaService: TizadaService) {
         }
     }
 
+    @PostMapping("/notification")
+    @Operation(
+        summary = "Webhook notificación de tizada finalizada",
+        description = "Recibe la notificación de que finalizó una tizada y guarda el resultado en la base de datos"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Tizada finalizada"),
+            ApiResponse(responseCode = "401", description = "No autorizado"),
+            ApiResponse(responseCode = "404", description = "Tizada no encontrada"),
+            ApiResponse(responseCode = "400", description = "Notificación inválida")
+        ]
+    )
+    fun notificationTizada(@RequestBody request: TizadaNotificationRequest): ResponseEntity<TizadaResponse<Any>> {
+
+        tizadaService.saveTizadaFinalizada(request)
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            TizadaResponse(
+                status = "success",
+                data = mapOf(
+                    "tizadaUUID" to request.tizadaUUID,
+                    "userUUID" to request.userUUID,
+                    "parts" to request.parts.count(),
+                    "bin" to request.bin.name,
+                    "url" to request.url
+                )
+            )
+        )
+    }
+
     @PostMapping
     @Operation(
         summary = "Crea una nueva tizada",
@@ -64,9 +96,6 @@ class TizadaController(private val tizadaService: TizadaService) {
         val tizadaResponse = tizadaService.createTizada(request)
         return ResponseEntity.ok().body(tizadaResponse)
     }
-
-    @PostMapping("/notification")
-    fun notificationTizada() = Unit
 
     @PatchMapping("/{id}")
     @Operation(

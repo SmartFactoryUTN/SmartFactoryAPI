@@ -1,9 +1,6 @@
 package com.example.smartfactory.api
 
-import com.example.smartfactory.application.Tizada.Request.Bin
-import com.example.smartfactory.application.Tizada.Request.InvokeConfiguration
-import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
-import com.example.smartfactory.application.Tizada.Request.Part
+import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
 import com.example.smartfactory.integration.InvokeTizadaResponse
@@ -13,6 +10,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -23,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import java.util.*
 import kotlin.test.assertEquals
 
 
@@ -42,6 +41,7 @@ class TizadaControllerTest {
     lateinit var lambdaService: LambdaService
 
     lateinit var jsonInvokeTizadaRequest: JacksonTester<InvokeTizadaRequest>
+    lateinit var jsonTizadaNotificationRequest: JacksonTester<TizadaNotificationRequest>
     private var objectMapper = ObjectMapper()
 
     @BeforeEach
@@ -85,8 +85,8 @@ class TizadaControllerTest {
 
         val actualResponse = objectMapper.readValue(response.contentAsString, TizadaResponse::class.java)
 
-        val nestedData = actualResponse.data as Map<String, Any>
-        val actualTizadaResponse = nestedData["tizada"] as Map<String, Any>
+        val nestedData = actualResponse.data as Map<*, *>
+        val actualTizadaResponse = nestedData["tizada"] as Map<*, *>
 
         // Assert response matches the expected response
         assertEquals(expectedResponse.status, actualResponse.status)
@@ -97,8 +97,55 @@ class TizadaControllerTest {
 
     @Test
     fun notifyTizada(){
+
         //Arrange
+        val tizadaUUID = UUID.randomUUID()
+        val userUUID = UUID.randomUUID()
+        val binUUID = UUID.randomUUID()
+        val part1 = UUID.randomUUID().toString()
+        val part2 = UUID.randomUUID().toString()
+
+        val resultUrl =
+            "https://servicio-de-tizada.s3.us-east-2.amazonaws.com/result/38f21fe2-8198-4467-9bda-2f3b8815befe/result.svg"
+        val payload = TizadaNotificationRequest(
+            tizadaUUID = tizadaUUID,
+            url = resultUrl,
+            userUUID = userUUID,
+            configuration = TizadaConfigurationRequest(
+                id = 1,
+                spaceBetweenParts = 0.0
+            ),
+            bin = TizadaContainerRequest(
+                uuid = binUUID,
+                name = "Mesa de corte",
+                height = 10,
+                width = 10,
+                area = 100.0
+            ),
+            parts = listOf(part1, part2),
+            materialUtilization = 50,
+            iterations = 100,
+            timeoutReached = false
+        )
+
+        every { tizadaService.saveTizadaFinalizada(any()) } returns mockk()
         //Act
+        val response = mvc.perform(
+            post("/api/tizada/notification")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonTizadaNotificationRequest.write(payload).json)
+        )
+            .andExpect(status().isCreated)
+            .andReturn().response
+
+        val actualResponse = objectMapper.readValue(response.contentAsString, TizadaResponse::class.java)
+        val nestedData = actualResponse.data as Map<*, *>
+
         //Assert
+        assertEquals(tizadaUUID.toString(), nestedData["tizadaUUID"].toString())
+        assertEquals(userUUID.toString(), nestedData["userUUID"].toString())
+        assertEquals(2, nestedData["parts"])
+        assertEquals("Mesa de corte", nestedData["bin"])
+        assertEquals(resultUrl, nestedData["url"])
     }
 }
