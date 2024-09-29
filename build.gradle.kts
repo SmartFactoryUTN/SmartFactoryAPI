@@ -30,6 +30,7 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 	implementation("software.amazon.awssdk:lambda:2.20.50")
 	implementation("software.amazon.awssdk:core:2.20.50")
+	implementation("io.github.oshai:kotlin-logging-jvm:5.1.4")
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.mockito", module = "mockito-core")
 	}
