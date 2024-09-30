@@ -23,6 +23,7 @@ class LambdaServiceTest {
     fun `should invoke lambda function and return InvokeTizadaResponse`() {
         // Arrange
         val payload = """{
+        "tizadaUUID": "46054849-3c5c-435b-8fa2-9fb4ee390ba4",
         "user": "a038a4d2-8502-455f-a154-aa87b1cc3fec",
         "parts": [
             {

@@ -60,6 +60,7 @@ class TizadaControllerTest {
         every { tizadaService.invokeTizada(any()) } returns invokeTizadaResponseMock
 
         val payload = InvokeTizadaRequest(
+            tizadaUUID = UUID.randomUUID().toString(),
             user = "a038a4d2-8502-455f-a154-aa87b1cc3fec",
             parts = listOf(
                 Part(uuid = "moldeA", quantity = 5),
@@ -101,7 +102,7 @@ class TizadaControllerTest {
         //Arrange
         val tizadaUUID = UUID.randomUUID()
         val userUUID = UUID.randomUUID()
-        val binUUID = UUID.randomUUID()
+        val binUUID = UUID.randomUUID().toString()
         val part1 = UUID.randomUUID().toString()
         val part2 = UUID.randomUUID().toString()
 

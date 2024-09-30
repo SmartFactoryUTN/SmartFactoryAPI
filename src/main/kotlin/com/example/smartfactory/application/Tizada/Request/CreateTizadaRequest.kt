@@ -46,6 +46,9 @@ data class InvokeConfiguration(
 
 @Serializable
 data class InvokeTizadaRequest(
+    @field:NotEmpty(message = "Tizada ID cannot be empty")
+    val tizadaUUID: String,
+
     @field:NotEmpty(message = "User ID cannot be empty")
     val user: String,
 

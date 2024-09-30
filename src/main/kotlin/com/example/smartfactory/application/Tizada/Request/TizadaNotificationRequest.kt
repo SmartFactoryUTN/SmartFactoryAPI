@@ -4,7 +4,7 @@ import java.util.*
 
 data class TizadaNotificationRequest(
     val tizadaUUID: UUID,
-    val url: String,
+    val url: String?,
     val userUUID: UUID,
     val configuration: TizadaConfigurationRequest,
     val bin: TizadaContainerRequest,
@@ -16,10 +16,10 @@ data class TizadaNotificationRequest(
 
 data class TizadaConfigurationRequest(
     val id: Number,
-    val spaceBetweenParts: Double
+    val spaceBetweenParts: Double?
 )
 class TizadaContainerRequest(
-    val uuid: UUID,
+    val uuid: String,
     val name: String,
     val height: Number,
     val width: Number,
