@@ -1,5 +1,7 @@
 package com.example.smartfactory.integration
 
+import aws.sdk.kotlin.services.s3.S3Client
+import aws.smithy.kotlin.runtime.auth.awscredentials.Credentials
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,6 +23,19 @@ class AwsConfig(private val awsProperties: AwsProperties) {
             .credentialsProvider(StaticCredentialsProvider.create(credentials))
             .region(Region.of(awsProperties.region))
             .build()
+    }
+
+    @Bean
+    fun s3Client(): S3Client {
+        return S3Client {
+            region = awsProperties.region
+            credentialsProvider = aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider(
+                Credentials(
+                    accessKeyId = awsProperties.accessKey,
+                    secretAccessKey = awsProperties.secretKey
+                )
+            )
+        }
     }
 
 }

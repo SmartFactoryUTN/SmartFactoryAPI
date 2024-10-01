@@ -28,7 +28,7 @@ class Tizada(
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime?,
     override var deletedAt: LocalDateTime?,
-) : Auditable()
+) : Auditable
 
 
 enum class TizadaState {
@@ -41,22 +41,6 @@ enum class TizadaState {
 enum class TipoTizada {
     RAPIDA, CUSTOM
 }
-
-@Entity
-@Table(name = "tizada_containers")
-class TizadaContainer (
-    @Id @Column(name = "tizada_container_id")
-    val uuid: UUID,
-    val name: String,
-    @NotNull
-    val height: Number,
-    @NotNull
-    val width: Number,
-    val area: Double,
-    override var createdAt: LocalDateTime,
-    override var updatedAt: LocalDateTime?,
-    override var deletedAt: LocalDateTime?,
-): Auditable()
 
 class MoldsQuantity(
     val mold: Molde,

@@ -21,4 +21,4 @@ class Usuario (
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime?,
     override var deletedAt: LocalDateTime?
-) : Auditable()
+) : Auditable

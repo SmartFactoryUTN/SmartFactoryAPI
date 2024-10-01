@@ -1,5 +1,6 @@
 package com.example.smartfactory.Exceptions.handler
 
+import com.example.smartfactory.Exceptions.UploadMoldeException
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import jakarta.validation.ConstraintViolationException
 import org.springframework.http.ResponseEntity
@@ -38,6 +39,16 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleBadRequest(ex: IllegalArgumentException): ResponseEntity<TizadaResponse<Any>> {
+        return ResponseEntity.badRequest().body(
+            TizadaResponse(
+                status = "fail",
+                data = mapOf("message" to ex.localizedMessage)
+            )
+        )
+    }
+
+    @ExceptionHandler(UploadMoldeException::class)
+    fun handleUploadMoldeException(ex: UploadMoldeException): ResponseEntity<TizadaResponse<Any>> {
         return ResponseEntity.badRequest().body(
             TizadaResponse(
                 status = "fail",
