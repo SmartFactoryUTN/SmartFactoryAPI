@@ -6,7 +6,7 @@ import jakarta.persistence.*
 import org.hibernate.annotations.Cascade
 import org.hibernate.annotations.CascadeType
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.jvm.Transient
 
 @Entity

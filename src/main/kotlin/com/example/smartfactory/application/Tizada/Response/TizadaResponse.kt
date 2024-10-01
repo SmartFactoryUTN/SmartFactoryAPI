@@ -1,5 +1,8 @@
 package com.example.smartfactory.application.Tizada.Response
 
-import com.example.smartfactory.Domain.Tizada.Tizada
-
-class TizadaResponse(val id: Long, val status: String, val message: String)
+data class TizadaResponse<T>(
+    val status: String,  // The status of the response: "success", "fail", or "error"
+    val data: T? = null,  // The data to return (optional, depending on the type of response)
+    val message: String? = null,  // Error or failure message (optional)
+    val code: Int? = null  // Error code for error responses (optional)
+)

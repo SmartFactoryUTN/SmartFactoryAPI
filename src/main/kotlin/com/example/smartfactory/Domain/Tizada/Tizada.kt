@@ -1,10 +1,8 @@
 package com.example.smartfactory.Domain.Tizada
 
 import com.example.smartfactory.Domain.Auditable
-import com.example.smartfactory.Domain.Inventario.BatchStage
 import com.example.smartfactory.Domain.Molde.Molde
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
 import java.time.LocalDateTime

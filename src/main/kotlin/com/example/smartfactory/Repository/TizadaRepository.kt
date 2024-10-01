@@ -1,4 +1,4 @@
-package com.example.smartfactory.repository
+package com.example.smartfactory.Repository
 
 import com.example.smartfactory.Domain.Tizada.Tizada
 import org.springframework.data.jpa.repository.JpaRepository
