@@ -7,14 +7,15 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*
 
+@Suppress("all")
 @Entity
 @Table(name = "usuarios")
 class Usuario (
     @Id @Column(name = "usuario_id")
     val uuid: UUID,
-    @OneToMany @JoinColumn(name = "usuario_id")
+    @OneToMany @JoinColumn(name = "user_id")
     val tizadas: List<Tizada>,
-    @OneToMany @JoinColumn(name = "usuario_id")
+    @OneToMany @JoinColumn(name = "user_id")
     val parts: List<Molde>,
     val nombre: String,
     val email: String,

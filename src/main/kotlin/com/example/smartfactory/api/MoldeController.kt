@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -21,7 +22,7 @@ import java.util.*
 @Tag(name = "Moldes", description = "Endpoints para moldes")
 class MoldeController(private val moldeService: MoldeService) {
 
-    @PostMapping("/create", consumes = ["multipart/form-data"])
+    @PostMapping("/create", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
         summary = "Crear un nuevo molde",
@@ -39,25 +40,24 @@ class MoldeController(private val moldeService: MoldeService) {
         @RequestParam("name") name: String,
         @RequestParam("userUUID") userUUID: UUID,
         @RequestParam("description") description: String,
-        @RequestParam("svg") svgFile: MultipartFile
-    ): ResponseEntity<TizadaResponse<Molde>> {
+        @RequestParam("svg") svg: MultipartFile
+    ): ResponseEntity<TizadaResponse<Any>> {
 
-        // Create the CreateMoldeRequest object from the request parameters and file
         val createMoldeRequest = CreateMoldeRequest(
             name = name,
             userUUID = userUUID,
             description = description,
-            svg = svgFile
+            svg = svg
         )
 
         val createdMolde = moldeService.createMolde(createMoldeRequest)
 
         return ResponseEntity
-            .ok()
+            .status(HttpStatus.CREATED)
             .body(
                 TizadaResponse(
                     status = "success",
-                    data = createdMolde
+                    data = mapOf("molde" to createdMolde)
                 )
             )
     }
