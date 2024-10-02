@@ -40,11 +40,11 @@ dependencies {
 	implementation("aws.sdk.kotlin:s3:0.20.1-beta"){
 		exclude("com.squareup.okhttp3:okhttp")
 	}
-	implementation("aws.sdk.kotlin:core:0.20.1-beta"){
+	implementation("aws.sdk.kotlin:aws-core-jvm:0.20.1-beta"){
 		exclude("com.squareup.okhttp3:okhttp")
 	}
 	// OkHttp dependency that matches the AWS SDK for Kotlin requirements
-	implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
+	implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
 	runtimeOnly("org.flywaydb:flyway-mysql:10.18.2")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
