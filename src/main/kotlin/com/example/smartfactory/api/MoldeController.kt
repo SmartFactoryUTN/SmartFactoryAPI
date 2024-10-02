@@ -4,12 +4,16 @@ import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Domain.Molde.Molde
 import com.example.smartfactory.application.Molde.CreateMoldeRequest
 import com.example.smartfactory.application.Molde.MoldeService
+import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
 
@@ -17,7 +21,8 @@ import java.util.*
 @RequestMapping("api/molde")
 @Tag(name = "Moldes", description = "Endpoints para moldes")
 class MoldeController(private val moldeService: MoldeService) {
-    @PostMapping
+
+    @PostMapping("/create", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
         summary = "Crear un nuevo molde",
@@ -31,9 +36,30 @@ class MoldeController(private val moldeService: MoldeService) {
             ApiResponse(responseCode = "500", description = "")
         ]
     )
-    fun createMolde(@RequestBody createMoldeRequest: CreateMoldeRequest): GenericResponse<Molde> {
-        val res = moldeService.createMolde(createMoldeRequest)
-        return GenericResponse(HttpStatus.CREATED.name, res)
+    suspend fun createMolde(
+        @RequestParam("name") name: String,
+        @RequestParam("userUUID") userUUID: UUID,
+        @RequestParam("description") description: String,
+        @RequestParam("svg") svg: MultipartFile
+    ): ResponseEntity<TizadaResponse<Any>> {
+
+        val createMoldeRequest = CreateMoldeRequest(
+            name = name,
+            userUUID = userUUID,
+            description = description,
+            svg = svg
+        )
+
+        val createdMolde = moldeService.createMolde(createMoldeRequest)
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(
+                TizadaResponse(
+                    status = "success",
+                    data = mapOf("molde" to createdMolde)
+                )
+            )
     }
 
     @GetMapping("/{id}")

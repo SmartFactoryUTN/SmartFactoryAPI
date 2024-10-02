@@ -1,5 +1,6 @@
-package com.example.smartfactory.integration.unittest
+package com.example.smartfactory.unittest.integration
 
+import aws.sdk.kotlin.services.s3.S3Client
 import com.example.smartfactory.integration.AwsProperties
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
@@ -16,8 +17,9 @@ import software.amazon.awssdk.services.lambda.model.InvokeResponse
 class LambdaServiceTest {
     private val mockLambdaClient: LambdaClient = mockk()
     private val awsProperties: AwsProperties = mockk()
+    private val s3Client: S3Client = mockk()
 
-    private val lambdaService = LambdaService(mockLambdaClient, awsProperties)
+    private val lambdaService = LambdaService(mockLambdaClient, awsProperties, s3Client)
 
     @Test
     fun `should invoke lambda function and return InvokeTizadaResponse`() {

@@ -18,14 +18,13 @@ import jakarta.transaction.Transactional
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
 
 @Service
 class TizadaService(
-    @Qualifier("tizadaRepository") @Autowired
+    @Autowired
     private val tizadaRepo: TizadaRepository,
     @Autowired
     private val moldesRepo: MoldeRepository,

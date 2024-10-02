@@ -9,7 +9,8 @@ import java.util.*
 @Table(name = "moldes")
 class Molde(
     @Id
-    @Column(name = "molde_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    val id: Long? = null,
     val uuid: UUID,
     val name: String,
     val url: String,
@@ -18,9 +19,9 @@ class Molde(
     val active: Boolean,
     val stock: Int,
     override var createdAt: LocalDateTime,
-    override var updatedAt: LocalDateTime?,
-    override var deletedAt: LocalDateTime?
-): Auditable()
+    override var updatedAt: LocalDateTime? = null,
+    override var deletedAt: LocalDateTime? = null
+): Auditable
 
 
 @Embeddable

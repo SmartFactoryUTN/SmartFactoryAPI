@@ -1,5 +1,6 @@
-package com.example.smartfactory.api
+package com.example.smartfactory.unittest.api
 
+import com.example.smartfactory.api.TizadaController
 import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
@@ -96,6 +97,7 @@ class TizadaControllerTest {
         assertEquals(expectedResponse.status, actualResponse.status)
     }
 
+    @Suppress("MaxLineLength")
     @Test
     fun notifyTizada(){
 
