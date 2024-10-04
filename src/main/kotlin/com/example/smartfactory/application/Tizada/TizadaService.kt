@@ -35,10 +35,10 @@ class TizadaService(
 ) {
     val logger = KotlinLogging.logger {}
 
-    // FIXME save tizada to db
     fun createTizada(request: CreateTizadaRequest): TizadaResponse<Any> {
-        val generatedId = 1L
-        return TizadaResponse(status = "ok", message = "Tizada creada exitosamente", data = mapOf("id" to generatedId))
+        val uuid = UUID.randomUUID() // id of this new tizada
+
+        return TizadaResponse(status = "ok", message = "Tizada creada exitosamente", data = mapOf("id" to uuid))
     }
 
     fun getTizada(id: UUID): Tizada? {

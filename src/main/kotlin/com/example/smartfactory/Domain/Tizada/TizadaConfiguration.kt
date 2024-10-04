@@ -1,16 +1,31 @@
 package com.example.smartfactory.Domain.Tizada
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.util.*
 
+
+@Table(name="tizada_configurations")
+@Entity
 class TizadaConfiguration(
+    @Id @Column(name="tizada_configuration_id")
     val id: UUID = UUID.randomUUID(),
-    val time: Int = DEFAULT_TIME,
-    val percentage: Int = DEFAULT_PERCENTAGE,
+    val time: Int,
+    val utilizationPercentage: Int,
+    @Transient @JsonIgnore
     val space_between_parts: Int = DEFAULT_SPACE_BETWEEN_PARTS, //Este valor no se utiliza, se lee directamente desde la UI
+    @Transient @JsonIgnore
     val curve_tolerance: Double = DEFAULT_CURVE_TOLERANCE,  //Este valor no se utiliza, se lee directamente desde la UI
+    @Transient @JsonIgnore
     val part_rotations: Int = DEFAULT_PART_ROTATIONS, //Este valor no se utiliza, se lee directamente desde la UI
+    @Transient @JsonIgnore
     val ga_population: Int = DEFAULT_GA_POPULATION,  //Este valor no se utiliza, se lee directamente desde la UI
+    @Transient @JsonIgnore
     val ga_mutation_rate: Int = DEFAULT_GA_MUTATION_RATE,  //Este valor no se utiliza, se lee directamente desde la UI
+    @Transient @JsonIgnore
     val part_in_part: Boolean = false,  //Este valor no se utiliza, se lee directamente desde la UI
 ) {
     companion object {
@@ -23,17 +38,3 @@ class TizadaConfiguration(
         const val DEFAULT_PERCENTAGE = 60 // aprovechamiento
     }
 }
-
-/*
-{
-    "configuration": {
-        "time": 10,
-        "percentage": 10,
-    },
-    "mold": [
-        {
-        "id": {{$randomUUID}},
-        "cantidad": 10
-        }
-    ]
-}*/

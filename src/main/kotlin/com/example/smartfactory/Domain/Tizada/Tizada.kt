@@ -2,7 +2,6 @@ package com.example.smartfactory.Domain.Tizada
 
 import com.example.smartfactory.Domain.Auditable
 import com.example.smartfactory.Domain.Molde.Molde
-import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
 import java.time.LocalDateTime
@@ -15,7 +14,7 @@ class Tizada(
     val uuid: UUID,
     @NotNull
     val name: String,
-    @Transient @JsonIgnore
+    @OneToOne @PrimaryKeyJoinColumn(name = "tizada_configuration_id")
     val configuration: TizadaConfiguration,
     @Transient
     var parts: MutableList<MoldsQuantity>,
@@ -36,10 +35,6 @@ enum class TizadaState {
     IN_PROGRESS,
     FINISHED,
     ERROR
-}
-
-enum class TipoTizada {
-    RAPIDA, CUSTOM
 }
 
 class MoldsQuantity(

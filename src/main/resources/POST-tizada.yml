@@ -1,0 +1,43 @@
+# POST /tizada
+# 1. Front hace request:
+{
+  "name": "nombre de la tizada",
+  "width": 2000, # en principio hardcodeado
+  "height": 2000, # en principio hardcodeado
+  "utilizationPercentage": 75, # porcentaje
+  "maxTime": 60, # minutos
+  "molds": [
+    {
+      "uuid": "mi-uuid1", # uuid del molde 1
+      "quantity": 10 # cantidad de molde mi-uuid1
+    },
+    {
+      "uuid": "mi-uuid2", # uuid del molde 2
+      "quantity": 15 # cantidad de molde mi-uuid2
+    }
+  ]
+}
+
+# 2. API Backend debería
+- Persistir el tiempo y el material en la entidad tizada_configurations
+- Persistir en la tabla intermedia moldes_de_tizada la clave compuesta <tizada_id, molde_id, quantity>
+- Asociar el tizada_container_id en la tabla tizadas (dijimos que para las primeras pruebas, iba a ser siempre el mismo)
+- A futuro, en el punto anterior, lo que hacemos es
+  - Recibir width y height y buscar si ya hay un bin con esas dimensiones
+  - Si el bin existe, usar ese, sino crearlo, persistirlo, y asociarlo a la tizada
+  - No veo necesario que el tizada container sea exclusivo para cada usuario
+- Una vez que la tizada queda persistida, quedaría la API daría el response
+
+# 201 CREATED
+{
+  "status": "ok",
+  "data": {
+    "uuid": "mi-uuid-tizadistico" # uuid de la tizada persistida
+  }
+}
+
+# 3. Hacer un GET tizada/mi-uuid-tizadistico debería devolver:
+{
+  "name": "nombre de la tizada"
+
+}

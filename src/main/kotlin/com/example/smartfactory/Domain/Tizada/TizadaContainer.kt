@@ -17,10 +17,10 @@ class TizadaContainer (
     val uuid: UUID,
     val name: String,
     @NotNull
-    val height: Number,
+    val height: Int,
     @NotNull
-    val width: Number,
-    val area: Double,
+    val width: Int,
+    val area: Double = (height * width).toDouble(),
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime?,
     override var deletedAt: LocalDateTime?,

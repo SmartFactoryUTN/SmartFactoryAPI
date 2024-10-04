@@ -1,6 +1,8 @@
 package com.example.smartfactory.application.Tizada.Request
 
+import com.example.smartfactory.Domain.Tizada.MoldsQuantity
 import com.example.smartfactory.Domain.Tizada.Tizada
+import com.example.smartfactory.Domain.Tizada.TizadaType
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
@@ -9,8 +11,18 @@ import java.util.*
 
 
 class CreateTizadaRequest(
-    val date: Date,
-    val tizada: Tizada
+    @field:NotEmpty(message = "Name cannot be empty")
+    val name: String,
+    @field:Min(value = 1, message = "Width must be greater or equal than 1")
+    val width: Int,
+    @field:Min(value = 1, message = "Height must be greater or equal than 1")
+    val height: Int,
+    @field:Min(value = 1, message = "materialUtilization must be greater or equal than 1")
+    val utilizationPercentage: Int,
+    @field:Min(value = 1, message = "maxTime must be greater or equal than 1")
+    val maxTime: Int,
+    @field:NotEmpty(message = "At least one mold is required")
+    val molds: List<Part>
 )
 
 
