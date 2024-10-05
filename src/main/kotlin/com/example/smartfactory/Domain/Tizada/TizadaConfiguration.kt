@@ -12,7 +12,7 @@ import java.util.*
 @Entity
 class TizadaConfiguration(
     @Id @Column(name="tizada_configuration_id")
-    val id: UUID = UUID.randomUUID(),
+    val id: UUID,
     val time: Int,
     val utilizationPercentage: Int,
     @Transient @JsonIgnore

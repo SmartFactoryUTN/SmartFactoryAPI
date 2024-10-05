@@ -92,7 +92,7 @@ class TizadaController(private val tizadaService: TizadaService) {
     @ApiResponse(responseCode = "201", description = "Tizada creada correctamente")
     @ApiResponse(responseCode = "400", description = "Tizada inválida")
     @ApiResponse(responseCode = "500", description = "Ocurrió un error")
-    fun createTizada(@RequestBody request: CreateTizadaRequest): ResponseEntity<TizadaResponse<Any>> {
+    suspend fun createTizada(@RequestBody request: CreateTizadaRequest): ResponseEntity<TizadaResponse<Any>> {
         val tizadaResponse = tizadaService.createTizada(request)
         return ResponseEntity.ok().body(tizadaResponse)
     }

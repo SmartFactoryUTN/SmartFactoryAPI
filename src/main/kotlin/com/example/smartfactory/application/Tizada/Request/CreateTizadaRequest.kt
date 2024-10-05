@@ -1,13 +1,9 @@
 package com.example.smartfactory.application.Tizada.Request
 
-import com.example.smartfactory.Domain.Tizada.MoldsQuantity
-import com.example.smartfactory.Domain.Tizada.Tizada
-import com.example.smartfactory.Domain.Tizada.TizadaType
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import kotlinx.serialization.Serializable
-import java.util.*
 
 
 class CreateTizadaRequest(
