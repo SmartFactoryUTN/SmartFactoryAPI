@@ -1,0 +1,8 @@
+auth0:
+  audience: dev-palh3gsscosfpppk.us.auth0.com
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://smartfactory-api/
