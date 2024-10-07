@@ -47,8 +47,8 @@ class TizadaService(
         val tizadaParts: MutableList<MoldsQuantity> = mutableListOf()
 
         // First step: persist on moldes_de_tizada intermediate table
+        // Esto es necesario porque la tabla intermedia del many to many es customizada para tener el quantity
         for (mold: Part in request.molds) {
-//            tizadaParts.add(MoldsQuantity(molde, mold.quantity))
             val moldeDeTizada = MoldeDeTizada(MoldeDeTizadaId(moldeId = UUID.fromString(mold.uuid), tizadaId = uuid), mold.quantity)
             withContext(Dispatchers.IO) {
                 moldesDeTizadaRepo.save(moldeDeTizada)
@@ -88,10 +88,11 @@ class TizadaService(
             tizadaRepo.save(tizada)
         }
 
-        // Fifth step: return uuid of this new created tizada
-        return TizadaResponse(status = "ok", data = mapOf("uuid" to uuid))
+        // Fifth step: return uuid of this new created tizada.
+        /* No me parece necesario devolver el objeto tizada completo, ya que la app vuelve a Mis tizadas, consultando
+        de nuevo las tizadas */
+        return TizadaResponse(status = "success", data = mapOf("uuid" to uuid))
     }
-
 
     fun getTizada(id: UUID): Tizada? {
         val tizada = tizadaRepo.getTizadaByUuid(id)
@@ -108,6 +109,7 @@ class TizadaService(
         throw TizadaNotFoundException("TIZADA_NO_ENCONTRADA")
     }
 
+    // FIXME: what fields can be updateable?
     fun updateTizada(id: UUID, name: String): Tizada {
         val tizada = tizadaRepo.getTizadaByUuid(id)
         if (tizada != null) {

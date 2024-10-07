@@ -85,6 +85,7 @@ class TizadaController(private val tizadaService: TizadaService) {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(
         summary = "Crea una nueva tizada",
         description = "Persiste una tizada que luego será consumida por el servicio de tizada"
@@ -94,7 +95,7 @@ class TizadaController(private val tizadaService: TizadaService) {
     @ApiResponse(responseCode = "500", description = "Ocurrió un error")
     suspend fun createTizada(@RequestBody request: CreateTizadaRequest): ResponseEntity<TizadaResponse<Any>> {
         val tizadaResponse = tizadaService.createTizada(request)
-        return ResponseEntity.ok().body(tizadaResponse)
+        return ResponseEntity.status(HttpStatus.CREATED).body(tizadaResponse)
     }
 
     @PatchMapping("/{id}")
