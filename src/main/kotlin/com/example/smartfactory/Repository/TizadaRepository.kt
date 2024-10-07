@@ -11,6 +11,6 @@ import java.util.*
 interface TizadaRepository: JpaRepository<Tizada, UUID> {
     fun getTizadaByUuid(uuid: UUID): Tizada?
 
-    @Query("select t from Tizada t")
-    fun getAllTizadas():List<Tizada>
+    @Query("select t.uuid from Tizada t where t.active == true")
+    fun getAllTizadas():List<UUID>
 }

@@ -140,9 +140,12 @@ class TizadaService(
     // FIXME add limit
     @Transactional
     fun getAllTizadas(): Collection<Tizada> {
-        val tizadas = tizadaRepo.getAllTizadas()
-        for (tizada in tizadas) {
-            this.getTizada(tizada.uuid)
+        /* En base a los ids, obtengo las entidades tizada completas, como la tabla intermedia es custom, la tengo que
+        obtener a mano con this.getTizada(tizada) que hace ese manejo */
+        val tizadaIds = tizadaRepo.getAllTizadas()
+        val tizadas: MutableList<Tizada> = mutableListOf()
+        for (tizada in tizadaIds) {
+            tizadas.add(this.getTizada(tizada)!!)
         }
         return tizadas
     }
