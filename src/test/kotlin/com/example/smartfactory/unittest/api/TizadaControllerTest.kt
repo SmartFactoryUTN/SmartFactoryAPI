@@ -1,12 +1,16 @@
 package com.example.smartfactory.unittest.api
 
+import com.example.smartfactory.Domain.Tizada.MoldsQuantity
+import com.example.smartfactory.Domain.Tizada.TizadaContainer
 import com.example.smartfactory.api.TizadaController
+import com.example.smartfactory.application.Molde.MoldeService
 import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -15,8 +19,12 @@ import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.json.JacksonTester
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -36,13 +44,14 @@ class TizadaControllerTest {
     lateinit var tizadaController: TizadaController
 
     @MockK
-    lateinit var  tizadaService: TizadaService
+    lateinit var tizadaService: TizadaService
 
     @MockK
     lateinit var lambdaService: LambdaService
 
     lateinit var jsonInvokeTizadaRequest: JacksonTester<InvokeTizadaRequest>
     lateinit var jsonTizadaNotificationRequest: JacksonTester<TizadaNotificationRequest>
+    lateinit var jsonCreateTizadaRequest: JacksonTester<CreateTizadaRequest>
     private var objectMapper = ObjectMapper()
 
     @BeforeEach
@@ -151,4 +160,40 @@ class TizadaControllerTest {
         assertEquals("Mesa de corte", nestedData["bin"])
         assertEquals(resultUrl, nestedData["url"])
     }
+
+    /*
+    * No funciona
+    @Test
+    fun `creating new tizada should return its created uuid`() {
+        // Arrange
+        val tizadaUUID = UUID.randomUUID()
+        val part1 = Part(UUID.randomUUID().toString(), 10)
+        val part2 = Part(UUID.randomUUID().toString(), 5)
+
+        val createTizadaRequest = CreateTizadaRequest(
+            name = "Tizada mock",
+            width = 2000,
+            height = 2000,
+            utilizationPercentage = 75,
+            maxTime = 10,
+            molds = listOf(part1, part2)
+        )
+
+        coEvery { tizadaService.createTizada(any()) } returns mockk()
+
+        // Act
+        val response = mvc.perform(
+            post("/api/tizada")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonCreateTizadaRequest.write(createTizadaRequest).json)
+        ).andExpect(status().isCreated)
+            .andReturn().response
+
+        val actualResponse = objectMapper.readValue(response.contentAsString, TizadaResponse::class.java)
+        val data = actualResponse.data as Map<*, *>
+
+        // Assert
+        assertEquals(tizadaUUID, data["uuid"])
+    }
+    */
 }

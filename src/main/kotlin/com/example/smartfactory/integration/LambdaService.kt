@@ -63,7 +63,7 @@ class LambdaService(
 
         } catch (e: S3Exception) {
             throw UploadMoldeException("Error uploading file to S3")
-        }catch (e: RuntimeException){
+        } catch (e: RuntimeException) {
             throw UploadMoldeException("Error ocurred")
         }
     }
