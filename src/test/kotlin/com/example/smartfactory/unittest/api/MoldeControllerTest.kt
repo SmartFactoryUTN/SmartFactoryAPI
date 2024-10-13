@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 @ExtendWith(SpringExtension::class)
@@ -40,7 +41,6 @@ class MoldeControllerTest {
         mvc = MockMvcBuilders.standaloneSetup(moldeController).build()
         objectMapper.findAndRegisterModules()
     }
-
 
     fun createMolde() {
         //Arrange
