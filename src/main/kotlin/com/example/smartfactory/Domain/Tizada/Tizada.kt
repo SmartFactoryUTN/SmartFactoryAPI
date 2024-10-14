@@ -5,7 +5,6 @@ import com.example.smartfactory.Domain.Molde.Molde
 import com.example.smartfactory.application.Tizada.Request.Part
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
-import org.hibernate.annotations.Cascade
 import java.time.LocalDateTime
 import java.util.*
 

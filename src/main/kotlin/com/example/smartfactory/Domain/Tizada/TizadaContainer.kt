@@ -5,10 +5,8 @@ import com.example.smartfactory.application.Tizada.Request.Bin
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
-import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
-import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import java.time.LocalDateTime
 import java.util.*
 
