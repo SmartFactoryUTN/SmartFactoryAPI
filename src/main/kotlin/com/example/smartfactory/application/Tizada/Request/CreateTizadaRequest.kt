@@ -54,7 +54,25 @@ data class InvokeConfiguration(
 
 @Serializable
 data class InvokeTizadaRequest(
-    @field:NotEmpty(message = "Tizada.kt ID cannot be empty")
+    @field:NotEmpty(message = "Tizada ID cannot be empty")
+    val tizadaUUID: String,
+
+    @field:NotEmpty(message = "User ID cannot be empty")
+    val user: String//,
+
+//    @field:NotEmpty(message = "Parts list cannot be empty")
+//    val parts: List<Part>,
+//
+//    @field:NotNull(message = "Bin cannot be null")
+//    val bin: Bin,
+//
+//    @field:NotNull(message = "Configuration cannot be null")
+//    val configuration: InvokeConfiguration
+)
+
+@Serializable
+data class InvokeTizadaPayload(
+    @field:NotEmpty(message = "Tizada ID cannot be empty")
     val tizadaUUID: String,
 
     @field:NotEmpty(message = "User ID cannot be empty")
@@ -69,4 +87,3 @@ data class InvokeTizadaRequest(
     @field:NotNull(message = "Configuration cannot be null")
     val configuration: InvokeConfiguration
 )
-

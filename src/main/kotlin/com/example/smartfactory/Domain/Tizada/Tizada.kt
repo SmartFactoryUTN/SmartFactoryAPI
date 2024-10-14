@@ -2,6 +2,7 @@ package com.example.smartfactory.Domain.Tizada
 
 import com.example.smartfactory.Domain.Auditable
 import com.example.smartfactory.Domain.Molde.Molde
+import com.example.smartfactory.application.Tizada.Request.Part
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
 import org.hibernate.annotations.Cascade
@@ -18,13 +19,13 @@ class Tizada(
     @OneToOne(cascade = [CascadeType.ALL]) @JoinColumn(name = "tizada_configuration_id")
     val configuration: TizadaConfiguration,
     @Transient
-    var parts: MutableList<MoldsQuantity>?,
-    @OneToOne @JoinColumn(name = "tizada_container_id")
-    val bin: TizadaContainer?,
-    @OneToMany @JoinColumn(name = "tizada_id")
-    val results: List<TizadaResult>?,
+    var parts: MutableList<MoldsQuantity>,
+    @ManyToOne @JoinColumn(name = "tizada_container_id")
+    val bin: TizadaContainer,
+    @OneToMany(cascade = [CascadeType.ALL]) @JoinColumn(name = "tizada_id")
+    val results: MutableList<TizadaResult>?,
     @Enumerated(EnumType.STRING)
-    val state: TizadaState,
+    var state: TizadaState,
     var active: Boolean,
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime?,
@@ -42,4 +43,8 @@ enum class TizadaState {
 class MoldsQuantity(
     val mold: Molde,
     val quantity: Int
-)
+) {
+    fun toPart(): Part {
+        return Part("molde-${mold.uuid}", quantity)
+    }
+}

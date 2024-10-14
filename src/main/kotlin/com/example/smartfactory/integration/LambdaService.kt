@@ -39,9 +39,9 @@ class LambdaService(
         return awsProperties.s3BucketName
     }
 
-    suspend fun uploadFile(molde: CreateMoldeRequest): String {
+    suspend fun uploadFile(molde: CreateMoldeRequest, uuid: UUID): String {
         val bucketName = getS3BucketName()
-        val fileName = "${molde.userUUID}/molde-${UUID.randomUUID()}.svg"
+        val fileName = "${molde.userUUID}/molde-${uuid}.svg"
 
         return try {
             // Convert the MultipartFile to a byte array for upload

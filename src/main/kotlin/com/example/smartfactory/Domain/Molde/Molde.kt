@@ -8,9 +8,7 @@ import java.util.*
 @Entity
 @Table(name = "moldes")
 class Molde(
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    val id: Long? = null,
+    @Id @Column(name = "molde_id", nullable = false)
     val uuid: UUID,
     val name: String,
     val url: String,

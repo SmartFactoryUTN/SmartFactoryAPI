@@ -72,13 +72,13 @@ class TizadaControllerTest {
         val payload = InvokeTizadaRequest(
             tizadaUUID = UUID.randomUUID().toString(),
             user = "a038a4d2-8502-455f-a154-aa87b1cc3fec",
-            parts = listOf(
+            /*parts = listOf(
                 Part(uuid = "moldeA", quantity = 5),
                 Part(uuid = "moldeB", quantity = 10),
                 Part(uuid = "moldeC", quantity = 10)
             ),
             bin = Bin(uuid = "contenedorA", quantity = 1),
-            configuration = InvokeConfiguration(maxIterations = 20, materialUtilization = 50, timeout = 0)
+            configuration = InvokeConfiguration(maxIterations = 20, materialUtilization = 50, timeout = 0)*/
         )
         val expectedResponse = TizadaResponse(
             status = "success",
