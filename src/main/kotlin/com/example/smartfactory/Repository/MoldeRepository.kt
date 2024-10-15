@@ -10,6 +10,6 @@ import java.util.*
 interface MoldeRepository: CrudRepository<Molde, UUID> {
     fun findMoldeByUuid(id: UUID): Molde?
 
-    @Query("select m from Molde m")
+    @Query("select m from Molde m where m.active = true")
     fun getAllMoldes(): List<Molde>
 }

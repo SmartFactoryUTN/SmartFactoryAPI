@@ -159,7 +159,7 @@ class TizadaService(
 
         val invokeTizadaPayload = InvokeTizadaPayload(
             tizadaUUID = invokeTizadaRequest.tizadaUUID,
-            user = invokeTizadaRequest.user,
+            user = invokeTizadaRequest.userUUID,
             parts = parts,
             bin = tizada.bin.toBin(),
             configuration = tizada.configuration.toInvokeConfiguration()

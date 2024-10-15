@@ -7,6 +7,8 @@ import kotlinx.serialization.Serializable
 
 
 class CreateTizadaRequest(
+    @field:NotNull(message = "User UUID cannot be null")
+    val userUUID: String,
     @field:NotEmpty(message = "Name cannot be empty")
     val name: String,
     @field:Min(value = 1, message = "Width must be greater or equal than 1")
@@ -58,7 +60,7 @@ data class InvokeTizadaRequest(
     val tizadaUUID: String,
 
     @field:NotEmpty(message = "User ID cannot be empty")
-    val user: String
+    val userUUID: String
 )
 
 @Serializable
