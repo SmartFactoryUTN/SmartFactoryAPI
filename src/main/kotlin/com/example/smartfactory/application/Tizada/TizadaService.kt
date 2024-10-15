@@ -8,10 +8,7 @@ import com.example.smartfactory.Repository.MoldeDeTizadaRepository
 import com.example.smartfactory.Repository.MoldeRepository
 import com.example.smartfactory.Repository.TizadaContainerRepository
 import com.example.smartfactory.Repository.TizadaRepository
-import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
-import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
-import com.example.smartfactory.application.Tizada.Request.Part
-import com.example.smartfactory.application.Tizada.Request.TizadaNotificationRequest
+import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
@@ -75,8 +72,8 @@ class TizadaService(
             name = request.name,
             configuration = configuration,
             parts = tizadaParts,
-            bin = bin,
-            results = emptyList(),
+            bin = bin!!,
+            results = mutableListOf(),
             state = TizadaState.CREATED,
             active = true,
             createdAt = LocalDateTime.now(),
@@ -84,9 +81,11 @@ class TizadaService(
             deletedAt = null
         )
 
+
         withContext(Dispatchers.IO) {
             tizadaRepo.save(tizada)
         }
+
 
         // Fifth step: return uuid of this new created tizada.
         /* No me parece necesario devolver el objeto tizada completo, ya que la app vuelve a Mis tizadas, consultando
@@ -115,7 +114,7 @@ class TizadaService(
         if (tizada != null) {
             return Tizada(
                 uuid = id,
-                name = tizada.name,
+                name = name,
                 configuration = tizada.configuration,
                 parts = tizada.parts,
                 bin = tizada.bin,
@@ -152,9 +151,23 @@ class TizadaService(
 
     @Transactional
     fun invokeTizada(invokeTizadaRequest: InvokeTizadaRequest): InvokeTizadaResponse? {
+        val tizada = this.getTizada(UUID.fromString(invokeTizadaRequest.tizadaUUID))!!
+        tizada.state = TizadaState.IN_PROGRESS
+        tizada.updatedAt = LocalDateTime.now()
 
-        val jsonPayload = Json.encodeToString(invokeTizadaRequest)
-        return lambdaService.invokeLambdaAsync(jsonPayload)
+        val parts = tizada.parts.map { it.toPart() }
+
+        val invokeTizadaPayload = InvokeTizadaPayload(
+            tizadaUUID = invokeTizadaRequest.tizadaUUID,
+            user = invokeTizadaRequest.user,
+            parts = parts,
+            bin = tizada.bin.toBin(),
+            configuration = tizada.configuration.toInvokeConfiguration()
+        )
+        val jsonPayload = Json.encodeToString(invokeTizadaPayload)
+        val response = lambdaService.invokeLambdaAsync(jsonPayload)
+        tizadaRepo.save(tizada)
+        return response
     }
 
     fun saveTizadaFinalizada(request: TizadaNotificationRequest) {
@@ -162,5 +175,29 @@ class TizadaService(
             "Received save tizada finalizada notification for" +
                     " tizadaUUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
         }
+        val tizada = tizadaRepo.getTizadaByUuid(request.tizadaUUID)
+        if (tizada != null) {
+            val moldes = request.parts.map { moldesRepo.findMoldeByUuid(UUID.fromString(it.replace("molde-", "")))!! }
+            val uuid = UUID.randomUUID()
+            val tizadaResult = TizadaResult(
+                uuid = uuid,
+                url = request.url!!,
+                configuration = tizada.configuration,
+                bin = tizada.bin,
+                parts = moldes,
+                materialUtilization = request.materialUtilization,
+                iterations = request.iterations,
+                timeoutReached = request.timeoutReached,
+                createdAt = LocalDateTime.now(),
+                null,
+                null
+            )
+            tizada.results?.add(tizadaResult)
+            tizada.state = TizadaState.FINISHED
+            tizada.updatedAt = LocalDateTime.now()
+            tizadaRepo.save(tizada)
+            return
+        }
+        throw TizadaNotFoundException("TIZADA_NO_ENCONTRADA")
     }
 }

@@ -1,7 +1,6 @@
 package com.example.smartfactory.application.Tizada.Response
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 
 data class TizadaResponse<T>(
     val status: String,  // The status of the response: "success", "fail", or "error"

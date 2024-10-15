@@ -50,7 +50,6 @@ class MoldeControllerTest {
 
         // Mock the service call
         coEvery { moldeService.createMolde(any()) } returns Molde(
-            1,
             moldeUUID,
             "Un molde",
             "https://servicio-de-tizada.s3.us-east-2.amazonaws.com/moldeA.svg",

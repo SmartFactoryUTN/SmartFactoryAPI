@@ -6,8 +6,6 @@ data class TizadaNotificationRequest(
     val tizadaUUID: UUID,
     val url: String?,
     val userUUID: UUID,
-    val configuration: TizadaConfigurationRequest,
-    val bin: TizadaContainerRequest,
     val parts: List<String>,
     val materialUtilization: Number,
     val iterations: Number,

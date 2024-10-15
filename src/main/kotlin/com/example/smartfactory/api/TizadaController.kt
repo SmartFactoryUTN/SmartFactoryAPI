@@ -76,8 +76,6 @@ class TizadaController(private val tizadaService: TizadaService) {
                 data = mapOf(
                     "tizadaUUID" to request.tizadaUUID,
                     "userUUID" to request.userUUID,
-                    "parts" to request.parts.count(),
-                    "bin" to request.bin.name,
                     "url" to request.url
                 )
             )

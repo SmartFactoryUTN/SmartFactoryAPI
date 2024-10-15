@@ -16,11 +16,13 @@ class MoldeService(
 ) {
     suspend fun createMolde(molde: CreateMoldeRequest): Molde {
         // Step 1: Upload the SVG file and get its URL
-        val svgUrl = lambdaService.uploadFile(molde)
+        val generatedUUID = UUID.randomUUID()
+
+        val svgUrl = lambdaService.uploadFile(molde, generatedUUID)
 
         // Step 2: Create the Molde object
         val newMolde = Molde(
-            uuid = UUID.randomUUID(),
+            uuid = generatedUUID,
             name = molde.name,
             url = svgUrl, // Use the real URL where the SVG is stored
             description = molde.description,

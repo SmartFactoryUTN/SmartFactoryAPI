@@ -24,7 +24,6 @@ class MoldeRepositoryTest{
         val moldeUUID = UUID.randomUUID()
         val url = "https://servicio-de-tizada.s3.us-east-2.amazonaws.com/moldeA.svg"
         val molde = Molde(
-            id = 1,
             uuid = moldeUUID,
             name = "Un Molde",
             url = url,

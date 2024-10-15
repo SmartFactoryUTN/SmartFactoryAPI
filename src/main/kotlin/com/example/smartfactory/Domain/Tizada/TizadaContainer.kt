@@ -1,12 +1,12 @@
 package com.example.smartfactory.Domain.Tizada
 
 import com.example.smartfactory.Domain.Auditable
+import com.example.smartfactory.application.Tizada.Request.Bin
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
-import kotlinx.coroutines.flow.DEFAULT_CONCURRENCY
 import java.time.LocalDateTime
 import java.util.*
 
@@ -32,7 +32,7 @@ class TizadaContainer (
         const val DEFAULT_NAME = "Mesa default"
         const val DEFAULT_HEIGHT = 2000
         const val DEFAULT_WIDTH = 2000
-        const val DEFAULT_URL = "https://elasticbeanstalk-sa-east-1-951718808729.s3.sa-east-1.amazonaws.com/containers/containerexample.svg"
+        const val DEFAULT_URL = "https://elasticbeanstalk-sa-east-1-951718808729.s3.sa-east-1.amazonaws.com/60440d33-e9b5-4e71-9573-f8c00010acbd.svg"
         const val DEFAULT_AREA = DEFAULT_WIDTH * DEFAULT_HEIGHT
 
         fun getDefaultContainer(): TizadaContainer {
@@ -49,5 +49,9 @@ class TizadaContainer (
             )
         }
 
+    }
+
+    fun toBin(): Bin {
+        return Bin(uuid = this.uuid.toString(), quantity = 1)
     }
 }
