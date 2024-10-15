@@ -15,12 +15,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/molde",
-							"protocol": "http",
+							"raw": "{{BASE_URL}}/api/molde",
 							"host": [
-								"localhost"
+								"{{BASE_URL}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"molde"
@@ -35,93 +33,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/molde/:uuid",
-							"protocol": "http",
+							"raw": "{{BASE_URL}}/api/molde/:uuid",
 							"host": [
-								"localhost"
+								"{{BASE_URL}}"
 							],
-							"port": "8080",
-							"path": [
-								"api",
-								"molde",
-								":uuid"
-							],
-							"variable": [
-								{
-									"key": "uuid",
-									"value": "68eb32a4-fc78-405f-b86a-8da9e757cc11"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Crear molde",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Molde 2\",\r\n    \"description\": \"Art.02 algodón, color azul\",\r\n    \"svg\": \"string\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/api/molde",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"molde"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "tizadas",
-			"item": [
-				{
-					"name": "Obtener todas las tizadas",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/api/tizada",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"tizada"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Obtener tizada por ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/api/molde/:uuid",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
 							"path": [
 								"api",
 								"molde",
@@ -138,13 +53,56 @@
 					"response": []
 				},
 				{
-					"name": "Crear tizada (front --> API)",
+					"name": "Crear molde",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "svg",
+									"type": "file",
+									"src": "/C:/Users/Tomi/Desktop/moldeexample.svg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/molde/create?name=nombre&description=description&userUUID=14bd6578-0436-420d-9c64-2beda866fcf0",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"molde",
+								"create"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "nombre"
+								},
+								{
+									"key": "description",
+									"value": "description"
+								},
+								{
+									"key": "userUUID",
+									"value": "14bd6578-0436-420d-9c64-2beda866fcf0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar molde",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"width\": 500,\r\n    \"height\": 400,\r\n    \"name\": \"Tizada de ropa interior\",\r\n    \"tizadaType\": \"RAPIDA\",\r\n    \"wastePercentage\": 72,\r\n    \"maxTime\": 10,\r\n    \"molds\": [\r\n        {\r\n            \"uuid\": \"34a8739b-2056-4862-8aa0-cc4a2a679136\",\r\n            \"cantidad\": 5\r\n        },\r\n        {\r\n            \"uuid\": \"68eb32a4-fc78-405f-b86a-8da9e757cc11\",\r\n            \"cantidad\": 3\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"name\": \"Nuevo nombre\",\r\n    \"description\": \"Nueva descripción\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -152,12 +110,117 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/tizada",
-							"protocol": "http",
+							"raw": "{{BASE_URL}}/api/molde/:uuid",
 							"host": [
-								"localhost"
+								"{{BASE_URL}}"
 							],
-							"port": "8080",
+							"path": [
+								"api",
+								"molde",
+								":uuid"
+							],
+							"variable": [
+								{
+									"key": "uuid",
+									"value": "f9fa3682-fd5c-434b-b7d7-5a020f1db48d"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar molde",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/molde/:uuid",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"molde",
+								":uuid"
+							],
+							"variable": [
+								{
+									"key": "uuid",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "tizadas",
+			"item": [
+				{
+					"name": "Obtener todas las tizadas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/tizada",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tizada"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener tizada por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/tizada/:uuid",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tizada",
+								":uuid"
+							],
+							"variable": [
+								{
+									"key": "uuid",
+									"value": "fb10ff45-d3b3-469b-a935-b8d367da0122"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear tizada (front --> API)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"width\": 500,\r\n    \"height\": 400,\r\n    \"name\": \"nueva tizad\",\r\n    \"utilizationPercentage\": 10,\r\n    \"maxTime\": 100000,\r\n    \"molds\": [\r\n        {\r\n            \"uuid\": \"58db135d-41ca-413f-bd83-ac385e13d92a\",\r\n            \"quantity\": 15\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/tizada",
+							"host": [
+								"{{BASE_URL}}"
+							],
 							"path": [
 								"api",
 								"tizada"
@@ -191,10 +254,83 @@
 					"response": []
 				},
 				{
-					"name": "Crear tizada (API --> Microservicio)",
+					"name": "Eliminar una tizada (borrado lógico)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/tizada/:id",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tizada",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "6bbaaf4c-be48-4aee-93b6-6323760699b4"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invocar tizada",
 					"request": {
 						"method": "POST",
-						"header": []
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tizadaUUID\": \"3f458c64-8fc1-4df9-87df-a92a20826238\",\r\n    \"user\": \"14bd6578-0436-420d-9c64-2beda866fcf0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/tizada/invoke",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tizada",
+								"invoke"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Notificar tizada",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"tizadaUUID\": \"41bc7ae1-4ad5-440a-bd42-8d39bc108064\",\r\n    \"url\": \"https://elasticbeanstalk-sa-east-1-951718808729.s3.sa-east-1.amazonaws.com/result/0d1b1568-b1a5-47e7-800e-2ea556172940/result.svg\",\r\n    \"userUUID\": \"14bd6578-0436-420d-9c64-2beda866fcf0\",\r\n    \"materialUtilization\": 18,\r\n    \"iterations\": 5,\r\n    \"timeoutReached\": false,\r\n    \"asd\": \"asd\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/tizada/notification",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tizada",
+								"notification"
+							]
+						}
 					},
 					"response": []
 				}
