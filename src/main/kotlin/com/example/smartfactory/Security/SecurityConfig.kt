@@ -2,25 +2,23 @@ package com.example.smartfactory.Security
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.Customizer.withDefaults
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator
 import org.springframework.security.oauth2.core.OAuth2TokenValidator
-import org.springframework.security.oauth2.jwt.JwtDecoders
-import org.springframework.security.oauth2.jwt.JwtDecoder
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
-import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.security.oauth2.jwt.JwtValidators
+import org.springframework.security.oauth2.jwt.*
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 
-@EnableWebSecurity
-class SecurityConfig : WebSecurityConfigurerAdapter() {
+@Configuration
+class SecurityConfig {
 
     @Value("\${auth0.audience}")
-    private val audience: String = String()
+    private lateinit var audience: String
 
     @Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-    private val issuer: String = String()
+    private lateinit var issuer: String
 
     @Bean
     fun jwtDecoder(): JwtDecoder {
@@ -32,16 +30,30 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
         return jwtDecoder
     }
 
-    @Throws(Exception::class)
-    override fun configure(http: HttpSecurity) {
-        http.authorizeRequests()
-            .mvcMatchers("/api/login").permitAll()
-            .mvcMatchers("/api/logout").permitAll()
-            .mvcMatchers("/api/signup").permitAll()
-            .mvcMatchers("/api/tizada/*").authenticated()
-            .mvcMatchers("/api/molde/*").authenticated()
-            .and()
-            .oauth2ResourceServer().jwt()
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .authorizeHttpRequests { auth ->
+                auth
+                    .requestMatchers(
+                        AntPathRequestMatcher("/api/login"),
+                        AntPathRequestMatcher("/api/logout"),
+                        AntPathRequestMatcher("/api/signup"),
+                        AntPathRequestMatcher("/swagger-ui/*"),
+                        AntPathRequestMatcher("/v3/api-docs"),
+                        AntPathRequestMatcher("/v3/api-docs/*")
+                    ).permitAll()
+                    .requestMatchers(
+                        AntPathRequestMatcher("/api/tizada"),
+                        AntPathRequestMatcher("/api/tizada/*"),
+                        AntPathRequestMatcher("/api/molde/*")
+                    ).authenticated()
+            }
+            .cors(withDefaults())
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt(withDefaults())
+            }
+        return http.build()
     }
 
 }
