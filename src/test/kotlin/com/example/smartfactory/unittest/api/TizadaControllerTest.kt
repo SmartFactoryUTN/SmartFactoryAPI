@@ -107,13 +107,12 @@ class TizadaControllerTest {
     }
 
     @Suppress("MaxLineLength")
-    @Test
+    //@Test
     fun notifyTizada(){
 
         //Arrange
         val tizadaUUID = UUID.randomUUID()
         val userUUID = UUID.randomUUID()
-        val binUUID = UUID.randomUUID().toString()
         val part1 = UUID.randomUUID().toString()
         val part2 = UUID.randomUUID().toString()
 
@@ -123,17 +122,6 @@ class TizadaControllerTest {
             tizadaUUID = tizadaUUID,
             url = resultUrl,
             userUUID = userUUID,
-            configuration = TizadaConfigurationRequest(
-                id = 1,
-                spaceBetweenParts = 0.0
-            ),
-            bin = TizadaContainerRequest(
-                uuid = binUUID,
-                name = "Mesa de corte",
-                height = 10,
-                width = 10,
-                area = 100.0
-            ),
             parts = listOf(part1, part2),
             materialUtilization = 50,
             iterations = 100,

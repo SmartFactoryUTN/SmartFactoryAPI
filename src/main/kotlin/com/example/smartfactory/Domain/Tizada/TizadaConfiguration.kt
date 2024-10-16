@@ -16,7 +16,6 @@ class TizadaConfiguration(
     val id: UUID,
     val time: Int,
     val utilizationPercentage: Int,
-    @Transient @JsonIgnore
     val max_iterations: Int = MAX_ITERATIONS,
     @Transient @JsonIgnore
     val space_between_parts: Int = DEFAULT_SPACE_BETWEEN_PARTS, //Este valor no se utiliza, se lee directamente desde la UI
@@ -39,7 +38,7 @@ class TizadaConfiguration(
         const val DEFAULT_GA_MUTATION_RATE = 10  // Meta heuristics
         const val DEFAULT_TIME = 10000 // ms short medium large
         const val DEFAULT_PERCENTAGE = 60 // aprovechamiento
-        const val MAX_ITERATIONS = 100 // iteraciones maximas
+        const val MAX_ITERATIONS = 10 // iteraciones maximas
     }
 
     fun toInvokeConfiguration(): InvokeConfiguration {

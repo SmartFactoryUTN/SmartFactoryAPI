@@ -56,7 +56,7 @@ class LambdaService(
             }
 
             // Upload the file to S3
-            val response: PutObjectResponse = s3Client.putObject(putObjectRequest)
+            s3Client.putObject(putObjectRequest)
 
             // Return the file URL
             "https://${bucketName}.s3.amazonaws.com/${fileName}"

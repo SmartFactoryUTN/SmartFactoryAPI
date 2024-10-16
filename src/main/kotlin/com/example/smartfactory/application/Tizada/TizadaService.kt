@@ -54,16 +54,19 @@ class TizadaService(
 
         // Second step prepare configuration (maxTime and utilizationPercentage)
         val configuration =
-            TizadaConfiguration(UUID.randomUUID(), time = request.maxTime, utilizationPercentage = request.utilizationPercentage)
+            TizadaConfiguration(UUID.randomUUID(), time = request.maxTime*1000*60, utilizationPercentage = request.utilizationPercentage)
 
         // Third step: Retrieve bin for this tizada
-        val bin = withContext(Dispatchers.IO) {
+        var bin = withContext(Dispatchers.IO) {
             tizadaContainerRepo.findByWidthAndHeight(TizadaContainer.DEFAULT_WIDTH, TizadaContainer.DEFAULT_HEIGHT)
         }
         if (bin == null) {
             /* habría que generar un svg, persistirlo en s3 y luego persistirlo en la DB
             * para simplificar, usamos un bin generico pro ahora.
             * */
+            bin = withContext(Dispatchers.IO) {
+                tizadaContainerRepo.findAll()
+            }.first()
         }
 
         // Fourth step: create tizada and save it into DB, ready for executing
@@ -173,7 +176,7 @@ class TizadaService(
     fun saveTizadaFinalizada(request: TizadaNotificationRequest) {
         logger.info {
             "Received save tizada finalizada notification for" +
-                    " tizadaUUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
+                    " tizadaUUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID} and url: ${request.url} - ${request.materialUtilization} - ${request.iterations} - ${request.timeoutReached}"
         }
         val tizada = tizadaRepo.getTizadaByUuid(request.tizadaUUID)
         if (tizada != null) {
@@ -181,12 +184,12 @@ class TizadaService(
             val uuid = UUID.randomUUID()
             val tizadaResult = TizadaResult(
                 uuid = uuid,
-                url = request.url!!,
+                url = request.url ?: "",
                 configuration = tizada.configuration,
                 bin = tizada.bin,
                 parts = moldes,
-                materialUtilization = request.materialUtilization,
-                iterations = request.iterations,
+                materialUtilization = request.materialUtilization.toInt(),
+                iterations = request.iterations.toInt(),
                 timeoutReached = request.timeoutReached,
                 createdAt = LocalDateTime.now(),
                 null,
