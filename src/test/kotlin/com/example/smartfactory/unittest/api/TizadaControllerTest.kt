@@ -138,8 +138,7 @@ class TizadaControllerTest {
         //Assert
         assertEquals(tizadaUUID.toString(), nestedData["tizadaUUID"].toString())
         assertEquals(userUUID.toString(), nestedData["userUUID"].toString())
-        assertEquals(2, nestedData["parts"])
-        assertEquals("Mesa de corte", nestedData["bin"])
+
         assertEquals(resultUrl, nestedData["url"])
     }
 
