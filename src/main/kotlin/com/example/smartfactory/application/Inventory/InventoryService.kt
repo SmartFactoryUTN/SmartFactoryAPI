@@ -4,6 +4,8 @@ import com.example.smartfactory.Domain.Inventory.FabricRoll
 import com.example.smartfactory.Domain.Inventory.Garment
 import com.example.smartfactory.Domain.Inventory.GarmentMold
 import com.example.smartfactory.Domain.Inventory.GarmentMoldId
+import com.example.smartfactory.Domain.Molde.Molde
+import com.example.smartfactory.Domain.Tizada.MoldsQuantity
 import com.example.smartfactory.Repository.FabricRollRepository
 import com.example.smartfactory.Repository.GarmentRepository
 import com.example.smartfactory.Repository.MoldeRepository
@@ -57,7 +59,20 @@ class InventoryService(
 
     fun getGarments(): List<GetGarmentResponse> {
         val garments = garmentRepository.findAll().toList()
-        val response: List<GetGarmentResponse> = garments.map { it.toGarmentResponse() }
+        val response: MutableList<GetGarmentResponse> = mutableListOf()
+        for (garment in garments) {
+            val moldQuantities = mutableListOf<MoldsQuantity>()
+            for (garmentMold in garment.garmentMolds) {
+                val mold = moldeRepository.findMoldeByUuid(garmentMold.garmentMoldId.moldeId)
+                val moldQuantity = MoldsQuantity(mold!!, garmentMold.quantity)
+                moldQuantities.add(moldQuantity)
+            }
+            response.add(GetGarmentResponse(
+                name = garment.name,
+                stock = garment.stock,
+                molds = moldQuantities
+            ))
+        }
         return response
     }
 

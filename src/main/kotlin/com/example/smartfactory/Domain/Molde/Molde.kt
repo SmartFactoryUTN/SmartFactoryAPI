@@ -20,10 +20,8 @@ class Molde(
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime? = null,
     override var deletedAt: LocalDateTime? = null
-): Auditable {
-    @OneToMany(fetch = FetchType.LAZY, cascade = [(CascadeType.ALL)], mappedBy = "garmentMoldId.moldeId")
-    lateinit var garmentMolds: List<GarmentMold>
-}
+): Auditable
+
 
 
 @Embeddable

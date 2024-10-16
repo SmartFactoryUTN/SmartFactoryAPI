@@ -37,7 +37,7 @@ class InventoryController(
         )
     }
 
-    @PostMapping("/rolloTela")
+    @PostMapping("/rollo")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Crear un nuevo rollo de tela", description = "Dado un nombre y un color, genera un rollo de tela")
     @ApiResponses(value = [
@@ -71,7 +71,7 @@ class InventoryController(
         )
     }
 
-    @GetMapping("/rolloTela")
+    @GetMapping("/rollo")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Obtener todos los rollos de tela")
     @ApiResponses(value = [

@@ -18,8 +18,6 @@ class Garment (
     val garmentId: UUID,
     var name: String,
     var stock: Int,
-    @Transient
-    var moldes: List<Molde>,
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime?,
     override var deletedAt: LocalDateTime?
@@ -27,23 +25,6 @@ class Garment (
     @OneToMany(cascade = [(CascadeType.ALL)], fetch = FetchType.LAZY, mappedBy = "garmentMoldId.garmentId")
     @JsonIgnore
     lateinit var garmentMolds: MutableList<GarmentMold>
-
-    fun toGarmentResponse(): GetGarmentResponse {
-        val parts = mutableListOf<Part>()
-        for (mold in this.garmentMolds) {
-            parts.add(
-                Part(
-                uuid = mold.garmentMoldId.moldeId.toString(),
-                quantity = mold.quantity
-            )
-            )
-        }
-        return GetGarmentResponse(
-            name = this.name,
-            stock = this.stock,
-            molds = parts
-        )
-    }
 }
 
 @Entity
