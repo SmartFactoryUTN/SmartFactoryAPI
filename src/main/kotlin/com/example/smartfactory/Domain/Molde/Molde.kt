@@ -1,6 +1,7 @@
 package com.example.smartfactory.Domain.Molde
 
 import com.example.smartfactory.Domain.Auditable
+import com.example.smartfactory.Domain.Inventory.GarmentMold
 import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*
@@ -19,7 +20,10 @@ class Molde(
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime? = null,
     override var deletedAt: LocalDateTime? = null
-): Auditable
+): Auditable {
+    @OneToMany(fetch = FetchType.LAZY, cascade = [(CascadeType.ALL)], mappedBy = "garmentMoldId.moldeId")
+    lateinit var garmentMolds: List<GarmentMold>
+}
 
 
 @Embeddable

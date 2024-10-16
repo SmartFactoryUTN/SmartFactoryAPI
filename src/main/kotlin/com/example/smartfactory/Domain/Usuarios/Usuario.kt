@@ -9,7 +9,7 @@ import java.util.*
 
 @Entity
 @Table(name = "usuarios")
-class Usuario (
+class Usuario(
     @Id @Column(name = "usuario_id")
     val uuid: UUID,
     @OneToMany @JoinColumn(name = "usuario_id")
