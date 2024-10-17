@@ -56,7 +56,6 @@ class MoldeControllerTest {
             "Un molde",
             1.0,
             true,
-            10,
             LocalDateTime.now())
 
 
