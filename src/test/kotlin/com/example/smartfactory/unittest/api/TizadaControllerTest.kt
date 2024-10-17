@@ -106,7 +106,6 @@ class TizadaControllerTest {
         //Arrange
         val tizadaUUID = UUID.randomUUID()
         val userUUID = UUID.randomUUID()
-        val binUUID = UUID.randomUUID().toString()
         val part1 = UUID.randomUUID().toString()
         val part2 = UUID.randomUUID().toString()
 
