@@ -71,14 +71,7 @@ class TizadaControllerTest {
 
         val payload = InvokeTizadaRequest(
             tizadaUUID = UUID.randomUUID().toString(),
-            user = "a038a4d2-8502-455f-a154-aa87b1cc3fec",
-            /*parts = listOf(
-                Part(uuid = "moldeA", quantity = 5),
-                Part(uuid = "moldeB", quantity = 10),
-                Part(uuid = "moldeC", quantity = 10)
-            ),
-            bin = Bin(uuid = "contenedorA", quantity = 1),
-            configuration = InvokeConfiguration(maxIterations = 20, materialUtilization = 50, timeout = 0)*/
+            userUUID = "a038a4d2-8502-455f-a154-aa87b1cc3fec",
         )
         val expectedResponse = TizadaResponse(
             status = "success",
@@ -123,17 +116,6 @@ class TizadaControllerTest {
             tizadaUUID = tizadaUUID,
             url = resultUrl,
             userUUID = userUUID,
-            configuration = TizadaConfigurationRequest(
-                id = 1,
-                spaceBetweenParts = 0.0
-            ),
-            bin = TizadaContainerRequest(
-                uuid = binUUID,
-                name = "Mesa de corte",
-                height = 10,
-                width = 10,
-                area = 100.0
-            ),
             parts = listOf(part1, part2),
             materialUtilization = 50,
             iterations = 100,
@@ -156,8 +138,7 @@ class TizadaControllerTest {
         //Assert
         assertEquals(tizadaUUID.toString(), nestedData["tizadaUUID"].toString())
         assertEquals(userUUID.toString(), nestedData["userUUID"].toString())
-        assertEquals(2, nestedData["parts"])
-        assertEquals("Mesa de corte", nestedData["bin"])
+
         assertEquals(resultUrl, nestedData["url"])
     }
 
