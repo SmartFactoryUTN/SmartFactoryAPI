@@ -16,7 +16,6 @@ class Molde(
     var description: String,
     val area: Double?,
     var active: Boolean,
-    var stock: Int,
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime? = null,
     override var deletedAt: LocalDateTime? = null

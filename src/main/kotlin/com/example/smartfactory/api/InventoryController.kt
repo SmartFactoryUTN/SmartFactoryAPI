@@ -6,10 +6,7 @@ import com.example.smartfactory.Exceptions.FabricRollOutOfStockException
 import com.example.smartfactory.Exceptions.GarmentNotFoundException
 import com.example.smartfactory.Exceptions.GarmentOutOfStockException
 import com.example.smartfactory.application.Inventory.InventoryService
-import com.example.smartfactory.application.Inventory.Request.CreateFabricRollRequest
-import com.example.smartfactory.application.Inventory.Request.CreateGarmentRequest
-import com.example.smartfactory.application.Inventory.Request.UpdateFabricRollRequest
-import com.example.smartfactory.application.Inventory.Request.UpdateGarmentRequest
+import com.example.smartfactory.application.Inventory.Request.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -171,4 +168,34 @@ class InventoryController(
             )
         }
     }
+
+    @PostMapping("/rollo/convert")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Convertir un rollo de tela a stock de moldes")
+    @ApiResponses(value = [
+        ApiResponse(description = "Rollo de tela actualizado correctamente", responseCode = "200")
+    ])
+    fun convertFabricRollToMoldStock(
+        @RequestBody convertFabricRollRequest: ConvertFabricRollRequest,
+    ): ResponseEntity<GenericResponse<Any>> {
+        inventoryService.convertFabricRoll(convertFabricRollRequest)
+        return ResponseEntity.status(HttpStatus.OK.value()).body(
+            GenericResponse(
+                status = "success",
+                data = mapOf(
+                    "message" to "Rollos de tela convertidos correctamente!"
+                )
+            )
+        )
+    }
+
+//    @PostMapping("/color")
+//    @ResponseStatus(HttpStatus.OK)
+//    @Operation(summary = "Convertir un rollo de tela a stock de moldes")
+//    @ApiResponses(value = [
+//        ApiResponse(description = "Color creado correctamente", responseCode = "200")
+//    ])
+//    fun createColor(@RequestBody createColorRequest: CreateColorRequest): ResponseEntity<GenericResponse<Any>> {
+//        //
+//    }
 }
