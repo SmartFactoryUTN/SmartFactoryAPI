@@ -5,4 +5,5 @@ import org.springframework.data.repository.CrudRepository
 import java.util.*
 
 interface GarmentRepository: CrudRepository<Garment, UUID> {
+    fun getGarmentByGarmentId(id: UUID): Garment?
 }
