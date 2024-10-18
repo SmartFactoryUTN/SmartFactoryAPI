@@ -109,22 +109,18 @@ class InventoryController(
                     data = response
                 )
             )
-        } catch (e: GarmentNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(GenericResponse(
-                status = "fail",
-                data = mapOf(
-                    "exception" to e.javaClass.simpleName,
-                    "message" to e.message
-                )
-            ))
-        } catch (e: GarmentOutOfStockException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(GenericResponse(
-                status = "fail",
-                data = mapOf(
-                    "exception" to e.javaClass.simpleName,
-                    "message" to e.message
-                )
-            ))
+        } catch (ex: RuntimeException) {
+            when (ex) {
+                is GarmentNotFoundException ->
+                    ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(GenericResponse(
+                        status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                    ))
+                is GarmentOutOfStockException ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(GenericResponse(
+                        status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                    ))
+                else -> throw ex
+            }
         }
     }
 
@@ -146,26 +142,18 @@ class InventoryController(
                     data = response
                 )
             )
-        } catch (e: FabricRollNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(
-                GenericResponse(
-                    status = "fail",
-                    data = mapOf(
-                        "exception" to e.javaClass.simpleName,
-                        "message" to e.message
-                    )
-                )
-            )
-        } catch (e: FabricRollOutOfStockException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
-                GenericResponse(
-                    status = "fail",
-                    data = mapOf(
-                        "exception" to e.javaClass.simpleName,
-                        "message" to e.message
-                    )
-                )
-            )
+        } catch (ex: RuntimeException) {
+            when (ex) {
+                is FabricRollOutOfStockException ->
+                    ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(GenericResponse(
+                        status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                    ))
+                is FabricPieceOutOfStockException ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(GenericResponse(
+                        status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                    ))
+                else -> throw ex
+            }
         }
     }
 
@@ -178,8 +166,8 @@ class InventoryController(
     fun convertFabricRollsToFabricPieces(
         @RequestBody convertFabricRollRequest: ConvertFabricRollRequest,
     ): ResponseEntity<GenericResponse<Any>> {
-        inventoryService.convertFabricRoll(convertFabricRollRequest)
         return try {
+            inventoryService.convertFabricRoll(convertFabricRollRequest)
             ResponseEntity.status(HttpStatus.OK.value()).body(
                 GenericResponse(
                     status = "success",
@@ -188,36 +176,20 @@ class InventoryController(
                     )
                 )
             )
-        } catch (e: TizadaNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(
-                GenericResponse(
-                    status = "fail",
-                    data = mapOf(
-                        "exception" to e.javaClass.simpleName,
-                        "message" to e.message
+        } catch (ex: RuntimeException) {
+            when (ex) {
+                is TizadaNotFoundException ->
+                    ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(GenericResponse(
+                            status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                        )
                     )
-                )
-            )
-        } catch (e: TizadaInvalidStateException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
-                GenericResponse(
-                    status = "fail",
-                    data = mapOf(
-                        "exception" to e.javaClass.simpleName,
-                        "message" to e.message
+                is TizadaInvalidStateException, is FabricRollOutOfStockException ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(GenericResponse(
+                            status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                        )
                     )
-                )
-            )
-        } catch (e: FabricRollOutOfStockException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
-                GenericResponse(
-                    status = "fail",
-                    data = mapOf(
-                        "exception" to e.javaClass.simpleName,
-                        "message" to e.message
-                    )
-                )
-            )
+                else -> throw ex
+            }
         }
     }
 
@@ -262,8 +234,8 @@ class InventoryController(
     fun convertFabricPiecesToGarments(
         @RequestBody convertFabricPiecesRequest: ConvertFabricPiecesRequest
     ): ResponseEntity<GenericResponse<Any>> {
-        inventoryService.convertFabricPieces(convertFabricPiecesRequest)
         return try {
+            inventoryService.convertFabricPieces(convertFabricPiecesRequest)
             ResponseEntity.status(HttpStatus.OK.value()).body(
                 GenericResponse(
                     status = "success",
@@ -272,36 +244,21 @@ class InventoryController(
                     )
                 )
             )
-        } catch (e: GarmentNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(
-                GenericResponse(
-                    status = "fail",
-                    data = mapOf(
-                        "message" to e.message,
-                        "exception" to e.javaClass.simpleName
+        } catch (ex: RuntimeException) {
+            when (ex) {
+                is GarmentNotFoundException, is FabricPieceNotFoundException ->
+                    ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(
+                        GenericResponse("fail", mapOf("message" to ex.message, "exception" to ex.javaClass.simpleName))
                     )
-                )
-            )
-        } catch (e: FabricPieceNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(
-                GenericResponse(
-                    status = "fail",
-                    data = mapOf(
-                        "message" to e.message,
-                        "exception" to e.javaClass.simpleName
+                is FabricPieceOutOfStockException ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
+                        GenericResponse("fail", mapOf("message" to ex.message, "exception" to ex.javaClass.simpleName))
                     )
-                )
-            )
-        } catch (e: FabricPieceOutOfStockException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
-                GenericResponse(
-                    status = "fail",
-                    data = mapOf(
-                        "exception" to e.javaClass.simpleName,
-                        "message" to e.message
+                else ->
+                    ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(
+                        GenericResponse("fail", mapOf("message" to ex.message, "exception" to ex.javaClass.simpleName))
                     )
-                )
-            )
+            }
         }
     }
 
