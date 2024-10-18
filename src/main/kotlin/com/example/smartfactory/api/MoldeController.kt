@@ -3,7 +3,7 @@ package com.example.smartfactory.api
 import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Domain.Molde.Molde
 import com.example.smartfactory.Exceptions.MoldeNotFoundException
-import com.example.smartfactory.Exceptions.MoldeOutOfStockException
+import com.example.smartfactory.Exceptions.FabricPieceOutOfStockException
 import com.example.smartfactory.application.Molde.CreateMoldeRequest
 import com.example.smartfactory.application.Molde.MoldeService
 import com.example.smartfactory.application.Molde.UpdateMoldeRequest
@@ -129,7 +129,7 @@ class MoldeController(private val moldeService: MoldeService) {
                     )
                 )
             )
-        } catch (e: MoldeOutOfStockException) {
+        } catch (e: FabricPieceOutOfStockException) {
             ResponseEntity.status(400).body(
                 GenericResponse(
                     status = "fail",

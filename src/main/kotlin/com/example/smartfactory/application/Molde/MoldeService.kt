@@ -2,7 +2,6 @@ package com.example.smartfactory.application.Molde
 
 import com.example.smartfactory.Domain.Molde.Molde
 import com.example.smartfactory.Exceptions.MoldeNotFoundException
-import com.example.smartfactory.Exceptions.MoldeOutOfStockException
 import com.example.smartfactory.Repository.MoldeRepository
 import com.example.smartfactory.integration.LambdaService
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +9,6 @@ import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.math.abs
 
 @Service
 class MoldeService(
@@ -31,7 +29,6 @@ class MoldeService(
             description = molde.description,
             area = null,  // Set area if needed
             active = true,
-            stock = 0,
             createdAt = LocalDateTime.now()
         )
 
@@ -55,12 +52,6 @@ class MoldeService(
         val molde = moldeRepository.findMoldeByUuid(id) ?: throw MoldeNotFoundException("No Molde found with id $id")
         request.name?.let { molde.name = it }
         request.description?.let { molde.description = it }
-        request.deltaStock?.let {
-            if (it < 0 && it + molde.stock < 0) {
-                throw MoldeOutOfStockException("No se pueden restar ${abs(it)} unidades a este molde. La cantidad en stock es ${molde.stock}")
-            }
-            molde.stock += request.deltaStock
-        }
         molde.updatedAt = LocalDateTime.now()
         return moldeRepository.save(molde)
     }

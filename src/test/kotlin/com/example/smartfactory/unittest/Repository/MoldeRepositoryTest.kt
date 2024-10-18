@@ -30,7 +30,6 @@ class MoldeRepositoryTest{
             description = "desc",
             area = 1.0,
             active = true,
-            stock = 10,
             createdAt = LocalDateTime.now()
         )
         //Act
