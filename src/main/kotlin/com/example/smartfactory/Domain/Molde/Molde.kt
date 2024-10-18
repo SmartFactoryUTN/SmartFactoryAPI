@@ -1,7 +1,6 @@
 package com.example.smartfactory.Domain.Molde
 
 import com.example.smartfactory.Domain.Auditable
-import com.example.smartfactory.Domain.Inventory.GarmentMold
 import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*

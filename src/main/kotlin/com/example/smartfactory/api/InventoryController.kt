@@ -1,10 +1,7 @@
 package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.GenericResponse
-import com.example.smartfactory.Exceptions.FabricRollNotFoundException
-import com.example.smartfactory.Exceptions.FabricRollOutOfStockException
-import com.example.smartfactory.Exceptions.GarmentNotFoundException
-import com.example.smartfactory.Exceptions.GarmentOutOfStockException
+import com.example.smartfactory.Exceptions.*
 import com.example.smartfactory.application.Inventory.InventoryService
 import com.example.smartfactory.application.Inventory.Request.*
 import io.swagger.v3.oas.annotations.Operation
@@ -14,12 +11,15 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.BindingResult
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
 @RequestMapping("api/inventario")
 @Tag(name = "Inventario", description = "Endpoints para inventariado")
+@Validated
 class InventoryController(
     private val inventoryService: InventoryService
 ) {
@@ -173,29 +173,151 @@ class InventoryController(
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Convertir un rollo de tela a stock de moldes")
     @ApiResponses(value = [
-        ApiResponse(description = "Rollo de tela actualizado correctamente", responseCode = "200")
+        ApiResponse(description = "Rollos de tela convertido correctamente", responseCode = "200")
     ])
-    fun convertFabricRollToMoldStock(
+    fun convertFabricRollsToFabricPieces(
         @RequestBody convertFabricRollRequest: ConvertFabricRollRequest,
     ): ResponseEntity<GenericResponse<Any>> {
         inventoryService.convertFabricRoll(convertFabricRollRequest)
+        return try {
+            ResponseEntity.status(HttpStatus.OK.value()).body(
+                GenericResponse(
+                    status = "success",
+                    data = mapOf(
+                        "message" to "Rollos de tela convertidos correctamente!"
+                    )
+                )
+            )
+        } catch (e: TizadaNotFoundException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(
+                GenericResponse(
+                    status = "fail",
+                    data = mapOf(
+                        "exception" to e.javaClass.simpleName,
+                        "message" to e.message
+                    )
+                )
+            )
+        } catch (e: TizadaInvalidStateException) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
+                GenericResponse(
+                    status = "fail",
+                    data = mapOf(
+                        "exception" to e.javaClass.simpleName,
+                        "message" to e.message
+                    )
+                )
+            )
+        } catch (e: FabricRollOutOfStockException) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
+                GenericResponse(
+                    status = "fail",
+                    data = mapOf(
+                        "exception" to e.javaClass.simpleName,
+                        "message" to e.message
+                    )
+                )
+            )
+        }
+    }
+
+    @PostMapping("/color")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Crear un color")
+    @ApiResponses(value = [
+        ApiResponse(description = "Color creado correctamente", responseCode = "200")
+    ])
+    fun createColor(@Valid @RequestBody createColorRequest: CreateColorRequest): ResponseEntity<GenericResponse<Any>> {
+        val response = inventoryService.createColor(createColorRequest)
+        return ResponseEntity.status(HttpStatus.OK.value()).body(
+                GenericResponse(
+                    status = "success",
+                    data = response
+                )
+        )
+    }
+
+    @GetMapping("/color")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Convertir un rollo de tela a stock de moldes")
+    @ApiResponses(value = [
+        ApiResponse(description = "Colores obtenidos correctamente", responseCode = "200")
+    ])
+    fun getColors(): ResponseEntity<GenericResponse<Any>> {
+        val response = inventoryService.getColors()
         return ResponseEntity.status(HttpStatus.OK.value()).body(
             GenericResponse(
                 status = "success",
-                data = mapOf(
-                    "message" to "Rollos de tela convertidos correctamente!"
-                )
+                data = response
             )
         )
     }
 
-//    @PostMapping("/color")
-//    @ResponseStatus(HttpStatus.OK)
-//    @Operation(summary = "Convertir un rollo de tela a stock de moldes")
-//    @ApiResponses(value = [
-//        ApiResponse(description = "Color creado correctamente", responseCode = "200")
-//    ])
-//    fun createColor(@RequestBody createColorRequest: CreateColorRequest): ResponseEntity<GenericResponse<Any>> {
-//        //
-//    }
+    @PostMapping("/fabricPiece/convert")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Convertir piezas de tela a prendas")
+    @ApiResponses(value = [
+        ApiResponse(description = "Piezas de tela convertidas correctamente", responseCode = "200")
+    ])
+    fun convertFabricPiecesToGarments(
+        @RequestBody convertFabricPiecesRequest: ConvertFabricPiecesRequest
+    ): ResponseEntity<GenericResponse<Any>> {
+        inventoryService.convertFabricPieces(convertFabricPiecesRequest)
+        return try {
+            ResponseEntity.status(HttpStatus.OK.value()).body(
+                GenericResponse(
+                    status = "success",
+                    data = mapOf(
+                        "message" to "Piezas de tela convertidas correctamente!"
+                    )
+                )
+            )
+        } catch (e: GarmentNotFoundException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(
+                GenericResponse(
+                    status = "fail",
+                    data = mapOf(
+                        "message" to e.message,
+                        "exception" to e.javaClass.simpleName
+                    )
+                )
+            )
+        } catch (e: FabricPieceNotFoundException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(
+                GenericResponse(
+                    status = "fail",
+                    data = mapOf(
+                        "message" to e.message,
+                        "exception" to e.javaClass.simpleName
+                    )
+                )
+            )
+        } catch (e: FabricPieceOutOfStockException) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(
+                GenericResponse(
+                    status = "fail",
+                    data = mapOf(
+                        "exception" to e.javaClass.simpleName,
+                        "message" to e.message
+                    )
+                )
+            )
+        }
+    }
+
+    @GetMapping("/prenda/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Obtener el detalle de una prenda")
+    @ApiResponses(value = [
+        ApiResponse(description = "Detalle de prende obtenido correctamente", responseCode = "200")
+    ])
+    fun getDetailedGarment(@PathVariable id: UUID): ResponseEntity<GenericResponse<Any>> {
+        val response = inventoryService.getDetailedGarment(id)
+        return ResponseEntity.ok().body(
+            GenericResponse(
+                status = "success",
+                data = response
+            )
+        )
+    }
 }

@@ -1,17 +1,14 @@
 package com.example.smartfactory.application.Inventory
 
 import com.example.smartfactory.Domain.Inventory.*
-import com.example.smartfactory.Domain.Molde.Molde
-import com.example.smartfactory.Domain.Tizada.MoldsQuantity
 import com.example.smartfactory.Domain.Tizada.TizadaState
 import com.example.smartfactory.Exceptions.*
 import com.example.smartfactory.Repository.*
 import com.example.smartfactory.application.Inventory.Request.*
-import com.example.smartfactory.application.Inventory.Response.GetGarmentResponse
+import com.example.smartfactory.application.Inventory.Response.GetDetailedGarmentResponse
 import com.example.smartfactory.application.Inventory.Response.UpdateFabricRollResponse
 import com.example.smartfactory.application.Inventory.Response.UpdateGarmentResponse
 import com.example.smartfactory.application.Tizada.TizadaService
-import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -30,28 +27,56 @@ class InventoryService(
 ) {
     fun createGarment(createGarmentRequest: CreateGarmentRequest): UUID {
         val garmentUUID = UUID.randomUUID()
+        val garmentPieces: MutableList<GarmentPiece> = mutableListOf()
+        createGarmentRequest.garmentComponents.forEach {
+            val fabricPiece = getFabricPieceIfExistsOrCreate(it.moldeId, it.fabricColorId)
+            val garmentPiece = GarmentPiece(
+                GarmentPieceId(garmentUUID, fabricPiece.fabricPieceId), it.quantity
+            )
+            garmentPieces.add(garmentPiece)
+        }
         val garment = Garment(
             garmentId = garmentUUID,
             name = createGarmentRequest.name,
             stock = 0,
             createdAt = LocalDateTime.now(),
             updatedAt = null,
-            deletedAt = null
+            deletedAt = null,
+            garmentPieces = garmentPieces
         )
-        val molds: MutableList<GarmentMold> = mutableListOf()
-        for (garmentMold in createGarmentRequest.molds) {
-            val mold = GarmentMold(GarmentMoldId(garmentUUID, UUID.fromString(garmentMold.uuid)), garmentMold.quantity)
-            molds.add(mold)
-        }
-        garment.garmentMolds = molds
         garmentRepository.save(garment)
         return garmentUUID
+    }
+
+    fun getFabricPieceIfExistsOrCreate(moldeId: UUID, fabricColorId: UUID): FabricPiece {
+        val molde = moldeRepository.findMoldeByUuid(moldeId) ?: throw MoldeNotFoundException("No pudimos obtener este molde")
+        val fabricColor = fabricColorRepository.getFabricColorByFabricColorId(fabricColorId) ?: throw FabricColorNotFoundException("No pudimos obtener este color")
+        val fabricPiece = fabricPieceRepository.getFabricPieceByColorAndMolde(fabricColor, molde) ?:
+            fabricPieceRepository.save(
+                FabricPiece(
+                    fabricPieceId = UUID.randomUUID(),
+                    color = fabricColor,
+                    molde = molde,
+                    stock = 0
+                )
+            )
+        return fabricPiece
+    }
+
+    // Itero el metodo de arriba ;)
+    fun getFabricPiecesIfExistsOrCreate(garmentComponents: List<GarmentComponents>) : MutableList<FabricPiece> {
+        val fabricPieces = mutableListOf<FabricPiece>()
+        for (garmentComponent in garmentComponents) {
+            val fabricPiece = this.getFabricPieceIfExistsOrCreate(garmentComponent.moldeId, garmentComponent.fabricColorId)
+            fabricPieces.add(fabricPiece)
+        }
+        return fabricPieces
     }
 
     fun createFabricRoll(createFabricRollRequest: CreateFabricRollRequest): UUID {
         val fabricUUID = UUID.randomUUID()
         val fabricColor = fabricColorRepository.getFabricColorByFabricColorId(createFabricRollRequest.fabricColorId)
-            ?: throw FabricColorNotFoundException("No se encontró el color con ID ${fabricUUID}")
+            ?: throw FabricColorNotFoundException("No se encontró el color con ID $fabricUUID")
         val fabricRoll = FabricRoll(
             fabricRollId = fabricUUID,
             name = createFabricRollRequest.name,
@@ -65,23 +90,9 @@ class InventoryService(
         return fabricUUID
     }
 
-    fun getGarments(): List<GetGarmentResponse> {
+    fun getGarments(): List<Garment> {
         val garments = garmentRepository.findAll().toList()
-        val response: MutableList<GetGarmentResponse> = mutableListOf()
-        for (garment in garments) {
-            val moldQuantities = mutableListOf<MoldsQuantity>()
-            for (garmentMold in garment.garmentMolds) {
-                val mold = moldeRepository.findMoldeByUuid(garmentMold.garmentMoldId.moldeId)
-                val moldQuantity = MoldsQuantity(mold!!, garmentMold.quantity)
-                moldQuantities.add(moldQuantity)
-            }
-            response.add(GetGarmentResponse(
-                name = garment.name,
-                stock = garment.stock,
-                molds = moldQuantities
-            ))
-        }
-        return response
+        return garments
     }
 
     fun getFabricRolls(): List<FabricRoll> {
@@ -150,5 +161,62 @@ class InventoryService(
             fabricRoll.stock -= roll.quantity
             fabricRollRepository.save(fabricRoll)
         }
+    }
+
+    @Transactional(rollbackFor = [FabricPieceOutOfStockException::class, FabricPieceNotFoundException::class])
+    fun convertFabricPieces(convertFabricPiecesRequest: ConvertFabricPiecesRequest) {
+        val garment = garmentRepository.getGarmentByGarmentId(convertFabricPiecesRequest.garmentId)
+            ?: throw GarmentNotFoundException("No pudimos encontrar la prenda con ID ${convertFabricPiecesRequest.garmentId}")
+        for (garmentPiece in garment.garmentPieces) {
+            val fabricPiece = fabricPieceRepository.getFabricPieceByFabricPieceId(garmentPiece.garmentPieceId.fabricPieceId) ?:
+            throw FabricPieceNotFoundException("No se encontró el molde con color especificado.")
+            /* Al stock de un molde con color le sacamos la cantidad de piezas que pide una prenda multiplicado por la
+            cantidad de prendas que el usuario quiere hacer */
+            if (fabricPiece.stock - (garmentPiece.quantity * convertFabricPiecesRequest.quantity) < 0) {
+                throw FabricPieceOutOfStockException("No se pueden restar ${garmentPiece.quantity * convertFabricPiecesRequest.quantity}, hay ${fabricPiece.stock} en stock")
+            }
+            fabricPiece.stock -= garmentPiece.quantity * convertFabricPiecesRequest.quantity
+            fabricPieceRepository.save(fabricPiece)
+        }
+        garment.stock += convertFabricPiecesRequest.quantity
+        garmentRepository.save(garment)
+    }
+
+    fun createColor(createColorRequest: CreateColorRequest): FabricColor {
+        val uuid = UUID.randomUUID()
+        val fabricColor = FabricColor(
+            fabricColorId = uuid,
+            name = createColorRequest.name
+        )
+        return fabricColorRepository.save(fabricColor)
+    }
+
+    fun getColors(): List<FabricColor> {
+        return fabricColorRepository.findAll().toList()
+    }
+
+    fun getDetailedGarment(garmentId: UUID): GetDetailedGarmentResponse {
+        val garment = garmentRepository.getGarmentByGarmentId(garmentId) ?: throw GarmentNotFoundException("No pudimos encontrar la prenda con ID $garmentId")
+        val fabricPieces = mutableListOf<Map<String, Any>>()
+        garment.garmentPieces.forEach {
+            val fabricPiece = fabricPieceRepository.getFabricPieceByFabricPieceId(it.garmentPieceId.fabricPieceId)!!
+            fabricPieces.add(
+                mapOf(
+                    "fabricPieceId" to fabricPiece.fabricPieceId,
+                    "name" to fabricPiece.name.lowercase().capitalize(),
+                    "color" to fabricPiece.color.name,
+                    "colorId" to fabricPiece.color.fabricColorId,
+                    "moldeId" to fabricPiece.molde.uuid,
+                    "url" to fabricPiece.molde.url,
+                    "quantity" to it.quantity,
+                )
+            )
+        }
+        val response = GetDetailedGarmentResponse(
+            name = garment.name,
+            stock = garment.stock,
+            fabricPieces = fabricPieces.toList()
+        )
+        return response
     }
 }

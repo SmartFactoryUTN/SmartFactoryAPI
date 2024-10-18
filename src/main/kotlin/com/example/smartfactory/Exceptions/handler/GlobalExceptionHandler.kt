@@ -2,11 +2,15 @@ package com.example.smartfactory.Exceptions.handler
 
 import com.example.smartfactory.Exceptions.UploadMoldeException
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
+import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import jakarta.validation.ConstraintViolationException
+import org.springframework.beans.factory.parsing.Problem
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.context.request.NativeWebRequest
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
