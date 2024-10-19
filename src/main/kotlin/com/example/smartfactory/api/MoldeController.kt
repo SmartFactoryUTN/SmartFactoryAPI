@@ -2,8 +2,11 @@ package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Domain.Molde.Molde
+import com.example.smartfactory.Exceptions.MoldeNotFoundException
+import com.example.smartfactory.Exceptions.FabricPieceOutOfStockException
 import com.example.smartfactory.application.Molde.CreateMoldeRequest
 import com.example.smartfactory.application.Molde.MoldeService
+import com.example.smartfactory.application.Molde.UpdateMoldeRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -73,12 +76,12 @@ class MoldeController(private val moldeService: MoldeService) {
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Molde obtenido correctamente"),
-            ApiResponse(responseCode = "404", description = "Molde no encontrado "),
+            ApiResponse(responseCode = "404", description = "Molde no encontrado"),
             ApiResponse(responseCode = "500")
         ]
     )
     fun getMoldeById(@PathVariable("id") id: UUID): GenericResponse<Molde?> {
-        return GenericResponse( HttpStatus.OK.name, moldeService.getMoldeById(id))
+        return GenericResponse("success", moldeService.getMoldeById(id))
     }
 
     @GetMapping
@@ -93,6 +96,81 @@ class MoldeController(private val moldeService: MoldeService) {
         ]
     )
     fun getAllMoldes(): GenericResponse<List<Molde?>> {
-        return GenericResponse(HttpStatus.OK.name, moldeService.getAllMoldes())
+        return GenericResponse("success", moldeService.getAllMoldes())
+    }
+
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+        summary = "Actualizar nombre, descripción y/o stock",
+        description = "Este método se utilizará para actualizar moldes y también se usará en el módulo de inventario para" +
+                "actualizar el stock de los moldes cortados."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Molde actualizo corretamente"),
+            ApiResponse(responseCode = "400", description = "Actualización inválida"),
+            ApiResponse(responseCode = "404", description = "Molde no encontrado")
+        ]
+    )
+    fun updateMolde(
+        @RequestBody body: UpdateMoldeRequest,
+        @PathVariable id: UUID
+    ): ResponseEntity<GenericResponse<Any>> {
+        return try {
+            ResponseEntity.status(200).body(
+                GenericResponse("success", moldeService.updateMolde(id, body))
+            )
+        } catch (e: MoldeNotFoundException) {
+            ResponseEntity.status(404).body(
+                GenericResponse(
+                    status = "fail",
+                    data = mapOf(
+                        "exception" to e::class.java.simpleName,
+                        "message" to e.message
+                    )
+                )
+            )
+        } catch (e: FabricPieceOutOfStockException) {
+            ResponseEntity.status(400).body(
+                GenericResponse(
+                    status = "fail",
+                    data = mapOf(
+                        "exception" to e.javaClass.simpleName,
+                        "message" to e.message
+                    )
+                )
+            )
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+        summary = "Eliminar un molde",
+        description = "Dado un ID de molde, hace un borrado lógico de este molde."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "Molde eliminado correctamente"),
+            ApiResponse(responseCode = "404", description = "Molde no encontrado")
+        ]
+    )
+    fun deleteMolde(@PathVariable id: UUID): ResponseEntity<Any> {
+        try {
+            moldeService.deleteMolde(id)
+            return ResponseEntity.noContent().build()
+        }
+        catch (e: MoldeNotFoundException) {
+            return ResponseEntity.status(404).body(
+                GenericResponse(
+                    status = "fail",
+                    data = mapOf(
+                        "exception" to e::class.java.simpleName,
+                        "message" to e.message
+                    )
+                )
+            )
+        }
     }
 }

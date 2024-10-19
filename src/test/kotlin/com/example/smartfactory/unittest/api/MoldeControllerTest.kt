@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 @ExtendWith(SpringExtension::class)
@@ -41,7 +42,6 @@ class MoldeControllerTest {
         objectMapper.findAndRegisterModules()
     }
 
-
     fun createMolde() {
         //Arrange
         val moldeUUID = UUID.randomUUID()
@@ -50,14 +50,12 @@ class MoldeControllerTest {
 
         // Mock the service call
         coEvery { moldeService.createMolde(any()) } returns Molde(
-            1,
             moldeUUID,
             "Un molde",
             "https://servicio-de-tizada.s3.us-east-2.amazonaws.com/moldeA.svg",
             "Un molde",
             1.0,
             true,
-            10,
             LocalDateTime.now())
 
 

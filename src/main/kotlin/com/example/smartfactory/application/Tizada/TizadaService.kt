@@ -1,20 +1,21 @@
 package com.example.smartfactory.application.Tizada
 
-import com.example.smartfactory.Domain.Tizada.MoldsQuantity
-import com.example.smartfactory.Domain.Tizada.Tizada
-import com.example.smartfactory.Domain.Tizada.TizadaConfiguration
+import com.example.smartfactory.Domain.Molde.MoldeDeTizada
+import com.example.smartfactory.Domain.Molde.MoldeDeTizadaId
+import com.example.smartfactory.Domain.Tizada.*
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
 import com.example.smartfactory.Repository.MoldeDeTizadaRepository
 import com.example.smartfactory.Repository.MoldeRepository
+import com.example.smartfactory.Repository.TizadaContainerRepository
 import com.example.smartfactory.Repository.TizadaRepository
-import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
-import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
-import com.example.smartfactory.application.Tizada.Request.TizadaNotificationRequest
+import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,53 +33,96 @@ class TizadaService(
     private val moldesDeTizadaRepo: MoldeDeTizadaRepository,
     @Autowired
     private val lambdaService: LambdaService,
+    @Autowired
+    private val tizadaContainerRepo: TizadaContainerRepository
 ) {
     val logger = KotlinLogging.logger {}
 
-    // FIXME save tizada to db
-    fun createTizada(request: CreateTizadaRequest): TizadaResponse<Any> {
-        val generatedId = 1L
-        return TizadaResponse(status = "ok", message = "Tizada creada exitosamente", data = mapOf("id" to generatedId))
-    }
-
-    fun getTizada(id: UUID): Tizada? {
-        val tizada = tizadaRepo.getTizadaByUuid(id)
-        if (tizada != null) {
-            val parts: MutableList<MoldsQuantity> = mutableListOf()
-            val moldesDeTizada = moldesDeTizadaRepo.getMoldesByTizadaId(tizada.uuid)
-            for (moldeDeTizada in moldesDeTizada) {
-                val molde = moldesRepo.findMoldeByUuid(moldeDeTizada.moldeDeTizadaId.moldeId)!!
-                parts.add(MoldsQuantity(molde, moldeDeTizada.quantity))
-            }
-            tizada.parts = parts
-            return tizada
+    @Transactional
+    suspend fun createTizada(request: CreateTizadaRequest): UUID {
+        val uuid = UUID.randomUUID() // id of this new tizada
+        val tizadaParts: MutableList<MoldeDeTizada> = mutableListOf()
+        request.molds.forEach {
+            tizadaParts.add(MoldeDeTizada(MoldeDeTizadaId(moldeId = UUID.fromString(it.uuid), tizadaId = uuid), it.quantity))
         }
-        throw TizadaNotFoundException("TIZADA_NO_ENCONTRADA")
-    }
 
-    fun updateTizada(id: UUID, name: String): Tizada {
-        val tizada = tizadaRepo.getTizadaByUuid(id)
-        if (tizada != null) {
-            return Tizada(
-                uuid = id,
-                name = tizada.name,
-                configuration = TizadaConfiguration(),
-                parts = tizada.parts,
-                bin = tizada.bin,
-                results = tizada.results,
-                state = tizada.state,
-                active = tizada.active,
-                createdAt = tizada.createdAt,
-                updatedAt = LocalDateTime.now(),
-                deletedAt = null
+        // Second step prepare configuration (maxTime and utilizationPercentage)
+        val configuration = TizadaConfiguration(
+            UUID.randomUUID(), time = request.maxTime, utilizationPercentage = request.utilizationPercentage
+        )
+
+        // Third step: Retrieve bin for this tizada
+        var bin = withContext(Dispatchers.IO) {
+            tizadaContainerRepo.findByWidthAndHeight(request.width, request.height)
+        }
+        if (bin == null) {
+            val svg =
+                """<svg width='${request.width}cm' height='${request.height}cm' xmlns='http://www.w3.org/2000/svg' 
+                    viewBox='0 0 ${request.width}cm ${request.height}cm'>
+                    <rect width="${request.width}cm" height="${request.height}cm" fill="none" stroke="#010101"></rect>
+                </svg>""".trimIndent()
+            val containerId = UUID.randomUUID()
+            val url = lambdaService.uploadContainer(containerId, svg)
+            bin = TizadaContainer(
+                uuid = containerId,
+                name = "Mesa de corte",
+                height = request.height,
+                width = request.width,
+                url = url,
+                createdAt = LocalDateTime.now()
             )
         }
-        throw TizadaNotFoundException("TIZADA_NO_ENCONTRADA")
+
+        // Fourth step: create tizada and save it into DB, ready for executing
+        val tizada = Tizada(
+            uuid = uuid,
+            name = request.name,
+            configuration = configuration,
+            parts = mutableListOf(),
+            bin = bin,
+            results = mutableListOf(),
+            state = TizadaState.CREATED,
+            active = true,
+            createdAt = LocalDateTime.now(),
+            updatedAt = null,
+            deletedAt = null
+        )
+
+        withContext(Dispatchers.IO) {
+            tizadaRepo.save(tizada)
+        }
+
+
+        // Fifth step: return uuid of this new created tizada.
+        /* No me parece necesario devolver el objeto tizada completo, ya que la app vuelve a Mis tizadas, consultando
+        de nuevo las tizadas */
+        return uuid
+    }
+
+    fun getTizada(id: UUID): Tizada {
+        val tizada = tizadaRepo.getTizadaByUuid(id) ?: throw TizadaNotFoundException("No se encontró la tizada con ID $id")
+        val parts: MutableList<MoldsQuantity> = mutableListOf()
+        for (moldeDeTizada in tizada.moldesDeTizada) {
+            val molde = moldesRepo.findMoldeByUuid(moldeDeTizada.moldeDeTizadaId.moldeId)!!
+            parts.add(MoldsQuantity(molde, moldeDeTizada.quantity))
+        }
+        tizada.parts = parts
+        return tizada
+    }
+
+    fun updateTizada(id: UUID, request: UpdateTizadaRequest): UUID {
+        val tizada = tizadaRepo.getTizadaByUuid(id) ?: throw TizadaNotFoundException("No se encontró la tizada con ID $id")
+        request.name?.let {
+            tizada.name = it
+            tizada.updatedAt = LocalDateTime.now()
+        }
+        tizadaRepo.save(tizada)
+        return tizada.uuid
     }
 
     fun deleteTizada(id: UUID) {
-        val tizada = this.getTizada(id)
-        tizada!!.active = false
+        val tizada = tizadaRepo.getTizadaByUuid(id) ?: throw TizadaNotFoundException("No se encontró la tizada con ID $id")
+        tizada.active = false
         tizada.deletedAt = LocalDateTime.now()
         tizadaRepo.save(tizada)
     }
@@ -86,24 +130,66 @@ class TizadaService(
     // FIXME add limit
     @Transactional
     fun getAllTizadas(): Collection<Tizada> {
-        val tizadas = tizadaRepo.getAllTizadas()
-        for (tizada in tizadas) {
-            this.getTizada(tizada.uuid)
+        /* En base a los ids, obtengo las entidades tizada completas, como la tabla intermedia es custom, la tengo que
+        obtener a mano con this.getTizada(tizada) que hace ese manejo */
+        val tizadaIds = tizadaRepo.getAllTizadas()
+        val tizadas: MutableList<Tizada> = mutableListOf()
+        for (tizada in tizadaIds) {
+            tizadas.add(this.getTizada(tizada))
         }
         return tizadas
     }
 
     @Transactional
     fun invokeTizada(invokeTizadaRequest: InvokeTizadaRequest): InvokeTizadaResponse? {
+        val tizada = this.getTizada(UUID.fromString(invokeTizadaRequest.tizadaUUID)) ?:
+            throw TizadaNotFoundException("No se encontró la tizada con ID ${invokeTizadaRequest.tizadaUUID}")
 
-        val jsonPayload = Json.encodeToString(invokeTizadaRequest)
-        return lambdaService.invokeLambdaAsync(jsonPayload)
+        tizada.state = TizadaState.IN_PROGRESS
+        tizada.updatedAt = LocalDateTime.now()
+
+        val parts = tizada.parts.map { it.toPart() }
+
+        val invokeTizadaPayload = InvokeTizadaPayload(
+            tizadaUUID = invokeTizadaRequest.tizadaUUID,
+            user = invokeTizadaRequest.userUUID,
+            parts = parts,
+            bin = tizada.bin.toBin(),
+            configuration = tizada.configuration.toInvokeConfiguration()
+        )
+        val jsonPayload = Json.encodeToString(invokeTizadaPayload)
+        val response = lambdaService.invokeLambdaAsync(jsonPayload)
+        tizadaRepo.save(tizada)
+        return response
     }
 
     fun saveTizadaFinalizada(request: TizadaNotificationRequest) {
         logger.info {
-            "Received save tizada finalizada notification for"+
-                    " tizadaUUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
+            "Received save tizada finalizada notification for" +
+                    " tizadaUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
         }
+        val tizada = tizadaRepo.getTizadaByUuid(request.tizadaUUID) ?:
+            throw TizadaNotFoundException("No se encontró la tizada con ID ${request.tizadaUUID}")
+        val moldes = request.parts.map {
+            moldesRepo.findMoldeByUuid(UUID.fromString(it.replace("molde-", "")))!!
+        }
+        val uuid = UUID.randomUUID()
+        val tizadaResult = TizadaResult(
+            uuid = uuid,
+            url = request.url!!,
+            configuration = tizada.configuration,
+            bin = tizada.bin,
+            parts = moldes,
+            materialUtilization = request.materialUtilization,
+            iterations = request.iterations,
+            timeoutReached = request.timeoutReached,
+            createdAt = LocalDateTime.now(),
+            null,
+            null
+        )
+        tizada.results?.add(tizadaResult)
+        tizada.state = TizadaState.FINISHED
+        tizada.updatedAt = LocalDateTime.now()
+        tizadaRepo.save(tizada)
     }
 }

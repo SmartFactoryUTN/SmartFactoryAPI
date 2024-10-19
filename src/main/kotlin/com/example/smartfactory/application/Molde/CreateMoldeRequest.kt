@@ -19,3 +19,10 @@ data class CreateMoldeRequest (
         type = "string", format = "binary", required = true)
     val svg: MultipartFile
 )
+
+data class UpdateMoldeRequest(
+    @Schema(description = "New name for the molde", example = "Nuevo nombre molde ABC", required = false)
+    val name: String?,
+    @Schema(description = "New description for the molde", required = false)
+    val description: String?
+)

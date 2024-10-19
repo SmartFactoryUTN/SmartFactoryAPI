@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.lambda.LambdaClient
 import software.amazon.awssdk.services.lambda.model.InvocationType
 import software.amazon.awssdk.services.lambda.model.InvokeRequest
 import software.amazon.awssdk.services.lambda.model.InvokeResponse
+import java.nio.charset.StandardCharsets
 import java.util.*
 
 @Service
@@ -38,9 +39,9 @@ class LambdaService(
         return awsProperties.s3BucketName
     }
 
-    suspend fun uploadFile(molde: CreateMoldeRequest): String {
+    suspend fun uploadFile(molde: CreateMoldeRequest, uuid: UUID): String {
         val bucketName = getS3BucketName()
-        val fileName = "${molde.userUUID}/molde-${UUID.randomUUID()}.svg"
+        val fileName = "${molde.userUUID}/molde-${uuid}.svg"
 
         return try {
             // Convert the MultipartFile to a byte array for upload
@@ -62,7 +63,35 @@ class LambdaService(
 
         } catch (e: S3Exception) {
             throw UploadMoldeException("Error uploading file to S3")
-        }catch (e: RuntimeException){
+        } catch (e: RuntimeException) {
+            throw UploadMoldeException("Error ocurred")
+        }
+    }
+
+    suspend fun uploadContainer(uuid: UUID, svg: String): String {
+        val bucketName = getS3BucketName()
+        val fileName = "containers/$uuid.svg"
+
+        return try {
+            val byteArray = svg.toByteArray(StandardCharsets.UTF_8)
+
+            // Build the PutObjectRequest
+            val putObjectRequest = PutObjectRequest {
+                bucket = bucketName
+                key = fileName
+                contentType = "image/svg+xml"
+                body = ByteStream.fromBytes(byteArray)
+            }
+
+            // Upload the file to S3
+            s3Client.putObject(putObjectRequest)
+
+            // Return the file URL
+            "https://${bucketName}.s3.amazonaws.com/${fileName}"
+
+        } catch (e: S3Exception) {
+            throw UploadMoldeException("Error uploading file to S3")
+        } catch (e: RuntimeException) {
             throw UploadMoldeException("Error ocurred")
         }
     }

@@ -8,20 +8,18 @@ import java.util.*
 @Entity
 @Table(name = "moldes")
 class Molde(
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    val id: Long? = null,
+    @Id @Column(name = "molde_id", nullable = false)
     val uuid: UUID,
-    val name: String,
+    var name: String,
     val url: String,
-    val description: String,
+    var description: String,
     val area: Double?,
-    val active: Boolean,
-    val stock: Int,
+    var active: Boolean,
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime? = null,
     override var deletedAt: LocalDateTime? = null
 ): Auditable
+
 
 
 @Embeddable

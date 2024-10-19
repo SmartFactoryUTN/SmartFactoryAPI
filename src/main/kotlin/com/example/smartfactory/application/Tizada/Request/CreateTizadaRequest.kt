@@ -1,16 +1,26 @@
 package com.example.smartfactory.application.Tizada.Request
 
-import com.example.smartfactory.Domain.Tizada.Tizada
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import kotlinx.serialization.Serializable
-import java.util.*
 
 
 class CreateTizadaRequest(
-    val date: Date,
-    val tizada: Tizada
+    @field:NotNull(message = "User UUID cannot be null")
+    val userUUID: String,
+    @field:NotEmpty(message = "Name cannot be empty")
+    val name: String,
+    @field:Min(value = 1, message = "Width must be greater or equal than 1")
+    val width: Int,
+    @field:Min(value = 1, message = "Height must be greater or equal than 1")
+    val height: Int,
+    @field:Min(value = 1, message = "materialUtilization must be greater or equal than 1")
+    val utilizationPercentage: Int,
+    @field:Min(value = 1, message = "maxTime must be greater or equal than 1")
+    val maxTime: Int,
+    @field:NotEmpty(message = "At least one mold is required")
+    val molds: List<Part>
 )
 
 
@@ -46,7 +56,16 @@ data class InvokeConfiguration(
 
 @Serializable
 data class InvokeTizadaRequest(
-    @field:NotEmpty(message = "Tizada.kt ID cannot be empty")
+    @field:NotEmpty(message = "Tizada ID cannot be empty")
+    val tizadaUUID: String,
+
+    @field:NotEmpty(message = "User ID cannot be empty")
+    val userUUID: String
+)
+
+@Serializable
+data class InvokeTizadaPayload(
+    @field:NotEmpty(message = "Tizada ID cannot be empty")
     val tizadaUUID: String,
 
     @field:NotEmpty(message = "User ID cannot be empty")
@@ -61,4 +80,3 @@ data class InvokeTizadaRequest(
     @field:NotNull(message = "Configuration cannot be null")
     val configuration: InvokeConfiguration
 )
-
