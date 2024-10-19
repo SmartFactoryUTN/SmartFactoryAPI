@@ -46,6 +46,7 @@ class SecurityConfig {
                     .requestMatchers(
                         AntPathRequestMatcher("/api/tizada"),
                         AntPathRequestMatcher("/api/tizada/*"),
+                        AntPathRequestMatcher("/api/molde"),
                         AntPathRequestMatcher("/api/molde/*")
                     ).authenticated()
             }

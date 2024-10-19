@@ -7,3 +7,4 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: https://dev-palh3gsscosfpppk.us.auth0.com/
+          audiences: https://smartfactory-api/
