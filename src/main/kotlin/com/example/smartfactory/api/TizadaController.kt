@@ -2,6 +2,7 @@ package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Domain.Tizada.Tizada
+import com.example.smartfactory.Exceptions.TizadaNotFoundException
 import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.TizadaNotificationRequest
@@ -42,7 +43,7 @@ class TizadaController(private val tizadaService: TizadaService) {
                     data = mapOf("tizada" to response)
                 )
             )
-        }catch (e: Exception){
+        } catch (e: Exception){
             ResponseEntity.status(500).body(
                 TizadaResponse(
                     status = "error",
@@ -91,14 +92,16 @@ class TizadaController(private val tizadaService: TizadaService) {
     @ApiResponse(responseCode = "201", description = "Tizada creada correctamente")
     @ApiResponse(responseCode = "400", description = "Tizada inválida")
     @ApiResponse(responseCode = "500", description = "Ocurrió un error")
-    suspend fun createTizada(@RequestBody request: CreateTizadaRequest): ResponseEntity<TizadaResponse<Any>> {
+    suspend fun createTizada(@RequestBody request: CreateTizadaRequest): ResponseEntity<GenericResponse<Any>> {
         val tizadaResponse = tizadaService.createTizada(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(tizadaResponse)
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            GenericResponse(status = "success", data = tizadaResponse)
+        )
     }
 
     @PatchMapping("/{id}")
     @Operation(
-        summary = "WIP: Modificar una tizada",
+        summary = "Modificar una tizada",
         description = "Dado un ID, actualiza/modifica la tizada"
     )
     @ApiResponses(
@@ -109,9 +112,21 @@ class TizadaController(private val tizadaService: TizadaService) {
             ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
         ]
     )
-    fun updateTizada(@PathVariable id: UUID, @RequestBody request: UpdateTizadaRequest): GenericResponse<Tizada> {
-        val tizadaResponse = tizadaService.updateTizada(id, request.name)
-        return GenericResponse(HttpStatus.OK.name, tizadaResponse)
+    fun updateTizada(@PathVariable id: UUID, @RequestBody request: UpdateTizadaRequest): ResponseEntity<GenericResponse<Any>> {
+        return try {
+            val response = tizadaService.updateTizada(id, request)
+            ResponseEntity.status(HttpStatus.OK.value()).body(
+                GenericResponse(
+                    status = "success",
+                    data = response
+                )
+            )
+        } catch (ex: TizadaNotFoundException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(GenericResponse(
+                status = "fail",
+                data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+            ))
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -128,9 +143,16 @@ class TizadaController(private val tizadaService: TizadaService) {
             ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
         ]
     )
-    fun deleteTizada(@PathVariable id: UUID): GenericResponse<String> {
-        tizadaService.deleteTizada(id)
-        return GenericResponse(HttpStatus.NO_CONTENT.name, "")
+    fun deleteTizada(@PathVariable id: UUID): ResponseEntity<Any> {
+        return try {
+            tizadaService.deleteTizada(id)
+            ResponseEntity.noContent().build()
+        } catch (ex: TizadaNotFoundException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(GenericResponse(
+                status = "fail",
+                data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+            ))
+        }
     }
 
     @GetMapping("/{id}")
@@ -146,9 +168,17 @@ class TizadaController(private val tizadaService: TizadaService) {
             ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
         ]
     )
-    fun getTizada(@PathVariable id: UUID): GenericResponse<Tizada> {
-        val tizada = tizadaService.getTizada(id)!!
-        return GenericResponse(HttpStatus.OK.name, tizada)
+    fun getTizada(@PathVariable id: UUID): ResponseEntity<GenericResponse<Any>> {
+        return try {
+            val tizada = tizadaService.getTizada(id)
+            ResponseEntity.status(HttpStatus.OK.value()).body(
+                GenericResponse(status = "success", data = tizada)
+            )
+        } catch (ex: TizadaNotFoundException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(GenericResponse(
+                status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+            ))
+        }
     }
 
     @GetMapping
@@ -161,8 +191,10 @@ class TizadaController(private val tizadaService: TizadaService) {
         ApiResponse(responseCode = "200", description = "Obtener todas las tizadas"),
         ApiResponse(responseCode = "500", description = "No se pudieron obtener las tizadas.")
     ])
-    fun getAllTizadas(): GenericResponse<Collection<Tizada>> {
+    fun getAllTizadas(): ResponseEntity<GenericResponse<Any>> {
         val tizadas = tizadaService.getAllTizadas()
-        return GenericResponse(HttpStatus.OK.name, tizadas)
+        return ResponseEntity.status(HttpStatus.OK.value()).body(
+            GenericResponse(status = "success", data = tizadas)
+        )
     }
 }

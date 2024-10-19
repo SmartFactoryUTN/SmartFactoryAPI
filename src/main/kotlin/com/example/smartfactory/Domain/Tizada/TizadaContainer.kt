@@ -24,8 +24,8 @@ class TizadaContainer (
     val url: String,
     val area: Double = (height * width).toDouble(),
     override var createdAt: LocalDateTime,
-    override var updatedAt: LocalDateTime?,
-    override var deletedAt: LocalDateTime?,
+    override var updatedAt: LocalDateTime? = null,
+    override var deletedAt: LocalDateTime? = null,
 ): Auditable {
     companion object {
         const val DEFAULT_UUID = "60440d33-e9b5-4e71-9573-f8c00010acbd"

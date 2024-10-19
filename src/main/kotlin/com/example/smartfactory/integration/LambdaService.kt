@@ -7,12 +7,16 @@ import aws.sdk.kotlin.services.s3.model.S3Exception
 import aws.smithy.kotlin.runtime.content.ByteStream
 import com.example.smartfactory.Exceptions.UploadMoldeException
 import com.example.smartfactory.application.Molde.CreateMoldeRequest
+import org.springframework.http.StreamingHttpOutputMessage
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.core.SdkBytes
+import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.lambda.LambdaClient
 import software.amazon.awssdk.services.lambda.model.InvocationType
 import software.amazon.awssdk.services.lambda.model.InvokeRequest
 import software.amazon.awssdk.services.lambda.model.InvokeResponse
+import java.io.ByteArrayInputStream
+import java.nio.charset.StandardCharsets
 import java.util.*
 
 @Service
@@ -53,6 +57,34 @@ class LambdaService(
                 key = fileName
                 body = fileBytes
                 contentType = "image/svg+xml"
+            }
+
+            // Upload the file to S3
+            val response: PutObjectResponse = s3Client.putObject(putObjectRequest)
+
+            // Return the file URL
+            "https://${bucketName}.s3.amazonaws.com/${fileName}"
+
+        } catch (e: S3Exception) {
+            throw UploadMoldeException("Error uploading file to S3")
+        } catch (e: RuntimeException) {
+            throw UploadMoldeException("Error ocurred")
+        }
+    }
+
+    suspend fun uploadContainer(uuid: UUID, svg: String): String {
+        val bucketName = getS3BucketName()
+        val fileName = "containers/$uuid.svg"
+
+        return try {
+            val byteArray = svg.toByteArray(StandardCharsets.UTF_8)
+
+            // Build the PutObjectRequest
+            val putObjectRequest = PutObjectRequest {
+                bucket = bucketName
+                key = fileName
+                contentType = "image/svg+xml"
+                body = ByteStream.fromBytes(byteArray)
             }
 
             // Upload the file to S3
