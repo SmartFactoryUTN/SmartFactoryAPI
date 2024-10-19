@@ -24,7 +24,5 @@ data class UpdateMoldeRequest(
     @Schema(description = "New name for the molde", example = "Nuevo nombre molde ABC", required = false)
     val name: String?,
     @Schema(description = "New description for the molde", required = false)
-    val description: String?,
-    @Schema(description = "New stock for the molde", required = false)
-    val deltaStock: Int?
+    val description: String?
 )
