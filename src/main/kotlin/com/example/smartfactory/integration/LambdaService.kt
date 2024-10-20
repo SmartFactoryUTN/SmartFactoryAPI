@@ -66,6 +66,7 @@ class LambdaService(
             "https://${bucketName}.s3.amazonaws.com/${fileName}"
 
         } catch (e: S3Exception) {
+            e.printStackTrace()
             throw UploadMoldeException("Error uploading file to S3")
         } catch (e: RuntimeException) {
             throw UploadMoldeException("Error ocurred")

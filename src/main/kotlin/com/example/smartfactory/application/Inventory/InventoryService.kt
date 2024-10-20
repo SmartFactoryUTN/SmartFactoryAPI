@@ -219,4 +219,9 @@ class InventoryService(
         )
         return response
     }
+
+    fun getFabricPieces(): Any {
+        val fabricPieces = fabricPieceRepository.findAll().toList()
+        return fabricPieces
+    }
 }

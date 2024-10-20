@@ -277,4 +277,17 @@ class InventoryController(
             )
         )
     }
+
+    @GetMapping("/fabricPiece")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Obtener el detalle de una prenda")
+    @ApiResponses(value = [
+        ApiResponse(description = "Moldes cortados obtenido correctamente", responseCode = "200")
+    ])
+    fun getFabricPieces(): ResponseEntity<GenericResponse<Any>> {
+        val response = inventoryService.getFabricPieces()
+        return ResponseEntity.ok().body(
+            GenericResponse(status = "success", data = response)
+        )
+    }
 }
