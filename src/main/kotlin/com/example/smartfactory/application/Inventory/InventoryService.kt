@@ -137,7 +137,7 @@ class InventoryService(
     fun convertFabricRoll(convertFabricRollRequest: ConvertFabricRollRequest) {
         // FIXME: cuando la tabla intermedia entre tizada y molde esté mejorada
         // val tizada = tizadaRepository.getTizadaByUuid(convertFabricRollRequest.tizadaId) ?: throw TizadaNotFoundException("No encontré esta tizada")
-        val tizada = tizadaService.getTizada(convertFabricRollRequest.tizadaId) ?: throw TizadaNotFoundException("No encontré esta tizada")
+        val tizada = tizadaService.getTizada(convertFabricRollRequest.tizadaId)
         if (tizada.state != TizadaState.FINISHED) {
             throw TizadaInvalidStateException("No se puede convertir una tizada que no esté en estado finalizada.")
         }
@@ -203,7 +203,10 @@ class InventoryService(
             fabricPieces.add(
                 mapOf(
                     "fabricPieceId" to fabricPiece.fabricPieceId,
-                    "name" to fabricPiece.name.lowercase().capitalize(),
+                    "name" to fabricPiece.name.lowercase()
+                        .replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                                          },
                     "color" to fabricPiece.color.name,
                     "colorId" to fabricPiece.color.fabricColorId,
                     "moldeId" to fabricPiece.molde.uuid,
