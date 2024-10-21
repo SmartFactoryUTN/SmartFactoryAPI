@@ -13,12 +13,16 @@ class Usuario(
     @Id @Column(name = "usuario_id")
     val uuid: UUID,
     @OneToMany @JoinColumn(name = "usuario_id")
-    val tizadas: List<Tizada>,
+    val tizadas: List<Tizada>?,
     @OneToMany @JoinColumn(name = "usuario_id")
-    val parts: List<Molde>,
-    val nombre: String,
+    val parts: List<Molde>?,
+    val name: String,
+    @Column(unique = true)
     val email: String,
-    override var createdAt: LocalDateTime,
-    override var updatedAt: LocalDateTime?,
-    override var deletedAt: LocalDateTime?
+    @Column(unique = true)
+    val externalId: String,
+    val subscription: String,
+    override var createdAt: LocalDateTime = LocalDateTime.now(),
+    override var updatedAt: LocalDateTime? = null,
+    override var deletedAt: LocalDateTime? = null
 ) : Auditable

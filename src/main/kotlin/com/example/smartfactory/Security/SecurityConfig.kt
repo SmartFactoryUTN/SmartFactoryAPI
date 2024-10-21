@@ -36,12 +36,10 @@ class SecurityConfig {
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(
-                        AntPathRequestMatcher("/api/login"),
-                        AntPathRequestMatcher("/api/logout"),
-                        AntPathRequestMatcher("/api/signup"),
                         AntPathRequestMatcher("/swagger-ui/*"),
                         AntPathRequestMatcher("/v3/api-docs"),
-                        AntPathRequestMatcher("/v3/api-docs/*")
+                        AntPathRequestMatcher("/v3/api-docs/*"),
+                        AntPathRequestMatcher("/api/users/register")
                     ).permitAll()
                     .requestMatchers(
                         AntPathRequestMatcher("/api/tizada"),
