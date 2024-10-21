@@ -191,8 +191,8 @@ class TizadaController(private val tizadaService: TizadaService) {
         ApiResponse(responseCode = "200", description = "Obtener todas las tizadas"),
         ApiResponse(responseCode = "500", description = "No se pudieron obtener las tizadas.")
     ])
-    fun getAllTizadas(): ResponseEntity<GenericResponse<Any>> {
-        val tizadas = tizadaService.getAllTizadas()
+    fun getAllTizadas(@RequestParam finalizadas: String?): ResponseEntity<GenericResponse<Any>> {
+        val tizadas = tizadaService.getAllTizadas(finalizadas)
         return ResponseEntity.status(HttpStatus.OK.value()).body(
             GenericResponse(status = "success", data = tizadas)
         )
