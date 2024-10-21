@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
 
+const val CM_TO_SVG_FACTOR_FORM = 37.795275591
+
 @Service
 class TizadaService(
     @Autowired
@@ -56,19 +58,22 @@ class TizadaService(
             tizadaContainerRepo.findByWidthAndHeight(request.width, request.height)
         }
         if (bin == null) {
+            val height = request.height * CM_TO_SVG_FACTOR_FORM
+            val width = request.width * CM_TO_SVG_FACTOR_FORM
             val svg =
-                """<svg width='${request.width}cm' height='${request.height}cm' xmlns='http://www.w3.org/2000/svg' 
-                    viewBox='0 0 ${request.width}cm ${request.height}cm'>
-                    <rect width="${request.width}cm" height="${request.height}cm" fill="none" stroke="#010101"></rect>
+                """<svg width='$width' height='$height' xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 $width $height'>
+                    <rect width="$width" height="$height" fill="none" stroke="#010101"></rect>
                 </svg>""".trimIndent()
             val containerId = UUID.randomUUID()
             val url = lambdaService.uploadContainer(containerId, svg)
             bin = TizadaContainer(
-                uuid = containerId,
+                uuid = UUID.fromString("60eb9f4c-33b0-4769-a199-3920977ac1ea"),
                 name = "Mesa de corte",
                 height = request.height,
                 width = request.width,
                 url = url,
+                area = (request.height * request.width).toDouble(),
                 createdAt = LocalDateTime.now()
             )
         }
@@ -78,15 +83,17 @@ class TizadaService(
             uuid = uuid,
             name = request.name,
             configuration = configuration,
-            parts = mutableListOf(),
             bin = bin,
             results = mutableListOf(),
             state = TizadaState.CREATED,
             active = true,
             createdAt = LocalDateTime.now(),
             updatedAt = null,
-            deletedAt = null
+            deletedAt = null,
+            parts = mutableListOf()
         )
+
+        tizada.moldesDeTizada = tizadaParts
 
         withContext(Dispatchers.IO) {
             tizadaRepo.save(tizada)
@@ -129,21 +136,19 @@ class TizadaService(
 
     // FIXME add limit
     @Transactional
-    fun getAllTizadas(): Collection<Tizada> {
-        /* En base a los ids, obtengo las entidades tizada completas, como la tabla intermedia es custom, la tengo que
-        obtener a mano con this.getTizada(tizada) que hace ese manejo */
-        val tizadaIds = tizadaRepo.getAllTizadas()
-        val tizadas: MutableList<Tizada> = mutableListOf()
-        for (tizada in tizadaIds) {
-            tizadas.add(this.getTizada(tizada))
+    fun getAllTizadas(finalizadas: String?): Collection<Tizada> {
+        val tizadaIds = if (finalizadas == "true") {
+            tizadaRepo.getAllTizadasFinalizadas()
+        } else {
+            tizadaRepo.getAllTizadas()
         }
-        return tizadas
+
+        return tizadaIds.map { tizadaId -> this.getTizada(tizadaId) }
     }
 
     @Transactional
     fun invokeTizada(invokeTizadaRequest: InvokeTizadaRequest): InvokeTizadaResponse? {
-        val tizada = this.getTizada(UUID.fromString(invokeTizadaRequest.tizadaUUID)) ?:
-            throw TizadaNotFoundException("No se encontró la tizada con ID ${invokeTizadaRequest.tizadaUUID}")
+        val tizada = this.getTizada(UUID.fromString(invokeTizadaRequest.tizadaUUID))
 
         tizada.state = TizadaState.IN_PROGRESS
         tizada.updatedAt = LocalDateTime.now()
