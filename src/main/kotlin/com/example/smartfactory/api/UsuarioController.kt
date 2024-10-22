@@ -26,15 +26,15 @@ class UserController(
     ): ResponseEntity<String> {
 
         // Check if the user already exists by Auth0 ID
-        val existingUser = userRepository.findByExternalId(userRegistrationRequest.auth0Id)
+        val existingUser = userRepository.findByExternalId(userRegistrationRequest.userId)
 
         if (existingUser == null) {
             // If not, create and save the new user
             val newUser = Usuario(
                 uuid = UUID.randomUUID(),
-                externalId = userRegistrationRequest.auth0Id,
+                externalId = userRegistrationRequest.userId,
                 email = userRegistrationRequest.email,
-                name = userRegistrationRequest.name,
+                name = userRegistrationRequest.name ?: userRegistrationRequest.email,
                 parts = null,
                 tizadas = null,
                 subscription = "PREMIUM"
@@ -48,7 +48,7 @@ class UserController(
 }
 
 data class UserRegistrationRequest(
-    val auth0Id: String,
+    val userId: String,
     val email: String,
-    val name: String
+    val name: String?
 )
