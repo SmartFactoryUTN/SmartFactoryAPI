@@ -1,0 +1,10 @@
+## Auth0 configuration
+auth0:
+  audience: https://smartfactory-api/
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-palh3gsscosfpppk.us.auth0.com/
+          audiences: https://smartfactory-api/

@@ -2,20 +2,16 @@ package com.example.smartfactory.integration
 
 import aws.sdk.kotlin.services.s3.S3Client
 import aws.sdk.kotlin.services.s3.model.PutObjectRequest
-import aws.sdk.kotlin.services.s3.model.PutObjectResponse
 import aws.sdk.kotlin.services.s3.model.S3Exception
 import aws.smithy.kotlin.runtime.content.ByteStream
 import com.example.smartfactory.Exceptions.UploadMoldeException
 import com.example.smartfactory.application.Molde.CreateMoldeRequest
-import org.springframework.http.StreamingHttpOutputMessage
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.core.SdkBytes
-import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.lambda.LambdaClient
 import software.amazon.awssdk.services.lambda.model.InvocationType
 import software.amazon.awssdk.services.lambda.model.InvokeRequest
 import software.amazon.awssdk.services.lambda.model.InvokeResponse
-import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -89,7 +85,7 @@ class LambdaService(
             }
 
             // Upload the file to S3
-            val response: PutObjectResponse = s3Client.putObject(putObjectRequest)
+            s3Client.putObject(putObjectRequest)
 
             // Return the file URL
             "https://${bucketName}.s3.amazonaws.com/${fileName}"

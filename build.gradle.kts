@@ -36,6 +36,15 @@ dependencies {
 	implementation("io.projectreactor:reactor-core:3.6.10")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
 
+	// Auth0
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.security:spring-security-oauth2-resource-server")
+	implementation("org.springframework.security:spring-security-oauth2-jose")
+	implementation("org.springframework.security:spring-security-config")
+	implementation("org.springframework.security:spring-security-core")
+	implementation("org.springframework.security:spring-security-web")
+
+
 	// Use the latest stable version of the AWS SDK for Kotlin
 	implementation("aws.sdk.kotlin:s3:0.20.1-beta"){
 		exclude("com.squareup.okhttp3:okhttp")
