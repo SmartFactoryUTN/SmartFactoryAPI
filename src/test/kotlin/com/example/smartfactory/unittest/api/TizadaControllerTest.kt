@@ -1,16 +1,14 @@
 package com.example.smartfactory.unittest.api
 
-import com.example.smartfactory.Domain.Tizada.MoldsQuantity
-import com.example.smartfactory.Domain.Tizada.TizadaContainer
 import com.example.smartfactory.api.TizadaController
-import com.example.smartfactory.application.Molde.MoldeService
-import com.example.smartfactory.application.Tizada.Request.*
+import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
+import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
+import com.example.smartfactory.application.Tizada.Request.TizadaNotificationRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -19,12 +17,8 @@ import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.json.JacksonTester
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post

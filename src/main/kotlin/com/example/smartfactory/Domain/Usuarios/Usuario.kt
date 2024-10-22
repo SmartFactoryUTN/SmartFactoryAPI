@@ -21,7 +21,7 @@ class Usuario(
     val email: String,
     @Column(unique = true)
     val externalId: String,
-    val subscription: String,
+    val subscription: String = "PREMIUM",
     override var createdAt: LocalDateTime = LocalDateTime.now(),
     override var updatedAt: LocalDateTime? = null,
     override var deletedAt: LocalDateTime? = null
