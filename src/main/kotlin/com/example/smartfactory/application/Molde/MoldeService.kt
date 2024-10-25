@@ -24,6 +24,7 @@ class MoldeService(
         // Step 2: Create the Molde object
         val newMolde = Molde(
             uuid = generatedUUID,
+            owner = molde.userUUID,
             name = molde.name,
             url = svgUrl, // Use the real URL where the SVG is stored
             description = molde.description,
@@ -46,6 +47,10 @@ class MoldeService(
 
     fun getAllMoldes(): List<Molde> {
         return moldeRepository.getAllMoldes()
+    }
+
+    fun getAllMoldesByOwner(owner: UUID): List<Molde> {
+        return moldeRepository.findMoldeByOwner(owner)
     }
 
     fun updateMolde(id: UUID, request: UpdateMoldeRequest): Molde {

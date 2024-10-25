@@ -2,8 +2,8 @@ package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Domain.Molde.Molde
-import com.example.smartfactory.Exceptions.MoldeNotFoundException
 import com.example.smartfactory.Exceptions.FabricPieceOutOfStockException
+import com.example.smartfactory.Exceptions.MoldeNotFoundException
 import com.example.smartfactory.application.Molde.CreateMoldeRequest
 import com.example.smartfactory.application.Molde.MoldeService
 import com.example.smartfactory.application.Molde.UpdateMoldeRequest
@@ -85,9 +85,10 @@ class MoldeController(private val moldeService: MoldeService) {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.OK)
     @Operation(
-        summary = "Obtener todos los moldes",
+        summary = "Obtener todos los moldes para un usuario",
     )
     @ApiResponses(
         value = [
@@ -96,6 +97,7 @@ class MoldeController(private val moldeService: MoldeService) {
         ]
     )
     fun getAllMoldes(): GenericResponse<List<Molde?>> {
+
         return GenericResponse("success", moldeService.getAllMoldes())
     }
 
@@ -103,7 +105,8 @@ class MoldeController(private val moldeService: MoldeService) {
     @ResponseStatus(HttpStatus.OK)
     @Operation(
         summary = "Actualizar nombre, descripción y/o stock",
-        description = "Este método se utilizará para actualizar moldes y también se usará en el módulo de inventario para" +
+        description = "Este método se utilizará para actualizar " +
+                "moldes y también se usará en el módulo de inventario para" +
                 "actualizar el stock de los moldes cortados."
     )
     @ApiResponses(

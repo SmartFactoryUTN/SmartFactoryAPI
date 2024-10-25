@@ -52,11 +52,12 @@ class TizadaService(
             UUID.randomUUID(), time = request.maxTime, utilizationPercentage = request.utilizationPercentage
         )
 
+        // FIXME no buscar por alto y ancho, sino por UUID
         // Third step: Retrieve bin for this tizada
-        var bin = withContext(Dispatchers.IO) {
-            tizadaContainerRepo.findByWidthAndHeight(request.width, request.height)
-        }
-        if (bin == null) {
+//        var bin = withContext(Dispatchers.IO) {
+//            tizadaContainerRepo.findByWidthAndHeight(request.width, request.height)
+//        }
+        // if (bin == null) {
             val height = request.height * CM_TO_SVG_FACTOR_FORM
             val width = request.width * CM_TO_SVG_FACTOR_FORM
             val svg =
@@ -66,8 +67,8 @@ class TizadaService(
                 </svg>""".trimIndent()
             val containerId = UUID.randomUUID()
             val url = lambdaService.uploadContainer(containerId, svg)
-            bin = TizadaContainer(
-                uuid = UUID.fromString("60eb9f4c-33b0-4769-a199-3920977ac1ea"),
+            var bin = TizadaContainer(
+                uuid = containerId,
                 name = "Mesa de corte",
                 height = request.height,
                 width = request.width,
@@ -75,7 +76,7 @@ class TizadaService(
                 area = (request.height * request.width).toDouble(),
                 createdAt = LocalDateTime.now()
             )
-        }
+        // }
 
         // Fourth step: create tizada and save it into DB, ready for executing
         val tizada = Tizada(
