@@ -1,5 +1,6 @@
 package com.example.smartfactory.unittest.api
 
+import com.example.smartfactory.Repository.UsuarioRepository
 import com.example.smartfactory.api.TizadaController
 import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
@@ -39,6 +40,9 @@ class TizadaControllerTest {
 
     @MockK
     lateinit var tizadaService: TizadaService
+
+    @MockK
+    lateinit var usuarioRepository: UsuarioRepository
 
     @MockK
     lateinit var lambdaService: LambdaService

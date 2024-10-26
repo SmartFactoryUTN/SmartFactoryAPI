@@ -1,6 +1,5 @@
 package com.example.smartfactory.application.Inventory.Request
 
-import com.example.smartfactory.application.Tizada.Request.Part
 import io.swagger.v3.oas.annotations.media.Schema
 import org.jetbrains.annotations.NotNull
 import java.util.*
