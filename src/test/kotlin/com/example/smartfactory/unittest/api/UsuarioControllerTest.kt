@@ -7,6 +7,7 @@ import com.example.smartfactory.api.UserRegistrationRequest
 import com.example.smartfactory.api.UsuarioController
 import com.example.smartfactory.application.Molde.MoldeService
 import com.example.smartfactory.application.Tizada.Response.UsuarioResponse
+import com.example.smartfactory.application.Tizada.TizadaService
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -35,6 +36,8 @@ class UsuarioControllerTest {
     private lateinit var usuarioRepository: UsuarioRepository
     @MockK
     private lateinit var moldeService: MoldeService
+    @MockK
+    private lateinit var tizadaService: TizadaService
 
     private var objectMapper = ObjectMapper()
 
@@ -42,41 +45,36 @@ class UsuarioControllerTest {
     fun setUp(){
         usuarioRepository = mockk()
         moldeService = mockk()
-        usuarioController = UsuarioController(usuarioRepository, moldeService)
+        tizadaService = mockk()
+        usuarioController = UsuarioController(usuarioRepository, moldeService, tizadaService)
         objectMapper.findAndRegisterModules()
-    }
-    @Test
-    fun registerUser() {
-    }
-
-    @Test
-    fun getUser() {
     }
 
     @Test
     fun `should return user details when ID and JWT sub match`() {
+
         // Arrange
-        val userId = "auth0|1234567890"
+        val userExtId = "auth0|1234567890"
         val usuarioUUID = UUID.randomUUID()
         val user = Usuario(
             uuid = usuarioUUID,
-            externalId = userId,
+            externalId = userExtId,
             name = "John Doe",
             email = "john.doe@example.com",
             parts = null,
             tizadas = null,
             subscription = "PREMIUM")
 
-        every { usuarioRepository.getUsuarioByUuid(usuarioUUID) } returns user
+        every { usuarioRepository.findByExternalId(userExtId) } returns user
 
         // Mock the JWT
         val jwt = mockk<Jwt>()
-        every { jwt.claims["sub"] } returns userId
+        every { jwt.claims["sub"] } returns userExtId
 
         // Act
 
         // Call the controller method
-        val response = usuarioController.getUser(usuarioUUID, jwt)
+        val response = usuarioController.getUserInfo(jwt)
 
         // Assert
         val expectedResponse = UsuarioResponse(
@@ -93,46 +91,21 @@ class UsuarioControllerTest {
         assertEquals(HttpStatus.OK, response.statusCode)
     }
 
-    @Test
-    fun `should throw NOT_FOUND when user is not found`() {
-        // Mock the service behavior for user not found
-        val uuid = UUID.randomUUID()
-        every { usuarioRepository.getUsuarioByUuid(uuid) } returns null
-
-        // Mock the JWT
-        val jwt = mockk<Jwt>()
-        every { jwt.claims["sub"] } returns "auth0|1234567890"
-
-        // Assert that a NOT_FOUND exception is thrown
-        val exception = assertThrows<ResponseStatusException> {
-            usuarioController.getUser(uuid, jwt)
-        }
-
-        // Assert the exception status is 404 NOT_FOUND
-        assertEquals(HttpStatus.NOT_FOUND, exception.statusCode)
-    }
 
     @Test
-    fun `should throw FORBIDDEN when JWT sub does not match userId`() {
+    fun `should throw FORBIDDEN when user tries to find other users info`() {
 
         // Arrange
-        val uuid = UUID.randomUUID()
-        val user = Usuario(
-            uuid = uuid,
-            externalId = "auth0|9999999999",
-            name = "John Doe",
-            email = "john.doe@example.com",
-            parts = null,
-            tizadas =  null
-        )
-        every { usuarioRepository.getUsuarioByUuid(uuid) } returns user
+        val userExtId = "auth0|1234567890"
+
+        every { usuarioRepository.findByExternalId(userExtId) } returns null
 
         val jwt = mockk<Jwt>()
-        every { jwt.claims["sub"] } returns "auth0|1234567890"
+        every { jwt.claims["sub"] } returns userExtId
 
         // Act / Assert
         val exception = assertThrows<ResponseStatusException> {
-            usuarioController.getUser(uuid, jwt)
+            usuarioController.getUserInfo(jwt)
         }
 
         assertEquals(HttpStatus.FORBIDDEN, exception.statusCode)
@@ -208,7 +181,18 @@ class UsuarioControllerTest {
             externalId = "auth0|12345",
             email = "john.doe@example.com"
         )
-        val expectedMoldes = listOf(Molde(UUID.randomUUID(), userUUID, "Molde1", "url1", "desc1", null, true, LocalDateTime.now()))
+        val expectedMoldes = listOf(
+            Molde(
+                UUID.randomUUID(),
+                userUUID,
+                "Molde1",
+                "url1",
+                "desc1",
+                null,
+                true,
+                LocalDateTime.now()
+            )
+        )
 
         // Mock repository and service behavior
         every { usuarioRepository.getUsuarioByUuid(userUUID) } returns user
@@ -229,7 +213,7 @@ class UsuarioControllerTest {
     }
 
     @Test
-    fun `should throw forbidden when user is not authorized`() = runBlocking {
+    fun `should throw forbidden when user tries to access other user Moldes`() = runBlocking {
 
         // Arrange
         val userUUID = UUID.randomUUID()
@@ -261,7 +245,23 @@ class UsuarioControllerTest {
     }
 
     @Test
-    fun `should throw not found when user does not exist`() = runBlocking {
+    fun `should throw NOT_FOUND when user is not found`() {
+
+        val userExtId = "auth0|1234567890"
+        val jwt = mockk<Jwt>()
+        every { jwt.claims["sub"] } returns userExtId
+        every { usuarioRepository.findByExternalId(userExtId) } returns null
+
+        val exception = assertThrows<ResponseStatusException> {
+            usuarioController.getUserInfo(jwt)
+        }
+
+        // Assert the exception status is 404 NOT_FOUND
+        assertEquals(HttpStatus.FORBIDDEN, exception.statusCode)
+    }
+
+    @Test
+    fun `should throw FORBIDENN when user tries to find other user Moldes`() = runBlocking {
 
         // Arrange
         val userUUID = UUID.randomUUID()
@@ -276,11 +276,10 @@ class UsuarioControllerTest {
         assertFailsWith<ResponseStatusException> {
             usuarioController.getMoldesByUserUUID(userUUID, jwt)
         }.also { exception ->
-            assertEquals(HttpStatus.NOT_FOUND, exception.statusCode)
+            assertEquals(HttpStatus.FORBIDDEN, exception.statusCode)
         }
 
         verify(exactly = 1) { usuarioRepository.getUsuarioByUuid(userUUID) }
-        verify(exactly = 0) { moldeService.getAllMoldesByOwner(any()) }
     }
 
 

@@ -1,8 +1,8 @@
 package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.GenericResponse
-import com.example.smartfactory.Domain.Tizada.Tizada
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
+import com.example.smartfactory.Repository.UsuarioRepository
 import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
 import com.example.smartfactory.application.Tizada.Request.TizadaNotificationRequest
@@ -14,17 +14,25 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import java.util.*
 
 @RestController
 @PreAuthorize("hasAuthority('SCOPE_read:tizada')")
 @RequestMapping("api/tizada")
 @Tag(name = "Tizadas", description = "Endpoints para tizada")
-class TizadaController(private val tizadaService: TizadaService) {
+class TizadaController(
+    private val tizadaService: TizadaService,
+    private val usuarioRepository: UsuarioRepository
+) {
 
     @PostMapping("/invoke")
     @ResponseStatus(HttpStatus.CREATED)
@@ -94,8 +102,17 @@ class TizadaController(private val tizadaService: TizadaService) {
     @ApiResponse(responseCode = "201", description = "Tizada creada correctamente")
     @ApiResponse(responseCode = "400", description = "Tizada inválida")
     @ApiResponse(responseCode = "500", description = "Ocurrió un error")
-    suspend fun createTizada(@RequestBody request: CreateTizadaRequest): ResponseEntity<GenericResponse<Any>> {
-        val tizadaResponse = tizadaService.createTizada(request)
+    suspend fun createTizada(
+        @RequestBody request: CreateTizadaRequest,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): ResponseEntity<GenericResponse<Any>> {
+
+        val extId = jwt.claims["sub"] as String
+        val owner = withContext(Dispatchers.IO) {
+            usuarioRepository.findByExternalId(extId) ?: throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+
+        val tizadaResponse = tizadaService.createTizada(request, owner.uuid)
         return ResponseEntity.status(HttpStatus.CREATED).body(
             GenericResponse(status = "success", data = tizadaResponse)
         )
@@ -114,7 +131,10 @@ class TizadaController(private val tizadaService: TizadaService) {
             ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
         ]
     )
-    fun updateTizada(@PathVariable id: UUID, @RequestBody request: UpdateTizadaRequest): ResponseEntity<GenericResponse<Any>> {
+    fun updateTizada(
+        @PathVariable id: UUID,
+        @RequestBody request: UpdateTizadaRequest
+    ): ResponseEntity<GenericResponse<Any>> {
         return try {
             val response = tizadaService.updateTizada(id, request)
             ResponseEntity.status(HttpStatus.OK.value()).body(
@@ -172,7 +192,7 @@ class TizadaController(private val tizadaService: TizadaService) {
     )
     fun getTizada(@PathVariable id: UUID): ResponseEntity<GenericResponse<Any>> {
         return try {
-            val tizada = tizadaService.getTizada(id)
+            val tizada = tizadaService.getTizadaByUUID(id)
             ResponseEntity.status(HttpStatus.OK.value()).body(
                 GenericResponse(status = "success", data = tizada)
             )
@@ -181,22 +201,5 @@ class TizadaController(private val tizadaService: TizadaService) {
                 status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
             ))
         }
-    }
-
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(
-        summary = "Obtener todas las tizadas",
-        description = "Obtiene todas las tizadas correspondientes a este usuario"
-    )
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Obtener todas las tizadas"),
-        ApiResponse(responseCode = "500", description = "No se pudieron obtener las tizadas.")
-    ])
-    fun getAllTizadas(@RequestParam finalizadas: String?): ResponseEntity<GenericResponse<Any>> {
-        val tizadas = tizadaService.getAllTizadas(finalizadas)
-        return ResponseEntity.status(HttpStatus.OK.value()).body(
-            GenericResponse(status = "success", data = tizadas)
-        )
     }
 }

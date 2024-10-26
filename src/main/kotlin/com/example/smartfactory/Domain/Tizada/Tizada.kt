@@ -15,6 +15,7 @@ import java.util.*
 class Tizada(
     @Id @Column(name = "tizada_id", nullable = false)
     val uuid: UUID,
+    val owner: UUID,
     @NotNull
     var name: String,
     @OneToOne(cascade = [CascadeType.ALL]) @JoinColumn(name = "tizada_configuration_id")
@@ -29,8 +30,8 @@ class Tizada(
     var state: TizadaState,
     var active: Boolean,
     override var createdAt: LocalDateTime,
-    override var updatedAt: LocalDateTime?,
-    override var deletedAt: LocalDateTime?,
+    override var updatedAt: LocalDateTime? = null,
+    override var deletedAt: LocalDateTime? = null,
 ) : Auditable {
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY, mappedBy = "moldeDeTizadaId.tizadaId")
     @JsonIgnore

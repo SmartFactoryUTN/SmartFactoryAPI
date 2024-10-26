@@ -16,4 +16,6 @@ interface TizadaRepository: CrudRepository<Tizada, UUID> {
 
     @Query("select t.uuid from Tizada t where t.active = true and t.state = 'FINISHED'")
     fun getAllTizadasFinalizadas():List<UUID>
+
+    fun findTizadasByOwner(owner: UUID): List<Tizada>?
 }

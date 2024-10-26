@@ -4,6 +4,7 @@ import com.example.smartfactory.Domain.Usuarios.Usuario
 import com.example.smartfactory.Repository.UsuarioRepository
 import com.example.smartfactory.application.Molde.MoldeService
 import com.example.smartfactory.application.Tizada.Response.UsuarioResponse
+import com.example.smartfactory.application.Tizada.TizadaService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -23,6 +24,7 @@ import java.util.*
 class UsuarioController(
     @Autowired private val usuarioRepository: UsuarioRepository,
     @Autowired private val moldeService: MoldeService,
+    private val tizadaService: TizadaService,
 ) {
 
     @PostMapping("/register")
@@ -50,20 +52,15 @@ class UsuarioController(
         }
     }
 
-    @GetMapping("/{uuid}")
-    fun getUser(
-        @PathVariable uuid: UUID,
+    @GetMapping("/info")
+    fun getUserInfo(
         @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<UsuarioResponse<Any>>
     {
         //JWT should provide auth0 user id
         val subject = jwt.claims["sub"] as String
         val user: Usuario =
-            usuarioRepository.getUsuarioByUuid(uuid) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-
-        if (user.externalId != subject) {
-            throw ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to access this resource")
-        }
+            usuarioRepository.findByExternalId(subject) ?: throw ResponseStatusException(HttpStatus.FORBIDDEN)
 
         return ResponseEntity.status(HttpStatus.OK.value()).body(
             UsuarioResponse(status = "success", data = mapOf(
@@ -71,8 +68,7 @@ class UsuarioController(
                 "extId" to user.externalId,
                 "name" to user.name,
                 "email" to user.email
-            )
-            )
+            ))
         )
     }
 
@@ -97,7 +93,7 @@ class UsuarioController(
         //JWT should provide auth0 user id
         val subject = jwt.claims["sub"] as String
         val user: Usuario =
-            usuarioRepository.getUsuarioByUuid(userUUID) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+            usuarioRepository.getUsuarioByUuid(userUUID) ?: throw ResponseStatusException(HttpStatus.FORBIDDEN)
 
         if (user.externalId != subject) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to access this resource")
@@ -107,8 +103,46 @@ class UsuarioController(
 
         return ResponseEntity.status(HttpStatus.OK.value()).body(
             UsuarioResponse(status = "success", data = mapOf("moldes" to moldes)
-        )
-        )
+        ))
+    }
+
+    @GetMapping("/{uuid}/tizadas")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+        summary = "Obtener todas las tizadas de un usuario",
+        description = "Dado un UUID de un usuario, retorna todos las tizadas asociadas a ese UUID"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Tizadas obtenidas correctamente"),
+            ApiResponse(responseCode = "404", description = "Tizadas no encontradas"),
+            ApiResponse(responseCode = "500")
+        ]
+    )
+    fun getTizadasByUserUUID(
+        @PathVariable("uuid") userUUID: UUID,
+        @AuthenticationPrincipal jwt: Jwt,
+    ): ResponseEntity<UsuarioResponse<Any>>
+    {
+        validateTenantIsolation(userUUID, jwt)
+
+        val moldes = tizadaService.getAllTizadasByOwner(userUUID)
+
+        return ResponseEntity.status(HttpStatus.OK.value()).body(
+            UsuarioResponse(status = "success", data = mapOf("moldes" to moldes)
+            ))
+
+    }
+
+    private fun validateTenantIsolation(userUUID: UUID, jwt: Jwt){
+        //JWT should provide auth0 user id
+        val subject = jwt.claims["sub"] as String
+        val user: Usuario =
+            usuarioRepository.getUsuarioByUuid(userUUID) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+
+        if (user.externalId != subject) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to access this resource")
+        }
     }
 }
 

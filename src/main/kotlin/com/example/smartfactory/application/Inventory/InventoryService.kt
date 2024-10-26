@@ -142,7 +142,7 @@ class InventoryService(
 
     @Transactional(rollbackFor = [FabricRollOutOfStockException::class])
     fun convertFabricRoll(convertFabricRollRequest: ConvertFabricRollRequest) {
-        val tizada = tizadaService.getTizada(convertFabricRollRequest.tizadaId)
+        val tizada = tizadaService.getTizadaByUUID(convertFabricRollRequest.tizadaId)
         if (tizada.state != TizadaState.FINISHED) {
             throw TizadaInvalidStateException("No se puede convertir una tizada que no esté en estado finalizada.")
         }

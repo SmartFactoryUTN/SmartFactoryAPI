@@ -86,7 +86,7 @@ class MoldeRepositoryTest{
         val totalModels = moldeRepository.getAllMoldes()
 
         // Assert
-        assertEquals(1, otherUserMoldes.count())
+        assertEquals(1, otherUserMoldes?.count())
         assertEquals(2, totalModels.count())
     }
 }

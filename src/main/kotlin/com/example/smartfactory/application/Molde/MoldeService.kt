@@ -49,7 +49,7 @@ class MoldeService(
         return moldeRepository.getAllMoldes()
     }
 
-    fun getAllMoldesByOwner(owner: UUID): List<Molde> {
+    fun getAllMoldesByOwner(owner: UUID): List<Molde>? {
         return moldeRepository.findMoldeByOwner(owner)
     }
 

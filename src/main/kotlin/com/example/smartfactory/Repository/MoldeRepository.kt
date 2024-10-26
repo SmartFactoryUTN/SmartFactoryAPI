@@ -13,5 +13,5 @@ interface MoldeRepository: CrudRepository<Molde, UUID> {
     @Query("select m from Molde m where m.active = true")
     fun getAllMoldes(): List<Molde>
 
-    fun findMoldeByOwner(owner: UUID): List<Molde>
+    fun findMoldeByOwner(owner: UUID): List<Molde>?
 }
