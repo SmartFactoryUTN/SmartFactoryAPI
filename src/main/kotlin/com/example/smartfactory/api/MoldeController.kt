@@ -121,11 +121,11 @@ class MoldeController(private val moldeService: MoldeService) {
         @PathVariable id: UUID
     ): ResponseEntity<GenericResponse<Any>> {
         return try {
-            ResponseEntity.status(200).body(
+            ResponseEntity.status(HttpStatus.OK).body(
                 GenericResponse("success", moldeService.updateMolde(id, body))
             )
         } catch (e: MoldeNotFoundException) {
-            ResponseEntity.status(404).body(
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 GenericResponse(
                     status = "fail",
                     data = mapOf(
@@ -135,7 +135,7 @@ class MoldeController(private val moldeService: MoldeService) {
                 )
             )
         } catch (e: FabricPieceOutOfStockException) {
-            ResponseEntity.status(400).body(
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 GenericResponse(
                     status = "fail",
                     data = mapOf(

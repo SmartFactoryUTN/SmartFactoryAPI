@@ -1,19 +1,20 @@
 package com.example.smartfactory.unittest.api
 
+import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Domain.Molde.Molde
+import com.example.smartfactory.Exceptions.MoldeNotFoundException
 import com.example.smartfactory.Repository.MoldeRepository
 import com.example.smartfactory.api.MoldeController
 import com.example.smartfactory.application.Molde.CreateMoldeRequest
 import com.example.smartfactory.application.Molde.MoldeService
+import com.example.smartfactory.application.Molde.UpdateMoldeRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
@@ -144,6 +145,120 @@ class MoldeControllerTest {
         assertEquals(expectedMolde, (response.body?.data as Map<*, *>)["molde"])
 
         coVerify(exactly = 1) { moldeService.createMolde(createMoldeRequest) }
+    }
+
+    @Test
+    fun `test getMoldeById successful`() {
+
+        // Arrange
+        val moldeUUID = UUID.randomUUID()
+        val userUUID = UUID.randomUUID()
+        val molde = Molde(
+            uuid = moldeUUID,
+            owner = userUUID,
+            name = "Test Molde",
+            url = "",
+            description = "test",
+            active = true,
+            createdAt = LocalDateTime.now(),
+            area = 10.0
+        )
+
+        every { moldeService.getMoldeById(moldeUUID) } returns molde
+
+        // Act
+        val response = moldeController.getMoldeById(moldeUUID)
+
+        // Assert
+        assertEquals("success", response.status)
+        assertEquals(molde, response.data)
+
+        verify { moldeService.getMoldeById(moldeUUID) }
+    }
+
+    @Test
+    fun `test updateMolde successful`() {
+
+        // Arrange
+        val moldeUUID = UUID.randomUUID()
+        val userUUID = UUID.randomUUID()
+
+        val molde = Molde(
+            uuid = moldeUUID,
+            owner = userUUID,
+            name = "Test Molde",
+            url = "",
+            description = "test",
+            active = true,
+            createdAt = LocalDateTime.now(),
+            area = 10.0
+        )
+        val updateRequest = UpdateMoldeRequest(
+            name = "Updated Name",
+            description =  "Updated Description"
+        )
+
+        every { moldeService.updateMolde(moldeUUID, updateRequest) } returns molde
+
+        // Act
+        val response = moldeController.updateMolde(updateRequest, moldeUUID)
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals("success", response.body?.status)
+
+        verify { moldeService.updateMolde(moldeUUID, updateRequest) }
+    }
+
+    @Test
+    fun `test updateMolde with MoldeNotFoundException`() {
+        // Arrange
+        val moldeUUID = UUID.randomUUID()
+        val updateRequest = UpdateMoldeRequest("Updated Name", "Updated Description")
+
+        every { moldeService.updateMolde(moldeUUID, updateRequest) } throws MoldeNotFoundException("Molde not found")
+
+        // Act
+        val response = moldeController.updateMolde(updateRequest, moldeUUID)
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+        assertEquals("fail", response.body?.status)
+
+        verify { moldeService.updateMolde(moldeUUID, updateRequest) }
+    }
+
+    @Test
+    fun `test deleteMolde successful`() {
+        // Arrange
+        val moldeUUID = UUID.randomUUID()
+
+        every { moldeService.deleteMolde(moldeUUID) } returns Unit
+
+        // Act
+        val response = moldeController.deleteMolde(moldeUUID)
+
+        // Assert
+        assertEquals(HttpStatus.NO_CONTENT, response.statusCode)
+
+        verify { moldeService.deleteMolde(moldeUUID) }
+    }
+
+    @Test
+    fun `test deleteMolde with MoldeNotFoundException`() {
+        // Arrange
+        val moldeUUID = UUID.randomUUID()
+
+        every { moldeService.deleteMolde(moldeUUID) } throws MoldeNotFoundException("Molde not found")
+
+        // Act
+        val response = moldeController.deleteMolde(moldeUUID)
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+        assertEquals("fail", (response.body as GenericResponse<*>).status)
+
+        verify { moldeService.deleteMolde(moldeUUID) }
     }
 
 }
