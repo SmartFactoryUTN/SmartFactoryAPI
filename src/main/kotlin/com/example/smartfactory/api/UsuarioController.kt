@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
@@ -19,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException
 import java.util.*
 
 @RestController
-@PreAuthorize("permitAll()")
 @RequestMapping("api/users")
 class UsuarioController(
     @Autowired private val usuarioRepository: UsuarioRepository,
@@ -126,10 +124,10 @@ class UsuarioController(
     {
         validateTenantIsolation(userUUID, jwt)
 
-        val moldes = tizadaService.getAllTizadasByOwner(userUUID)
+        val tizadas = tizadaService.getAllTizadasByOwner(userUUID)
 
         return ResponseEntity.status(HttpStatus.OK.value()).body(
-            UsuarioResponse(status = "success", data = mapOf("moldes" to moldes)
+            UsuarioResponse(status = "success", data = mapOf("tizadas" to tizadas)
             ))
 
     }
