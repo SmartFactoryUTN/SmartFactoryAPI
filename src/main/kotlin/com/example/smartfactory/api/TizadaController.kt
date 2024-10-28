@@ -1,6 +1,5 @@
 package com.example.smartfactory.api
 
-import com.example.smartfactory.Domain.GenericResponse
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
 import com.example.smartfactory.Repository.UsuarioRepository
 import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
@@ -105,7 +104,7 @@ class TizadaController(
     suspend fun createTizada(
         @RequestBody request: CreateTizadaRequest,
         @AuthenticationPrincipal jwt: Jwt,
-    ): ResponseEntity<GenericResponse<Any>> {
+    ): ResponseEntity<TizadaResponse<Any>> {
 
         val extId = jwt.claims["sub"] as String
         val owner = withContext(Dispatchers.IO) {
@@ -114,7 +113,7 @@ class TizadaController(
 
         val tizadaResponse = tizadaService.createTizada(request, owner.uuid)
         return ResponseEntity.status(HttpStatus.CREATED).body(
-            GenericResponse(status = "success", data = tizadaResponse)
+            TizadaResponse(status = "success", data = tizadaResponse)
         )
     }
 
@@ -134,17 +133,17 @@ class TizadaController(
     fun updateTizada(
         @PathVariable id: UUID,
         @RequestBody request: UpdateTizadaRequest
-    ): ResponseEntity<GenericResponse<Any>> {
+    ): ResponseEntity<TizadaResponse<Any>> {
         return try {
             val response = tizadaService.updateTizada(id, request)
             ResponseEntity.status(HttpStatus.OK.value()).body(
-                GenericResponse(
+                TizadaResponse(
                     status = "success",
                     data = response
                 )
             )
         } catch (ex: TizadaNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(GenericResponse(
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(TizadaResponse(
                 status = "fail",
                 data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
             ))
@@ -170,7 +169,7 @@ class TizadaController(
             tizadaService.deleteTizada(id)
             ResponseEntity.noContent().build()
         } catch (ex: TizadaNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(GenericResponse(
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(TizadaResponse(
                 status = "fail",
                 data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
             ))
@@ -190,14 +189,14 @@ class TizadaController(
             ApiResponse(responseCode = "500", description = "Ocurrió un error. Intente nuevamente más tarde.")
         ]
     )
-    fun getTizada(@PathVariable id: UUID): ResponseEntity<GenericResponse<Any>> {
+    fun getTizada(@PathVariable id: UUID): ResponseEntity<TizadaResponse<Any>> {
         return try {
             val tizada = tizadaService.getTizadaByUUID(id)
             ResponseEntity.status(HttpStatus.OK.value()).body(
-                GenericResponse(status = "success", data = tizada)
+                TizadaResponse(status = "success", data = tizada)
             )
         } catch (ex: TizadaNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(GenericResponse(
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(TizadaResponse(
                 status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
             ))
         }

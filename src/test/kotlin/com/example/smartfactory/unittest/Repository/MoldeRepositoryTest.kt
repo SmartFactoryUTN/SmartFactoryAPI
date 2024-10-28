@@ -45,6 +45,7 @@ class MoldeRepositoryTest{
         assertEquals(userUUID, savedMolde.owner)
         assertEquals(moldeUUID, savedMolde.uuid)
         assertEquals(url, savedMolde.url)
+        assertEquals(1, moldeRepository.findAll().count())
     }
     @Test
     fun moldeRepository_findMoldeByOwner(){
