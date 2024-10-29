@@ -1,4 +1,5 @@
 # Define default target (can be 'build', 'test', etc.)
+# chmod +x gradlew
 .DEFAULT_GOAL := help
 
 # Variables

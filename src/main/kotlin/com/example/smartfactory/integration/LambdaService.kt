@@ -6,6 +6,9 @@ import aws.sdk.kotlin.services.s3.model.S3Exception
 import aws.smithy.kotlin.runtime.content.ByteStream
 import com.example.smartfactory.Exceptions.UploadMoldeException
 import com.example.smartfactory.application.Molde.CreateMoldeRequest
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.safety.Safelist
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.services.lambda.LambdaClient
@@ -44,8 +47,11 @@ class LambdaService(
         val fileName = "${molde.userUUID}/molde-${uuid}.svg"
 
         return try {
+            // Sanitize SVG content
+            val sanitizedSvgContent = sanitizeSvg(String(molde.svg.bytes)).toByteArray()
+
             // Convert the MultipartFile to a byte array for upload
-            val fileBytes = ByteStream.fromBytes(molde.svg.bytes)
+            val fileBytes = ByteStream.fromBytes(sanitizedSvgContent)
 
             // Build the PutObjectRequest
             val putObjectRequest = PutObjectRequest {
@@ -95,6 +101,25 @@ class LambdaService(
         } catch (e: RuntimeException) {
             throw UploadMoldeException("Error ocurred")
         }
+    }
+
+    // SVG sanitization logic
+    private fun sanitizeSvg(svgContent: String): String {
+        val doc: Document = Jsoup.parse(svgContent, "", org.jsoup.parser.Parser.xmlParser())
+
+        val safelist = Safelist()
+            .addTags("svg", "path", "circle", "rect", "g", "line", "polygon", "polyline", "text")
+            .addAttributes("svg", "xmlns", "viewBox", "width", "height")
+            .addAttributes("path", "d", "fill", "stroke", "stroke-width")
+            .addAttributes("circle", "cx", "cy", "r", "fill", "stroke")
+            .addAttributes("rect", "x", "y", "width", "height", "fill", "stroke")
+            .addAttributes("g", "transform")
+            .addAttributes("line", "x1", "y1", "x2", "y2", "stroke")
+            .addAttributes("polygon", "points", "fill", "stroke")
+            .addAttributes("polyline", "points", "fill", "stroke")
+            .addAttributes("text", "x", "y", "font-size", "fill")
+
+        return Jsoup.clean(doc.html(), "", safelist, Document.OutputSettings().prettyPrint(false))
     }
 
 }
