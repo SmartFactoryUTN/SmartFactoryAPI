@@ -12,12 +12,6 @@ import java.util.*
 interface TizadaRepository: CrudRepository<Tizada, UUID> {
     fun getTizadaByUuid(uuid: UUID): Tizada?
 
-    @Query("select t.uuid from Tizada t where t.active = true")
-    fun getAllTizadas():List<UUID>
-
-    @Query("select t.uuid from Tizada t where t.active = true and t.state = 'FINISHED'")
-    fun getAllTizadasFinalizadas():List<UUID>
-
     @Query("SELECT t FROM Tizada t WHERE t.owner = :owner AND t.active = true")
     fun findTizadasByOwner(@Param("owner") owner: UUID): List<Tizada>?
 }

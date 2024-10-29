@@ -159,7 +159,7 @@ class TizadaService(
         }
         val tizada = tizadaRepository.getTizadaByUuid(request.tizadaUUID) ?:
             throw TizadaNotFoundException("No se encontró la tizada con ID ${request.tizadaUUID}")
-        val moldes = request.parts.map {
+        val moldes = request.parts?.map {
             moldesRepo.findMoldeByUuid(UUID.fromString(it.replace("molde-", "")))!!
         }
         val uuid = UUID.randomUUID()
@@ -180,6 +180,11 @@ class TizadaService(
         tizada.state = TizadaState.FINISHED
         tizada.updatedAt = LocalDateTime.now()
         tizadaRepository.save(tizada)
+
+        logger.info {
+            "Tizada finalizada correctamente" +
+                    " tizadaUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
+        }
     }
 
     @Transactional
@@ -187,5 +192,39 @@ class TizadaService(
         val tizadas = tizadaRepository.findTizadasByOwner(userUUID)
 
         return tizadas
+    }
+
+    fun saveTizadaFinalizadaConError(request: TizadaNotificationRequest) {
+        logger.info {
+            "Received save tizada finalizada notification for" +
+                    " tizadaUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
+        }
+
+        val tizada = tizadaRepository.getTizadaByUuid(request.tizadaUUID) ?:
+            throw TizadaNotFoundException("No se encontró la tizada con ID ${request.tizadaUUID}")
+        val moldes = request.parts?.map {
+            moldesRepo.findMoldeByUuid(UUID.fromString(it.replace("molde-", "")))!!
+        }
+        val uuid = UUID.randomUUID()
+        val tizadaResult = TizadaResult(
+            uuid = uuid,
+            url = null,
+            configuration = tizada.configuration,
+            bin = tizada.bin,
+            parts = moldes,
+            materialUtilization = null,
+            iterations = null,
+            timeoutReached = null,
+            createdAt = LocalDateTime.now()
+        )
+        tizada.results?.add(tizadaResult)
+        tizada.state = TizadaState.ERROR
+        tizada.updatedAt = LocalDateTime.now()
+        tizadaRepository.save(tizada)
+
+        logger.info {
+            "Tizada finalizada con error" +
+                    " tizadaUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
+        }
     }
 }

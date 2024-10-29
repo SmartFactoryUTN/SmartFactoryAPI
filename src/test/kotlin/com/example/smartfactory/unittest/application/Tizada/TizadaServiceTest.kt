@@ -457,7 +457,8 @@ class TizadaServiceTest {
             url = "http://some-url.com",
             materialUtilization = 85.0,
             iterations = 10,
-            timeoutReached = false
+            timeoutReached = false,
+            status = TizadaResultStatus.SUCCESS
         )
         val tizada = Tizada(
             uuid = tizadaUUID,
@@ -496,7 +497,8 @@ class TizadaServiceTest {
             url = "http://some-url.com",
             materialUtilization = 85.0,
             iterations = 10,
-            timeoutReached = false
+            timeoutReached = false,
+            status = TizadaResultStatus.SUCCESS
         )
 
         every { tizadaRepository.getTizadaByUuid(tizadaUUID) } returns null
@@ -510,4 +512,22 @@ class TizadaServiceTest {
         coVerify(exactly = 0) { tizadaRepository.save(any()) }
     }
 
+    @Test
+    fun `should handle saveTizadaFinalizadaConError successfully`() {
+        val request = TizadaNotificationRequest(
+            tizadaUUID = UUID.randomUUID(),
+            userUUID = UUID.randomUUID(),
+            status = TizadaResultStatus.ERROR,
+            parts = listOf("molde-944d7e75-0c54-49db-931e-5336a127b9ad", "molde-944d7e75-0c54-49db-931e-5336a127b9ad")
+        )
+        val tizada = mockk<Tizada>(relaxed = true)
+
+        every { tizadaRepository.getTizadaByUuid(request.tizadaUUID) } returns tizada
+        every { moldeRepository.findMoldeByUuid(any()) } returns mockk(relaxed = true)
+        every { tizadaRepository.save(any()) } returns tizada
+
+        tizadaService.saveTizadaFinalizadaConError(request)
+
+        verify(exactly = 1) { tizadaRepository.save(any()) }
+    }
 }

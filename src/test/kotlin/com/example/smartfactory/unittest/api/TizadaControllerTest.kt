@@ -7,10 +7,7 @@ import com.example.smartfactory.Domain.Tizada.TizadaState
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
 import com.example.smartfactory.Repository.UsuarioRepository
 import com.example.smartfactory.api.TizadaController
-import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
-import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
-import com.example.smartfactory.application.Tizada.Request.TizadaNotificationRequest
-import com.example.smartfactory.application.Tizada.Request.UpdateTizadaRequest
+import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
 import com.example.smartfactory.integration.InvokeTizadaResponse
@@ -131,7 +128,8 @@ class TizadaControllerTest {
             parts = listOf(part1, part2),
             materialUtilization = 50,
             iterations = 100,
-            timeoutReached = false
+            timeoutReached = false,
+            status = TizadaResultStatus.SUCCESS
         )
 
         every { tizadaService.saveTizadaFinalizada(any()) } returns mockk()

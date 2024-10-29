@@ -2,10 +2,7 @@ package com.example.smartfactory.api
 
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
 import com.example.smartfactory.Repository.UsuarioRepository
-import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
-import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
-import com.example.smartfactory.application.Tizada.Request.TizadaNotificationRequest
-import com.example.smartfactory.application.Tizada.Request.UpdateTizadaRequest
+import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
 import io.swagger.v3.oas.annotations.Operation
@@ -46,14 +43,14 @@ class TizadaController(
 
         return try {
             val response = tizadaService.invokeTizada(request)
-            return ResponseEntity.status(204).body(
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
                 TizadaResponse(
                     status = "success",
                     data = mapOf("tizada" to response)
                 )
             )
         } catch (e: Exception){
-            ResponseEntity.status(500).body(
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 TizadaResponse(
                     status = "error",
                     message = e.localizedMessage,
@@ -78,7 +75,11 @@ class TizadaController(
     )
     fun notificationTizada(@RequestBody request: TizadaNotificationRequest): ResponseEntity<TizadaResponse<Any>> {
 
-        tizadaService.saveTizadaFinalizada(request)
+        if (request.status == TizadaResultStatus.SUCCESS){
+            tizadaService.saveTizadaFinalizada(request)
+        }else{
+            tizadaService.saveTizadaFinalizadaConError(request)
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
             TizadaResponse(
