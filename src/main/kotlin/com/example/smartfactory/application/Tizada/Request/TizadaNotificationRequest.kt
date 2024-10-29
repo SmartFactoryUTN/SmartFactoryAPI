@@ -18,6 +18,6 @@ data class TizadaNotificationRequest(
     val parts: List<String>? = null,
     val materialUtilization: Number? = null,
     val iterations: Number? = null,
-    val timeoutReached: Boolean? = null,
+    val timeoutReached: Boolean? = false,
     val status: String,
 )

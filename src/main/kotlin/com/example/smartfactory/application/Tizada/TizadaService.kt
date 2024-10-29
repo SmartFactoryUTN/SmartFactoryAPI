@@ -216,7 +216,7 @@ class TizadaService(
             parts = moldes,
             materialUtilization = null,
             iterations = null,
-            timeoutReached = null,
+            timeoutReached = false,
             createdAt = LocalDateTime.now()
         )
         tizada.results?.add(tizadaResult)

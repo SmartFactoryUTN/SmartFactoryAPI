@@ -129,7 +129,7 @@ class TizadaControllerTest {
             materialUtilization = 50,
             iterations = 100,
             timeoutReached = false,
-            status = TizadaResultStatus.SUCCESS
+            status = TizadaResultStatus.SUCCESS.toString()
         )
 
         every { tizadaService.saveTizadaFinalizada(any()) } returns mockk()
