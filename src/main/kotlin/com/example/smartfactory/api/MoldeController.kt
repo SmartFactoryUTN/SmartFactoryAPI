@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.server.ResponseStatusException
 import java.util.*
 
 
@@ -97,7 +98,7 @@ class MoldeController(private val moldeService: MoldeService) {
         ]
     )
     fun getAllMoldes(): GenericResponse<List<Molde?>> {
-
+        throw ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to access this resource")
         return GenericResponse("success", moldeService.getAllMoldes())
     }
 

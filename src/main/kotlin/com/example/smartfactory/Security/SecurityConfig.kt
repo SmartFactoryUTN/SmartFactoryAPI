@@ -54,7 +54,7 @@ class SecurityConfig {
                         AntPathRequestMatcher("/api/tizada"),
                         AntPathRequestMatcher("/api/tizada/*"),
                         AntPathRequestMatcher("/api/molde"),
-                        AntPathRequestMatcher("/api/molde/*"),
+                        AntPathRequestMatcher("/api/molde/**"),
                         AntPathRequestMatcher("/api/inventario"),
                         AntPathRequestMatcher("/api/inventario/*"),
                         AntPathRequestMatcher("/api/users/**")
