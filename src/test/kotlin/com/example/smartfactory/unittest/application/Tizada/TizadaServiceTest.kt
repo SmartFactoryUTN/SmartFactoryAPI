@@ -7,6 +7,7 @@ import com.example.smartfactory.Domain.Tizada.TizadaState
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
 import com.example.smartfactory.Repository.MoldeRepository
 import com.example.smartfactory.Repository.TizadaRepository
+import com.example.smartfactory.Repository.TizadaResultRepository
 import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.TizadaService
 import com.example.smartfactory.integration.InvokeTizadaResponse
@@ -33,6 +34,8 @@ class TizadaServiceTest {
     private lateinit var moldeRepository: MoldeRepository
     @MockK
     private lateinit var lambdaService: LambdaService
+    @MockK
+    private lateinit var tizadaResultRepository: TizadaResultRepository
 
 
     @BeforeEach
@@ -40,7 +43,8 @@ class TizadaServiceTest {
         tizadaRepository = mockk()
         moldeRepository = mockk()
         lambdaService = mockk()
-        tizadaService = TizadaService(tizadaRepository, moldeRepository, lambdaService)
+        tizadaResultRepository = mockk()
+        tizadaService = TizadaService(tizadaRepository, moldeRepository, lambdaService, tizadaResultRepository)
     }
 
     @Test

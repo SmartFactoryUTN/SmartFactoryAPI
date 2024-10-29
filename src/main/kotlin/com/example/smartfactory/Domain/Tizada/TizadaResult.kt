@@ -21,6 +21,9 @@ class TizadaResult(
     @JoinColumn(name = "tizada_container_id")
     @Cascade(CascadeType.ALL)
     val bin: TizadaContainer,
+    @ManyToOne
+    @JoinColumn(name = "tizada_id")
+    val tizada: Tizada,
     @ManyToMany
     @JoinTable(name = "tizada_results_moldes", joinColumns = [JoinColumn(name = "tizada_result_id")], inverseJoinColumns = [JoinColumn(name = "molde_id")])
     val parts: List<Molde>?,

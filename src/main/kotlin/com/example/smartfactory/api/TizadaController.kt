@@ -8,6 +8,7 @@ import com.example.smartfactory.application.Tizada.Request.TizadaNotificationReq
 import com.example.smartfactory.application.Tizada.Request.UpdateTizadaRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -32,6 +33,8 @@ class TizadaController(
     private val tizadaService: TizadaService,
     private val usuarioRepository: UsuarioRepository
 ) {
+
+    val logger = KotlinLogging.logger {}
 
     @PostMapping("/invoke")
     @ResponseStatus(HttpStatus.CREATED)
@@ -78,6 +81,22 @@ class TizadaController(
     )
     fun notificationTizada(@RequestBody request: TizadaNotificationRequest): ResponseEntity<TizadaResponse<Any>> {
 
+        if (tizadaService.findTizadaResult(request.tizadaUUID)  != null){
+
+            logger.info { "Skipping notification for tizada: ${request.tizadaUUID}" }
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                TizadaResponse(
+                    status = "success",
+                    data = mapOf(
+                        "tizadaUUID" to request.tizadaUUID,
+                        "userUUID" to request.userUUID,
+                        "url" to request.url
+                    )
+                )
+            )
+
+        }
         if (request.status == "success"){
             tizadaService.saveTizadaFinalizada(request)
         }else{

@@ -133,6 +133,7 @@ class TizadaControllerTest {
         )
 
         every { tizadaService.saveTizadaFinalizada(any()) } returns mockk()
+        every { tizadaService.findTizadaResult(any()) } returns null
         //Act
         val response = mvc.perform(
             post("/api/tizada/notification")

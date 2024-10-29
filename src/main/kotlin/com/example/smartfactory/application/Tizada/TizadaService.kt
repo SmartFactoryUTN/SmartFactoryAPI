@@ -6,6 +6,7 @@ import com.example.smartfactory.Domain.Tizada.*
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
 import com.example.smartfactory.Repository.MoldeRepository
 import com.example.smartfactory.Repository.TizadaRepository
+import com.example.smartfactory.Repository.TizadaResultRepository
 import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
@@ -29,7 +30,9 @@ class TizadaService(
     @Autowired
     private val moldesRepo: MoldeRepository,
     @Autowired
-    private val lambdaService: LambdaService
+    private val lambdaService: LambdaService,
+    @Autowired
+    private val tizadaResultRepository: TizadaResultRepository
 ) {
     val logger = KotlinLogging.logger {}
 
@@ -168,6 +171,7 @@ class TizadaService(
         val tizadaResult = TizadaResult(
             uuid = uuid,
             url = request.url!!,
+            tizada = tizada,
             configuration = tizada.configuration,
             bin = tizada.bin,
             parts = moldes,
@@ -175,8 +179,6 @@ class TizadaService(
             iterations = request.iterations?.toLong(),
             timeoutReached = request.timeoutReached,
             createdAt = LocalDateTime.now(),
-            null,
-            null
         )
         tizada.results?.add(tizadaResult)
         tizada.state = TizadaState.FINISHED
@@ -211,6 +213,7 @@ class TizadaService(
         val tizadaResult = TizadaResult(
             uuid = uuid,
             url = null,
+            tizada = tizada,
             configuration = tizada.configuration,
             bin = tizada.bin,
             parts = moldes,
@@ -228,5 +231,9 @@ class TizadaService(
             "Tizada finalizada con error" +
                     " tizadaUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
         }
+    }
+
+    fun findTizadaResult(tizadaUUID: UUID): TizadaResult? {
+        return tizadaResultRepository.getTizadaResultByTizada(tizadaUUID)
     }
 }
