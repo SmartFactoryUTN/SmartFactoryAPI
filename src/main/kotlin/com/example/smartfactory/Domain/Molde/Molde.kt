@@ -10,6 +10,7 @@ import java.util.*
 class Molde(
     @Id @Column(name = "molde_id", nullable = false)
     val uuid: UUID,
+    val owner: UUID, //User UUD
     var name: String,
     val url: String,
     var description: String,

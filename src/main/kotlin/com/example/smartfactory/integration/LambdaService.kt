@@ -71,7 +71,7 @@ class LambdaService(
 
     suspend fun uploadContainer(uuid: UUID, svg: String): String {
         val bucketName = getS3BucketName()
-        val fileName = "containers/$uuid.svg"
+        val fileName = "14bd6578-0436-420d-9c64-2beda866fcf0/$uuid.svg"
 
         return try {
             val byteArray = svg.toByteArray(StandardCharsets.UTF_8)

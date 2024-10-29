@@ -4,9 +4,7 @@ import com.example.smartfactory.Domain.Molde.MoldeDeTizada
 import com.example.smartfactory.Domain.Molde.MoldeDeTizadaId
 import com.example.smartfactory.Domain.Tizada.*
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
-import com.example.smartfactory.Repository.MoldeDeTizadaRepository
 import com.example.smartfactory.Repository.MoldeRepository
-import com.example.smartfactory.Repository.TizadaContainerRepository
 import com.example.smartfactory.Repository.TizadaRepository
 import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.integration.InvokeTizadaResponse
@@ -27,20 +25,16 @@ const val CM_TO_SVG_FACTOR_FORM = 37.795275591
 @Service
 class TizadaService(
     @Autowired
-    private val tizadaRepo: TizadaRepository,
+    private val tizadaRepository: TizadaRepository,
     @Autowired
     private val moldesRepo: MoldeRepository,
     @Autowired
-    private val moldesDeTizadaRepo: MoldeDeTizadaRepository,
-    @Autowired
-    private val lambdaService: LambdaService,
-    @Autowired
-    private val tizadaContainerRepo: TizadaContainerRepository
+    private val lambdaService: LambdaService
 ) {
     val logger = KotlinLogging.logger {}
 
     @Transactional
-    suspend fun createTizada(request: CreateTizadaRequest): UUID {
+    suspend fun createTizada(request: CreateTizadaRequest, owner: UUID): UUID {
         val uuid = UUID.randomUUID() // id of this new tizada
         val tizadaParts: MutableList<MoldeDeTizada> = mutableListOf()
         request.molds.forEach {
@@ -52,11 +46,12 @@ class TizadaService(
             UUID.randomUUID(), time = request.maxTime, utilizationPercentage = request.utilizationPercentage
         )
 
+        // FIXME no buscar por alto y ancho, sino por UUID
         // Third step: Retrieve bin for this tizada
-        var bin = withContext(Dispatchers.IO) {
-            tizadaContainerRepo.findByWidthAndHeight(request.width, request.height)
-        }
-        if (bin == null) {
+//        var bin = withContext(Dispatchers.IO) {
+//            tizadaContainerRepo.findByWidthAndHeight(request.width, request.height)
+//        }
+        // if (bin == null) {
             val height = request.height * CM_TO_SVG_FACTOR_FORM
             val width = request.width * CM_TO_SVG_FACTOR_FORM
             val svg =
@@ -66,8 +61,8 @@ class TizadaService(
                 </svg>""".trimIndent()
             val containerId = UUID.randomUUID()
             val url = lambdaService.uploadContainer(containerId, svg)
-            bin = TizadaContainer(
-                uuid = UUID.fromString("60eb9f4c-33b0-4769-a199-3920977ac1ea"),
+            val bin = TizadaContainer(
+                uuid = containerId,
                 name = "Mesa de corte",
                 height = request.height,
                 width = request.width,
@@ -75,11 +70,12 @@ class TizadaService(
                 area = (request.height * request.width).toDouble(),
                 createdAt = LocalDateTime.now()
             )
-        }
+        // }
 
         // Fourth step: create tizada and save it into DB, ready for executing
         val tizada = Tizada(
             uuid = uuid,
+            owner = owner,
             name = request.name,
             configuration = configuration,
             bin = bin,
@@ -95,7 +91,7 @@ class TizadaService(
         tizada.moldesDeTizada = tizadaParts
 
         withContext(Dispatchers.IO) {
-            tizadaRepo.save(tizada)
+            tizadaRepository.save(tizada)
         }
 
 
@@ -105,8 +101,8 @@ class TizadaService(
         return uuid
     }
 
-    fun getTizada(id: UUID): Tizada {
-        val tizada = tizadaRepo.getTizadaByUuid(id) ?: throw TizadaNotFoundException("No se encontró la tizada con ID $id")
+    fun getTizadaByUUID(id: UUID): Tizada {
+        val tizada = tizadaRepository.getTizadaByUuid(id) ?: throw TizadaNotFoundException("No se encontró la tizada con ID $id")
         val parts: MutableList<MoldsQuantity> = mutableListOf()
         for (moldeDeTizada in tizada.moldesDeTizada) {
             val molde = moldesRepo.findMoldeByUuid(moldeDeTizada.moldeDeTizadaId.moldeId)!!
@@ -117,37 +113,26 @@ class TizadaService(
     }
 
     fun updateTizada(id: UUID, request: UpdateTizadaRequest): UUID {
-        val tizada = tizadaRepo.getTizadaByUuid(id) ?: throw TizadaNotFoundException("No se encontró la tizada con ID $id")
+        val tizada = tizadaRepository.getTizadaByUuid(id) ?: throw TizadaNotFoundException("No se encontró la tizada con ID $id")
         request.name?.let {
             tizada.name = it
             tizada.updatedAt = LocalDateTime.now()
         }
-        tizadaRepo.save(tizada)
+        tizadaRepository.save(tizada)
         return tizada.uuid
     }
 
     fun deleteTizada(id: UUID) {
-        val tizada = tizadaRepo.getTizadaByUuid(id) ?: throw TizadaNotFoundException("No se encontró la tizada con ID $id")
+        val tizada = tizadaRepository.getTizadaByUuid(id)
+            ?: throw TizadaNotFoundException("No se encontró la tizada con ID $id")
         tizada.active = false
         tizada.deletedAt = LocalDateTime.now()
-        tizadaRepo.save(tizada)
-    }
-
-    // FIXME add limit
-    @Transactional
-    fun getAllTizadas(finalizadas: String?): Collection<Tizada> {
-        val tizadaIds = if (finalizadas == "true") {
-            tizadaRepo.getAllTizadasFinalizadas()
-        } else {
-            tizadaRepo.getAllTizadas()
-        }
-
-        return tizadaIds.map { tizadaId -> this.getTizada(tizadaId) }
+        tizadaRepository.save(tizada)
     }
 
     @Transactional
     fun invokeTizada(invokeTizadaRequest: InvokeTizadaRequest): InvokeTizadaResponse? {
-        val tizada = this.getTizada(UUID.fromString(invokeTizadaRequest.tizadaUUID))
+        val tizada = this.getTizadaByUUID(UUID.fromString(invokeTizadaRequest.tizadaUUID))
 
         tizada.state = TizadaState.IN_PROGRESS
         tizada.updatedAt = LocalDateTime.now()
@@ -163,7 +148,7 @@ class TizadaService(
         )
         val jsonPayload = Json.encodeToString(invokeTizadaPayload)
         val response = lambdaService.invokeLambdaAsync(jsonPayload)
-        tizadaRepo.save(tizada)
+        tizadaRepository.save(tizada)
         return response
     }
 
@@ -172,7 +157,7 @@ class TizadaService(
             "Received save tizada finalizada notification for" +
                     " tizadaUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
         }
-        val tizada = tizadaRepo.getTizadaByUuid(request.tizadaUUID) ?:
+        val tizada = tizadaRepository.getTizadaByUuid(request.tizadaUUID) ?:
             throw TizadaNotFoundException("No se encontró la tizada con ID ${request.tizadaUUID}")
         val moldes = request.parts.map {
             moldesRepo.findMoldeByUuid(UUID.fromString(it.replace("molde-", "")))!!
@@ -194,6 +179,13 @@ class TizadaService(
         tizada.results?.add(tizadaResult)
         tizada.state = TizadaState.FINISHED
         tizada.updatedAt = LocalDateTime.now()
-        tizadaRepo.save(tizada)
+        tizadaRepository.save(tizada)
+    }
+
+    @Transactional
+    fun getAllTizadasByOwner(userUUID: UUID): List<Tizada>? {
+        val tizadas = tizadaRepository.findTizadasByOwner(userUUID)
+
+        return tizadas
     }
 }

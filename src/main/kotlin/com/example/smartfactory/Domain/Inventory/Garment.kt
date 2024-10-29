@@ -1,15 +1,10 @@
 package com.example.smartfactory.Domain.Inventory
 
 import com.example.smartfactory.Domain.Auditable
-import com.example.smartfactory.Domain.Molde.Molde
-import com.example.smartfactory.Domain.Tizada.MoldsQuantity
-//import com.example.smartfactory.application.Inventory.Response.GetGarmentResponse
-import com.example.smartfactory.application.Tizada.Request.Part
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.jvm.Transient
 
 @Entity
 @Table(name = "garments")

@@ -35,20 +35,6 @@ class TizadaContainer (
         const val DEFAULT_URL = "https://elasticbeanstalk-sa-east-1-951718808729.s3.sa-east-1.amazonaws.com/60440d33-e9b5-4e71-9573-f8c00010acbd.svg"
         const val DEFAULT_AREA = DEFAULT_WIDTH * DEFAULT_HEIGHT
 
-        fun getDefaultContainer(): TizadaContainer {
-            return TizadaContainer(
-                uuid = UUID.fromString(DEFAULT_UUID),
-                name = DEFAULT_NAME,
-                height = DEFAULT_HEIGHT,
-                width = DEFAULT_WIDTH,
-                url = DEFAULT_URL,
-                area = DEFAULT_AREA.toDouble(),
-                createdAt = LocalDateTime.now(),
-                updatedAt = null,
-                deletedAt = null
-            )
-        }
-
     }
 
     fun toBin(): Bin {
