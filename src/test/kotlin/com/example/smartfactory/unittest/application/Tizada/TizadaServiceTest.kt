@@ -172,7 +172,7 @@ class TizadaServiceTest {
 
         val containerURL = "https://mock-container-url.com"
 
-        coEvery { lambdaService.uploadContainer(any(), any()) } returns containerURL
+        coEvery { lambdaService.uploadContainer(any(), any(), any()) } returns containerURL
         coEvery { tizadaRepository.save(any()) } returns tizada
 
         // Act
@@ -181,7 +181,7 @@ class TizadaServiceTest {
         // Assert
         assertNotNull(result)
         coVerify { tizadaRepository.save(any<Tizada>()) }
-        coVerify { lambdaService.uploadContainer(any(), any()) }
+        coVerify { lambdaService.uploadContainer(any(), any(), any()) }
     }
 
     @Test
@@ -455,7 +455,7 @@ class TizadaServiceTest {
             userUUID = UUID.randomUUID(),
             parts = listOf("molde-ddcee655-2464-42f0-a1d2-cd1f62c5b8ed", "molde-f940ab1e-6107-4399-aeeb-eda764b1bddd"),
             url = "http://some-url.com",
-            materialUtilization = 85.0,
+            materialUtilization = 85,
             iterations = 10,
             timeoutReached = false
         )
@@ -494,7 +494,7 @@ class TizadaServiceTest {
             userUUID = UUID.randomUUID(),
             parts = listOf("molde-1", "molde-2"),
             url = "http://some-url.com",
-            materialUtilization = 85.0,
+            materialUtilization = 85,
             iterations = 10,
             timeoutReached = false
         )

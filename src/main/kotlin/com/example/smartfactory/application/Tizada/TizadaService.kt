@@ -38,39 +38,33 @@ class TizadaService(
         val uuid = UUID.randomUUID() // id of this new tizada
         val tizadaParts: MutableList<MoldeDeTizada> = mutableListOf()
         request.molds.forEach {
-            tizadaParts.add(MoldeDeTizada(MoldeDeTizadaId(moldeId = UUID.fromString(it.uuid), tizadaId = uuid), it.quantity))
+            tizadaParts.add(
+                MoldeDeTizada(MoldeDeTizadaId(moldeId = UUID.fromString(it.uuid), tizadaId = uuid), it.quantity)
+            )
         }
 
         // Second step prepare configuration (maxTime and utilizationPercentage)
         val configuration = TizadaConfiguration(
             UUID.randomUUID(), time = request.maxTime, utilizationPercentage = request.utilizationPercentage
         )
-
-        // FIXME no buscar por alto y ancho, sino por UUID
-        // Third step: Retrieve bin for this tizada
-//        var bin = withContext(Dispatchers.IO) {
-//            tizadaContainerRepo.findByWidthAndHeight(request.width, request.height)
-//        }
-        // if (bin == null) {
-            val height = request.height * CM_TO_SVG_FACTOR_FORM
-            val width = request.width * CM_TO_SVG_FACTOR_FORM
-            val svg =
-                """<svg width='$width' height='$height' xmlns='http://www.w3.org/2000/svg'
-                    viewBox='0 0 $width $height'>
-                    <rect width="$width" height="$height" fill="none" stroke="#010101"></rect>
-                </svg>""".trimIndent()
-            val containerId = UUID.randomUUID()
-            val url = lambdaService.uploadContainer(containerId, svg)
-            val bin = TizadaContainer(
-                uuid = containerId,
-                name = "Mesa de corte",
-                height = request.height,
-                width = request.width,
-                url = url,
-                area = (request.height * request.width).toDouble(),
-                createdAt = LocalDateTime.now()
-            )
-        // }
+        val height = request.height * CM_TO_SVG_FACTOR_FORM
+        val width = request.width * CM_TO_SVG_FACTOR_FORM
+        val svg =
+            """<svg width='$width' height='$height' xmlns='http://www.w3.org/2000/svg'
+                viewBox='0 0 $width $height'>
+                <rect width="$width" height="$height" fill="none" stroke="#010101"></rect>
+            </svg>""".trimIndent()
+        val containerId = UUID.randomUUID()
+        val url = lambdaService.uploadContainer(owner, containerId, svg)
+        val bin = TizadaContainer(
+            uuid = containerId,
+            name = "Mesa de corte",
+            height = request.height,
+            width = request.width,
+            url = url,
+            area = (request.height * request.width).toDouble(),
+            createdAt = LocalDateTime.now()
+        )
 
         // Fourth step: create tizada and save it into DB, ready for executing
         val tizada = Tizada(
@@ -159,7 +153,7 @@ class TizadaService(
         }
         val tizada = tizadaRepository.getTizadaByUuid(request.tizadaUUID) ?:
             throw TizadaNotFoundException("No se encontró la tizada con ID ${request.tizadaUUID}")
-        val moldes = request.parts.map {
+        val moldes = request.parts?.map {
             moldesRepo.findMoldeByUuid(UUID.fromString(it.replace("molde-", "")))!!
         }
         val uuid = UUID.randomUUID()
@@ -169,8 +163,8 @@ class TizadaService(
             configuration = tizada.configuration,
             bin = tizada.bin,
             parts = moldes,
-            materialUtilization = request.materialUtilization,
-            iterations = request.iterations,
+            materialUtilization = request.materialUtilization?.toLong(),
+            iterations = request.iterations?.toLong(),
             timeoutReached = request.timeoutReached,
             createdAt = LocalDateTime.now(),
             null,
@@ -180,6 +174,11 @@ class TizadaService(
         tizada.state = TizadaState.FINISHED
         tizada.updatedAt = LocalDateTime.now()
         tizadaRepository.save(tizada)
+
+        logger.info {
+            "Tizada finalizada correctamente" +
+                    " tizadaUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
+        }
     }
 
     @Transactional
