@@ -7,6 +7,7 @@ import com.example.smartfactory.integration.LambdaService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 import java.util.*
 
@@ -67,4 +68,10 @@ class MoldeService(
         molde.active = false
         moldeRepository.save(molde)
     }
+
+    fun isSvgFile(file: MultipartFile): Boolean {
+        // Validate content type and file extension
+        return file.contentType == "image/svg+xml" && file.originalFilename?.endsWith(".svg", ignoreCase = true) == true
+    }
+
 }
