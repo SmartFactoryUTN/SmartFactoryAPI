@@ -41,7 +41,7 @@ class LambdaService(
 
     suspend fun uploadFile(molde: CreateMoldeRequest, uuid: UUID): String {
         val bucketName = getS3BucketName()
-        val fileName = "${molde.userUUID}/molde-${uuid}.svg"
+        val fileName = "users/${molde.userUUID}/moldes/molde-${uuid}.svg"
 
         return try {
             // Convert the MultipartFile to a byte array for upload
@@ -69,9 +69,9 @@ class LambdaService(
         }
     }
 
-    suspend fun uploadContainer(uuid: UUID, svg: String): String {
+    suspend fun uploadContainer(ownerUUID: UUID, uuid: UUID, svg: String): String {
         val bucketName = getS3BucketName()
-        val fileName = "14bd6578-0436-420d-9c64-2beda866fcf0/$uuid.svg"
+        val fileName = "users/$ownerUUID/containers/$uuid.svg"
 
         return try {
             val byteArray = svg.toByteArray(StandardCharsets.UTF_8)

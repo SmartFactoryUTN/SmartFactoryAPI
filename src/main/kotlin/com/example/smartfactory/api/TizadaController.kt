@@ -2,7 +2,10 @@ package com.example.smartfactory.api
 
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
 import com.example.smartfactory.Repository.UsuarioRepository
-import com.example.smartfactory.application.Tizada.Request.*
+import com.example.smartfactory.application.Tizada.Request.CreateTizadaRequest
+import com.example.smartfactory.application.Tizada.Request.InvokeTizadaRequest
+import com.example.smartfactory.application.Tizada.Request.TizadaNotificationRequest
+import com.example.smartfactory.application.Tizada.Request.UpdateTizadaRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
 import io.swagger.v3.oas.annotations.Operation
@@ -75,7 +78,7 @@ class TizadaController(
     )
     fun notificationTizada(@RequestBody request: TizadaNotificationRequest): ResponseEntity<TizadaResponse<Any>> {
 
-        if (request.status == TizadaResultStatus.SUCCESS){
+        if (request.status == "success"){
             tizadaService.saveTizadaFinalizada(request)
         }else{
             tizadaService.saveTizadaFinalizadaConError(request)
@@ -103,7 +106,7 @@ class TizadaController(
     @ApiResponse(responseCode = "400", description = "Tizada inválida")
     @ApiResponse(responseCode = "500", description = "Ocurrió un error")
     suspend fun createTizada(
-        @RequestBody request: CreateTizadaRequest,
+        @Valid @RequestBody request: CreateTizadaRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<TizadaResponse<Any>> {
 

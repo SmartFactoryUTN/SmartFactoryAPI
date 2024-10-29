@@ -38,7 +38,9 @@ class TizadaService(
         val uuid = UUID.randomUUID() // id of this new tizada
         val tizadaParts: MutableList<MoldeDeTizada> = mutableListOf()
         request.molds.forEach {
-            tizadaParts.add(MoldeDeTizada(MoldeDeTizadaId(moldeId = UUID.fromString(it.uuid), tizadaId = uuid), it.quantity))
+            tizadaParts.add(
+                MoldeDeTizada(MoldeDeTizadaId(moldeId = UUID.fromString(it.uuid), tizadaId = uuid), it.quantity)
+            )
         }
 
         // Second step prepare configuration (maxTime and utilizationPercentage)
@@ -60,7 +62,7 @@ class TizadaService(
                     <rect width="$width" height="$height" fill="none" stroke="#010101"></rect>
                 </svg>""".trimIndent()
             val containerId = UUID.randomUUID()
-            val url = lambdaService.uploadContainer(containerId, svg)
+            val url = lambdaService.uploadContainer(owner, containerId, svg)
             val bin = TizadaContainer(
                 uuid = containerId,
                 name = "Mesa de corte",
@@ -169,8 +171,8 @@ class TizadaService(
             configuration = tizada.configuration,
             bin = tizada.bin,
             parts = moldes,
-            materialUtilization = request.materialUtilization,
-            iterations = request.iterations,
+            materialUtilization = request.materialUtilization?.toLong(),
+            iterations = request.iterations?.toLong(),
             timeoutReached = request.timeoutReached,
             createdAt = LocalDateTime.now(),
             null,

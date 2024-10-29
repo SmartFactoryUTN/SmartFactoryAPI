@@ -19,5 +19,5 @@ data class TizadaNotificationRequest(
     val materialUtilization: Number? = null,
     val iterations: Number? = null,
     val timeoutReached: Boolean? = null,
-    val status: TizadaResultStatus,
+    val status: String,
 )
