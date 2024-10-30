@@ -52,7 +52,7 @@ class SecurityConfig {
                     ).permitAll()
                     .requestMatchers(
                         AntPathRequestMatcher("/api/tizada"),
-                        AntPathRequestMatcher("/api/tizada/*"),
+                        AntPathRequestMatcher("/api/tizada/**"),
                         AntPathRequestMatcher("/api/molde"),
                         AntPathRequestMatcher("/api/molde/**"),
                         AntPathRequestMatcher("/api/inventario"),

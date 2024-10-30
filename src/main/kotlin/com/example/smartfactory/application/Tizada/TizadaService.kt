@@ -6,6 +6,7 @@ import com.example.smartfactory.Domain.Tizada.*
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
 import com.example.smartfactory.Repository.MoldeRepository
 import com.example.smartfactory.Repository.TizadaRepository
+import com.example.smartfactory.Repository.TizadaResultRepository
 import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
@@ -29,7 +30,9 @@ class TizadaService(
     @Autowired
     private val moldesRepo: MoldeRepository,
     @Autowired
-    private val lambdaService: LambdaService
+    private val lambdaService: LambdaService,
+    @Autowired
+    private val tizadaResultRepository: TizadaResultRepository
 ) {
     val logger = KotlinLogging.logger {}
 
@@ -38,7 +41,9 @@ class TizadaService(
         val uuid = UUID.randomUUID() // id of this new tizada
         val tizadaParts: MutableList<MoldeDeTizada> = mutableListOf()
         request.molds.forEach {
-            tizadaParts.add(MoldeDeTizada(MoldeDeTizadaId(moldeId = UUID.fromString(it.uuid), tizadaId = uuid), it.quantity))
+            tizadaParts.add(
+                MoldeDeTizada(MoldeDeTizadaId(moldeId = UUID.fromString(it.uuid), tizadaId = uuid), it.quantity)
+            )
         }
 
         // Second step prepare configuration (maxTime and utilizationPercentage)
@@ -60,7 +65,7 @@ class TizadaService(
                     <rect width="$width" height="$height" fill="none" stroke="#010101"></rect>
                 </svg>""".trimIndent()
             val containerId = UUID.randomUUID()
-            val url = lambdaService.uploadContainer(containerId, svg)
+            val url = lambdaService.uploadContainer(owner, containerId, svg)
             val bin = TizadaContainer(
                 uuid = containerId,
                 name = "Mesa de corte",
@@ -159,27 +164,31 @@ class TizadaService(
         }
         val tizada = tizadaRepository.getTizadaByUuid(request.tizadaUUID) ?:
             throw TizadaNotFoundException("No se encontró la tizada con ID ${request.tizadaUUID}")
-        val moldes = request.parts.map {
+        val moldes = request.parts?.map {
             moldesRepo.findMoldeByUuid(UUID.fromString(it.replace("molde-", "")))!!
         }
         val uuid = UUID.randomUUID()
         val tizadaResult = TizadaResult(
             uuid = uuid,
             url = request.url!!,
+            tizada = tizada,
             configuration = tizada.configuration,
             bin = tizada.bin,
             parts = moldes,
-            materialUtilization = request.materialUtilization,
-            iterations = request.iterations,
+            materialUtilization = request.materialUtilization?.toLong(),
+            iterations = request.iterations?.toLong(),
             timeoutReached = request.timeoutReached,
             createdAt = LocalDateTime.now(),
-            null,
-            null
         )
         tizada.results?.add(tizadaResult)
         tizada.state = TizadaState.FINISHED
         tizada.updatedAt = LocalDateTime.now()
         tizadaRepository.save(tizada)
+
+        logger.info {
+            "Tizada finalizada correctamente" +
+                    " tizadaUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
+        }
     }
 
     @Transactional
@@ -187,5 +196,44 @@ class TizadaService(
         val tizadas = tizadaRepository.findTizadasByOwner(userUUID)
 
         return tizadas
+    }
+
+    fun saveTizadaFinalizadaConError(request: TizadaNotificationRequest) {
+        logger.info {
+            "Received save tizada finalizada notification for" +
+                    " tizadaUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
+        }
+
+        val tizada = tizadaRepository.getTizadaByUuid(request.tizadaUUID) ?:
+            throw TizadaNotFoundException("No se encontró la tizada con ID ${request.tizadaUUID}")
+        val moldes = request.parts?.map {
+            moldesRepo.findMoldeByUuid(UUID.fromString(it.replace("molde-", "")))!!
+        }
+        val uuid = UUID.randomUUID()
+        val tizadaResult = TizadaResult(
+            uuid = uuid,
+            url = null,
+            tizada = tizada,
+            configuration = tizada.configuration,
+            bin = tizada.bin,
+            parts = moldes,
+            materialUtilization = null,
+            iterations = null,
+            timeoutReached = false,
+            createdAt = LocalDateTime.now()
+        )
+        tizada.results?.add(tizadaResult)
+        tizada.state = TizadaState.ERROR
+        tizada.updatedAt = LocalDateTime.now()
+        tizadaRepository.save(tizada)
+
+        logger.info {
+            "Tizada finalizada con error" +
+                    " tizadaUUID: ${request.tizadaUUID} and userUUID: ${request.userUUID}"
+        }
+    }
+
+    fun findTizadaResult(tizadaUUID: UUID): TizadaResult? {
+        return tizadaResultRepository.getTizadaResultByTizada(tizadaUUID)
     }
 }

@@ -8,6 +8,7 @@ import com.example.smartfactory.application.Tizada.Request.TizadaNotificationReq
 import com.example.smartfactory.application.Tizada.Request.UpdateTizadaRequest
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -33,6 +34,8 @@ class TizadaController(
     private val usuarioRepository: UsuarioRepository
 ) {
 
+    val logger = KotlinLogging.logger {}
+
     @PostMapping("/invoke")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
@@ -46,14 +49,14 @@ class TizadaController(
 
         return try {
             val response = tizadaService.invokeTizada(request)
-            return ResponseEntity.status(204).body(
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
                 TizadaResponse(
                     status = "success",
                     data = mapOf("tizada" to response)
                 )
             )
         } catch (e: Exception){
-            ResponseEntity.status(500).body(
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 TizadaResponse(
                     status = "error",
                     message = e.localizedMessage,
@@ -78,7 +81,27 @@ class TizadaController(
     )
     fun notificationTizada(@RequestBody request: TizadaNotificationRequest): ResponseEntity<TizadaResponse<Any>> {
 
-        tizadaService.saveTizadaFinalizada(request)
+        if (tizadaService.findTizadaResult(request.tizadaUUID)  != null){
+
+            logger.info { "Skipping notification for tizada: ${request.tizadaUUID}" }
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                TizadaResponse(
+                    status = "success",
+                    data = mapOf(
+                        "tizadaUUID" to request.tizadaUUID,
+                        "userUUID" to request.userUUID,
+                        "url" to request.url
+                    )
+                )
+            )
+
+        }
+        if (request.status == "success"){
+            tizadaService.saveTizadaFinalizada(request)
+        }else{
+            tizadaService.saveTizadaFinalizadaConError(request)
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
             TizadaResponse(
@@ -102,7 +125,7 @@ class TizadaController(
     @ApiResponse(responseCode = "400", description = "Tizada inválida")
     @ApiResponse(responseCode = "500", description = "Ocurrió un error")
     suspend fun createTizada(
-        @RequestBody request: CreateTizadaRequest,
+        @Valid @RequestBody request: CreateTizadaRequest,
         @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<TizadaResponse<Any>> {
 
