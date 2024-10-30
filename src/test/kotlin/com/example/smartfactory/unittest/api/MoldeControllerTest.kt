@@ -129,6 +129,7 @@ class MoldeControllerTest {
         )
 
         coEvery { moldeService.createMolde(createMoldeRequest) } returns expectedMolde
+        coEvery { moldeService.isSvgFile(any()) } returns true
 
         // Act
         val response: ResponseEntity<TizadaResponse<Any>> = moldeController.createMolde(

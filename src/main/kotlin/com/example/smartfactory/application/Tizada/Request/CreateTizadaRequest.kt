@@ -9,9 +9,9 @@ import kotlinx.serialization.Serializable
 class CreateTizadaRequest(
     @field:NotEmpty(message = "Name cannot be empty")
     val name: String,
-    @field:Min(value = 1, message = "Width must be greater or equal than 1")
+    @field:Min(value = 10, message = "Width must be greater or equal than 1")
     val width: Int,
-    @field:Min(value = 1, message = "Height must be greater or equal than 1")
+    @field:Min(value = 10, message = "Height must be greater or equal than 1")
     val height: Int,
     @field:Min(value = 1, message = "materialUtilization must be greater or equal than 1")
     val utilizationPercentage: Int,
@@ -42,7 +42,7 @@ data class Bin(
 @Serializable
 data class InvokeConfiguration(
     @field:Min(value = 1, message = "Max iterations must be at least 1")
-    val maxIterations: Int,
+    val maxIterations: Int = 100,
 
     @field:Min(value = 1, message = "Material utilization must be at least 1")
     val materialUtilization: Int,

@@ -49,6 +49,19 @@ class MoldeController(private val moldeService: MoldeService) {
         @RequestParam("svg") svg: MultipartFile
     ): ResponseEntity<TizadaResponse<Any>> {
 
+        // Check if the file is an SVG
+        if (!moldeService.isSvgFile(svg)) {
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                TizadaResponse(
+                    status = "error",
+                    data = mapOf(
+                        "message" to "File must be an SVG"
+                    )
+                )
+            )
+        }
+
         val createMoldeRequest = CreateMoldeRequest(
             name = name,
             userUUID = userUUID,

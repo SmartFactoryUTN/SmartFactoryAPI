@@ -2,24 +2,22 @@ package com.example.smartfactory.application.Tizada.Request
 
 import java.util.*
 
+enum class TizadaResultStatus {
+    SUCCESS, ERROR;
+
+    override fun toString(): String {
+        return name.lowercase(Locale.getDefault())
+    }
+
+}
+
 data class TizadaNotificationRequest(
     val tizadaUUID: UUID,
-    val url: String?,
+    val url: String? = null,
     val userUUID: UUID,
-    val parts: List<String>,
-    val materialUtilization: Long?,
-    val iterations: Long?,
-    val timeoutReached: Boolean
-)
-
-data class TizadaConfigurationRequest(
-    val id: Number,
-    val spaceBetweenParts: Double?
-)
-class TizadaContainerRequest(
-    val uuid: String,
-    val name: String,
-    val height: Number,
-    val width: Number,
-    val area: Double
+    val parts: List<String>? = null,
+    val materialUtilization: Long? = null,
+    val iterations: Long? = null,
+    val timeoutReached: Boolean? = false,
+    val status: String,
 )

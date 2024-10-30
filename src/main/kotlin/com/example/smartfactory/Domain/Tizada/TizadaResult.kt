@@ -13,7 +13,7 @@ import java.util.*
 class TizadaResult(
     @Id @Column(name = "tizada_result_id")
     val uuid: UUID,
-    val url: String,
+    val url: String?,
     @JoinColumn(name = "tizada_configuration_id")
     @OneToOne
     val configuration: TizadaConfiguration,
@@ -21,6 +21,9 @@ class TizadaResult(
     @JoinColumn(name = "tizada_container_id")
     @Cascade(CascadeType.ALL)
     val bin: TizadaContainer,
+    @ManyToOne
+    @JoinColumn(name = "tizada_id")
+    val tizada: Tizada,
     @ManyToMany
     @JoinTable(name = "tizada_results_moldes", joinColumns = [JoinColumn(name = "tizada_result_id")], inverseJoinColumns = [JoinColumn(name = "molde_id")])
     val parts: List<Molde>?,
@@ -28,6 +31,6 @@ class TizadaResult(
     val iterations: Long?,
     val timeoutReached: Boolean = false,
     override var createdAt: LocalDateTime,
-    override var updatedAt: LocalDateTime?,
-    override var deletedAt: LocalDateTime?
+    override var updatedAt: LocalDateTime? = null,
+    override var deletedAt: LocalDateTime? = null
 ): Auditable
