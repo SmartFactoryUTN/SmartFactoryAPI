@@ -1,9 +1,6 @@
 package com.example.smartfactory.unittest.application.Tizada
 
-import com.example.smartfactory.Domain.Tizada.Tizada
-import com.example.smartfactory.Domain.Tizada.TizadaConfiguration
-import com.example.smartfactory.Domain.Tizada.TizadaContainer
-import com.example.smartfactory.Domain.Tizada.TizadaState
+import com.example.smartfactory.Domain.Tizada.*
 import com.example.smartfactory.Exceptions.TizadaNotFoundException
 import com.example.smartfactory.Repository.MoldeRepository
 import com.example.smartfactory.Repository.TizadaRepository
@@ -477,9 +474,23 @@ class TizadaServiceTest {
             createdAt = LocalDateTime.now()
         )
 
+        val tizadaResult = TizadaResult(
+            uuid = UUID.randomUUID(),
+            url = "http://some-url.com",
+            configuration = mockk(),
+            bin = mockk(),
+            tizada = tizada,
+            parts = mutableListOf(),
+            materialUtilization = 85,
+            iterations = 10,
+            timeoutReached = false,
+            createdAt = LocalDateTime.now()
+        )
+
         every { tizadaRepository.getTizadaByUuid(tizadaUUID) } returns tizada
         every { moldeRepository.findMoldeByUuid(any()) } returns mockk()
         every { tizadaRepository.save(any()) } returns tizada
+        every { tizadaResultRepository.save(any()) } returns tizadaResult
 
         // Act
         tizadaService.saveTizadaFinalizada(request)
