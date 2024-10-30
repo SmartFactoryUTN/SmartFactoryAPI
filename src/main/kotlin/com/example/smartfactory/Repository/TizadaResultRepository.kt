@@ -8,6 +8,6 @@ import java.util.*
 
 interface TizadaResultRepository: CrudRepository<TizadaResult, UUID> {
 
-    @Query("SELECT t FROM TizadaResult t WHERE t.tizada = :tizadaUUID")
+    @Query("SELECT t FROM TizadaResult t WHERE t.tizada.uuid = :tizadaUUID")
     fun getTizadaResultByTizada(@Param("tizadaUUID") tizadaUUID: UUID): TizadaResult?
 }
