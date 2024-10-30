@@ -36,6 +36,7 @@ dependencies {
 	implementation("org.flywaydb:flyway-core:10.18.2")
 	implementation("io.projectreactor:reactor-core:3.6.10")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
+	implementation("org.jsoup:jsoup:1.15.3") // SVG Sanitization
 
 	// Auth0
 	implementation("org.springframework.boot:spring-boot-starter-security")

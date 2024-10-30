@@ -29,7 +29,7 @@ class TizadaResult(
     val parts: List<Molde>?,
     val materialUtilization: Long?,
     val iterations: Long?,
-    val timeoutReached: Boolean?,
+    val timeoutReached: Boolean = false,
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime? = null,
     override var deletedAt: LocalDateTime? = null

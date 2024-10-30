@@ -16,8 +16,8 @@ data class TizadaNotificationRequest(
     val url: String? = null,
     val userUUID: UUID,
     val parts: List<String>? = null,
-    val materialUtilization: Number? = null,
-    val iterations: Number? = null,
-    val timeoutReached: Boolean? = false,
+    val materialUtilization: Long? = null,
+    val iterations: Long? = null,
+    val timeoutReached: Boolean = false,
     val status: String,
 )
