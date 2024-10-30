@@ -56,7 +56,7 @@ class SecurityConfig {
                         AntPathRequestMatcher("/api/molde"),
                         AntPathRequestMatcher("/api/molde/**"),
                         AntPathRequestMatcher("/api/inventario"),
-                        AntPathRequestMatcher("/api/inventario/*"),
+                        AntPathRequestMatcher("/api/inventario/**"),
                         AntPathRequestMatcher("/api/users/**")
                     ).authenticated()
             }
