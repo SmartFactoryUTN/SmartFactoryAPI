@@ -289,4 +289,37 @@ class InventoryController(
             GenericResponse(status = "success", data = response)
         )
     }
+
+    @PatchMapping("/prenda/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Actualizar una prenda")
+    @ApiResponses(value = [
+        ApiResponse(description = "Prenda actualizada correctamente", responseCode = "200"),
+        ApiResponse(description = "Error en los parámetros enviados", responseCode = "400"),
+        ApiResponse(description = "No autorizado a obtener esta prneda", responseCode = "401"),
+        ApiResponse(description = "Prenda no encontrada", responseCode = "404")
+    ])
+    fun updateFabricPiece(@RequestBody updateGarmentRequest: UpdateFabricPieceRequest, @PathVariable("id") id: UUID): ResponseEntity<GenericResponse<Any>> {
+        val response = inventoryService.updateFabricPiece(id, updateGarmentRequest)
+        return try {
+            ResponseEntity.status(HttpStatus.OK.value()).body(
+                GenericResponse(
+                    status = "success",
+                    data = response
+                )
+            )
+        } catch (ex: RuntimeException) {
+            when (ex) {
+                is FabricPieceNotFoundException ->
+                    ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(GenericResponse(
+                        status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                    ))
+                is FabricPieceOutOfStockException ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(GenericResponse(
+                        status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                    ))
+                else -> throw ex
+            }
+        }
+    }
 }

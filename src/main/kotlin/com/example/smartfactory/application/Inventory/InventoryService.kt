@@ -20,7 +20,6 @@ class InventoryService(
     private val garmentRepository: GarmentRepository,
     private val moldeRepository: MoldeRepository,
     private val fabricRollRepository: FabricRollRepository,
-    private val tizadaRepository: TizadaRepository,
     private val fabricPieceRepository: FabricPieceRepository,
     private val fabricColorRepository: FabricColorRepository,
     private val tizadaService: TizadaService
@@ -108,10 +107,10 @@ class InventoryService(
         )
         updateGarmentRequest.name?.let { garment.name = it }
         updateGarmentRequest.stock?.let {
-            if (it < 0 && it + garment.stock < 0) {
-                throw GarmentOutOfStockException("No se pueden restar ${abs(it)} unidades de esta prenda. La cantidad en stock es ${garment.stock}")
+            if (it < 0) {
+                throw GarmentOutOfStockException("El stock ingresado (${updateGarmentRequest.stock}) debe ser una cantidad positiva")
             }
-            garment.stock += updateGarmentRequest.stock
+            garment.stock = updateGarmentRequest.stock
         }
         garment.updatedAt = LocalDateTime.now()
         garmentRepository.save(garment)
@@ -128,12 +127,12 @@ class InventoryService(
             )
         updateFabricRollRequest.name?.let { fabricRoll.name = it }
         updateFabricRollRequest.stock?.let {
-            if (it < 0 && it + fabricRoll.stock < 0) {
+            if (it < 0) {
                 throw FabricRollOutOfStockException(
-                    "No se pueden restar ${abs(it)} unidades de este rollo. La cantidad en stock es ${fabricRoll.stock}"
+                    "El stock ingresado (${updateFabricRollRequest.stock}) debe ser una cantidad positiva"
                 )
             }
-            fabricRoll.stock += updateFabricRollRequest.stock
+            fabricRoll.stock = updateFabricRollRequest.stock
         }
         fabricRoll.updatedAt = LocalDateTime.now()
         fabricRollRepository.save(fabricRoll)
@@ -231,5 +230,18 @@ class InventoryService(
     fun getFabricPieces(): Any {
         val fabricPieces = fabricPieceRepository.findAll().toList()
         return fabricPieces
+    }
+
+    fun updateFabricPiece(id: UUID, updateGarmentRequest: UpdateFabricPieceRequest): Any {
+        val fabricPiece = fabricPieceRepository.getFabricPieceByFabricPieceId(id) ?:
+            throw FabricPieceNotFoundException("No pudimos encontrar el molde cortado con ID $id")
+        updateGarmentRequest.name?.let { fabricPiece.name = it}
+        updateGarmentRequest.stock?.let {
+            if (it < 0) {
+                throw FabricPieceOutOfStockException("El stock ingresado (${updateGarmentRequest.stock}) debe ser una cantidad positiva")
+            }
+            fabricPiece.stock = it
+        }
+        return "Molde cortado ${fabricPiece.name} actualizado correctamente"
     }
 }

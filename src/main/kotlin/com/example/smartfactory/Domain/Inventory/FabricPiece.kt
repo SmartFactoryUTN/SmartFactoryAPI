@@ -15,6 +15,6 @@ class FabricPiece (
     @ManyToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL], optional = false)
     @JoinColumn(name = "molde_id")
     val molde: Molde,
-    val name: String = "${molde.name} color ${color.name}",
+    var name: String = "${molde.name} color ${color.name}",
     var stock: Int
 )
