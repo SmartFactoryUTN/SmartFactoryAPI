@@ -290,14 +290,14 @@ class InventoryController(
         )
     }
 
-    @PatchMapping("/prenda/{id}")
+    @PatchMapping("/fabricPiece/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Actualizar una prenda")
+    @Operation(summary = "Actualizar un molde cortado")
     @ApiResponses(value = [
-        ApiResponse(description = "Prenda actualizada correctamente", responseCode = "200"),
+        ApiResponse(description = "Molde actualizado correctamente", responseCode = "200"),
         ApiResponse(description = "Error en los parámetros enviados", responseCode = "400"),
-        ApiResponse(description = "No autorizado a obtener esta prneda", responseCode = "401"),
-        ApiResponse(description = "Prenda no encontrada", responseCode = "404")
+        ApiResponse(description = "No autorizado a obtener este molde cortado", responseCode = "401"),
+        ApiResponse(description = "Molde cortado no encontrado", responseCode = "404")
     ])
     fun updateFabricPiece(@RequestBody updateGarmentRequest: UpdateFabricPieceRequest, @PathVariable("id") id: UUID): ResponseEntity<GenericResponse<Any>> {
         val response = inventoryService.updateFabricPiece(id, updateGarmentRequest)
