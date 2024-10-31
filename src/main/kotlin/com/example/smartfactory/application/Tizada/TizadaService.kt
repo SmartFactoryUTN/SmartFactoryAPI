@@ -172,7 +172,6 @@ class TizadaService(
             timeoutReached = request.timeoutReached,
             createdAt = LocalDateTime.now(),
         )
-        tizadaResultRepository.save(tizadaResult)
         tizada.results?.add(tizadaResult)
         tizada.state = TizadaState.FINISHED
         tizada.updatedAt = LocalDateTime.now()
