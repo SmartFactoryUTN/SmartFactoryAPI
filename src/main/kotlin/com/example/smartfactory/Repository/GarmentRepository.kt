@@ -6,4 +6,5 @@ import java.util.*
 
 interface GarmentRepository: CrudRepository<Garment, UUID> {
     fun getGarmentByGarmentId(id: UUID): Garment?
+    fun findGarmentsByUserUuid(id: UUID): List<Garment>
 }

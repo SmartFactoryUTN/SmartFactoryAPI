@@ -1,6 +1,7 @@
 package com.example.smartfactory.Domain.Inventory
 
 import com.example.smartfactory.Domain.Auditable
+import com.example.smartfactory.Domain.Usuarios.Usuario
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -18,7 +19,10 @@ class Garment (
     override var deletedAt: LocalDateTime?,
     @OneToMany(cascade = [(CascadeType.ALL)], fetch = FetchType.LAZY, mappedBy = "garmentPieceId.garmentId")
     @JsonIgnore
-    var garmentPieces: MutableList<GarmentPiece>
+    var garmentPieces: MutableList<GarmentPiece>,
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    var user: Usuario
 ): Auditable {
 }
 

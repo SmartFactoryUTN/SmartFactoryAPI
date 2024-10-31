@@ -2,6 +2,7 @@ package com.example.smartfactory.application.Inventory
 
 import com.example.smartfactory.Domain.Inventory.*
 import com.example.smartfactory.Domain.Tizada.TizadaState
+import com.example.smartfactory.Domain.Usuarios.Usuario
 import com.example.smartfactory.Exceptions.*
 import com.example.smartfactory.Repository.*
 import com.example.smartfactory.application.Inventory.Request.*
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.math.abs
 
 @Service
 class InventoryService(
@@ -24,11 +24,11 @@ class InventoryService(
     private val fabricColorRepository: FabricColorRepository,
     private val tizadaService: TizadaService
 ) {
-    fun createGarment(createGarmentRequest: CreateGarmentRequest): UUID {
+    fun createGarment(createGarmentRequest: CreateGarmentRequest, user: Usuario): UUID {
         val garmentUUID = UUID.randomUUID()
         val garmentPieces: MutableList<GarmentPiece> = mutableListOf()
         createGarmentRequest.garmentComponents.forEach {
-            val fabricPiece = getFabricPieceIfExistsOrCreate(it.moldeId, it.fabricColorId)
+            val fabricPiece = getFabricPieceIfExistsOrCreate(it.moldeId, it.fabricColorId, user)
             val garmentPiece = GarmentPiece(
                 GarmentPieceId(garmentUUID, fabricPiece.fabricPieceId), it.quantity
             )
@@ -41,13 +41,14 @@ class InventoryService(
             createdAt = LocalDateTime.now(),
             updatedAt = null,
             deletedAt = null,
-            garmentPieces = garmentPieces
+            garmentPieces = garmentPieces,
+            user = user
         )
         garmentRepository.save(garment)
         return garmentUUID
     }
 
-    fun getFabricPieceIfExistsOrCreate(moldeId: UUID, fabricColorId: UUID): FabricPiece {
+    fun getFabricPieceIfExistsOrCreate(moldeId: UUID, fabricColorId: UUID, user: Usuario): FabricPiece {
         val molde =
             moldeRepository.findMoldeByUuid(moldeId) ?: throw MoldeNotFoundException("No pudimos obtener este molde")
         val fabricColor = fabricColorRepository.getFabricColorByFabricColorId(fabricColorId)
@@ -58,24 +59,25 @@ class InventoryService(
                     fabricPieceId = UUID.randomUUID(),
                     color = fabricColor,
                     molde = molde,
-                    stock = 0
+                    stock = 0,
+                    user = user
                 )
             )
         return fabricPiece
     }
 
     // Itero el metodo de arriba ;)
-    fun getFabricPiecesIfExistsOrCreate(garmentComponents: List<GarmentComponents>): MutableList<FabricPiece> {
-        val fabricPieces = mutableListOf<FabricPiece>()
-        for (garmentComponent in garmentComponents) {
-            val fabricPiece =
-                this.getFabricPieceIfExistsOrCreate(garmentComponent.moldeId, garmentComponent.fabricColorId)
-            fabricPieces.add(fabricPiece)
-        }
-        return fabricPieces
-    }
+//    fun getFabricPiecesIfExistsOrCreate(garmentComponents: List<GarmentComponents>): MutableList<FabricPiece> {
+//        val fabricPieces = mutableListOf<FabricPiece>()
+//        for (garmentComponent in garmentComponents) {
+//            val fabricPiece =
+//                this.getFabricPieceIfExistsOrCreate(garmentComponent.moldeId, garmentComponent.fabricColorId)
+//            fabricPieces.add(fabricPiece)
+//        }
+//        return fabricPieces
+//    }
 
-    fun createFabricRoll(createFabricRollRequest: CreateFabricRollRequest): UUID {
+    fun createFabricRoll(createFabricRollRequest: CreateFabricRollRequest, user: Usuario): UUID {
         val fabricUUID = UUID.randomUUID()
         val fabricColor = fabricColorRepository.getFabricColorByFabricColorId(createFabricRollRequest.fabricColorId)
             ?: throw FabricColorNotFoundException("No se encontró el color con ID $fabricUUID")
@@ -86,19 +88,20 @@ class InventoryService(
             stock = 0,
             createdAt = LocalDateTime.now(),
             updatedAt = null,
-            deletedAt = null
+            deletedAt = null,
+            user = user
         )
         fabricRollRepository.save(fabricRoll)
         return fabricUUID
     }
 
-    fun getGarments(): List<Garment> {
-        val garments = garmentRepository.findAll().toList()
+    fun getGarments(userUUID: UUID): List<Garment> {
+        val garments = garmentRepository.findGarmentsByUserUuid(userUUID)
         return garments
     }
 
-    fun getFabricRolls(): List<FabricRoll> {
-        return fabricRollRepository.findAll().toList()
+    fun getFabricRolls(userUUID: UUID): List<FabricRoll> {
+        return fabricRollRepository.findAllByUserUuid(userUUID)
     }
 
     fun updateGarment(garmentId: UUID, updateGarmentRequest: UpdateGarmentRequest): UpdateGarmentResponse {
@@ -140,7 +143,7 @@ class InventoryService(
     }
 
     @Transactional(rollbackFor = [FabricRollOutOfStockException::class])
-    fun convertFabricRoll(convertFabricRollRequest: ConvertFabricRollRequest) {
+    fun convertFabricRoll(convertFabricRollRequest: ConvertFabricRollRequest, usuario: Usuario) {
         val tizada = tizadaService.getTizadaByUUID(convertFabricRollRequest.tizadaId)
         if (tizada.state != TizadaState.FINISHED) {
             throw TizadaInvalidStateException("No se puede convertir una tizada que no esté en estado finalizada.")
@@ -157,7 +160,8 @@ class InventoryService(
                         fabricPieceId = UUID.randomUUID(),
                         color = fabricRoll.color,
                         molde = mold.mold,
-                        stock = 0
+                        stock = 0,
+                        user = usuario
                     )
                 fabricPiece.stock += mold.quantity * roll.quantity * convertFabricRollRequest.layerMultiplier
                 fabricPieceRepository.save(fabricPiece)
@@ -227,8 +231,8 @@ class InventoryService(
         return response
     }
 
-    fun getFabricPieces(): Any {
-        val fabricPieces = fabricPieceRepository.findAll().toList()
+    fun getFabricPieces(user: UUID): Any {
+        val fabricPieces = fabricPieceRepository.findAllByUserUuid(user)
         return fabricPieces
     }
 
@@ -242,6 +246,7 @@ class InventoryService(
             }
             fabricPiece.stock = it
         }
+        fabricPieceRepository.save(fabricPiece)
         return "Molde cortado ${fabricPiece.name} actualizado correctamente"
     }
 }
