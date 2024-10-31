@@ -2,6 +2,7 @@ package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.Usuarios.Usuario
 import com.example.smartfactory.Repository.UsuarioRepository
+import com.example.smartfactory.application.Inventory.InventoryService
 import com.example.smartfactory.application.Molde.MoldeService
 import com.example.smartfactory.application.Tizada.Response.UsuarioResponse
 import com.example.smartfactory.application.Tizada.TizadaService
@@ -22,7 +23,7 @@ import java.util.*
 class UsuarioController(
     @Autowired private val usuarioRepository: UsuarioRepository,
     @Autowired private val moldeService: MoldeService,
-    private val tizadaService: TizadaService,
+    private val tizadaService: TizadaService
 ) {
 
     @PostMapping("/register")
@@ -41,7 +42,10 @@ class UsuarioController(
                 email = userRegistrationRequest.email,
                 name = userRegistrationRequest.name ?: userRegistrationRequest.email,
                 parts = null,
-                tizadas = null
+                tizadas = null,
+                fabricRolls = null,
+                garments = null,
+                fabricPieces = null
             )
             usuarioRepository.save(newUser)
             return ResponseEntity("User created successfully", HttpStatus.CREATED)

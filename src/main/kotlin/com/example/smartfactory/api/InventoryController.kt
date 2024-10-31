@@ -1,7 +1,9 @@
 package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.GenericResponse
+import com.example.smartfactory.Domain.Usuarios.Usuario
 import com.example.smartfactory.Exceptions.*
+import com.example.smartfactory.Repository.UsuarioRepository
 import com.example.smartfactory.application.Inventory.InventoryService
 import com.example.smartfactory.application.Inventory.Request.*
 import io.swagger.v3.oas.annotations.Operation
@@ -11,16 +13,22 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import java.util.*
 
 @RestController
 @RequestMapping("api/inventario")
 @Tag(name = "Inventario", description = "Endpoints para inventariado")
+//@PreAuthorize("hasAuthority('SCOPE_read:inventory')") comentado porque creo que no existe en auth0 todavia
 @Validated
 class InventoryController(
-    private val inventoryService: InventoryService
+    private val inventoryService: InventoryService,
+    private val usuarioRepository: UsuarioRepository
 ) {
     @PostMapping("/prenda")
     @ResponseStatus(HttpStatus.CREATED)
@@ -28,8 +36,12 @@ class InventoryController(
     @ApiResponses(value = [
         ApiResponse(description = "Prenda creada correctamente", responseCode = "201")
     ])
-    fun createGarment(@Valid @RequestBody createGarmentRequest: CreateGarmentRequest): ResponseEntity<GenericResponse<Any>> {
-        val response = inventoryService.createGarment(createGarmentRequest)
+    fun createGarment(
+        @Valid @RequestBody createGarmentRequest: CreateGarmentRequest,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<GenericResponse<Any>> {
+        val user = validateUser(jwt, usuarioRepository)
+        val response = inventoryService.createGarment(createGarmentRequest, user)
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(
             GenericResponse(
                 status = "success",
@@ -46,8 +58,12 @@ class InventoryController(
     @ApiResponses(value = [
         ApiResponse(description = "Rollo de tela creado correctamente", responseCode = "201")
     ])
-    fun createFabricRoll(@Valid @RequestBody createFabricRollRequest: CreateFabricRollRequest): ResponseEntity<GenericResponse<Any>> {
-        val response = inventoryService.createFabricRoll(createFabricRollRequest)
+    fun createFabricRoll(
+        @Valid @RequestBody createFabricRollRequest: CreateFabricRollRequest,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<GenericResponse<Any>> {
+        val user = validateUser(jwt, usuarioRepository)
+        val response = inventoryService.createFabricRoll(createFabricRollRequest, user)
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(
             GenericResponse(
                 status = "success",
@@ -64,8 +80,9 @@ class InventoryController(
     @ApiResponses(value = [
         ApiResponse(description = "ok", responseCode = "200")
     ])
-    fun getGarments(): ResponseEntity<GenericResponse<Any>> {
-        val response = inventoryService.getGarments()
+    fun getGarments(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<GenericResponse<Any>> {
+        val user = validateUser(jwt, usuarioRepository)
+        val response = inventoryService.getGarments(user.uuid)
         return ResponseEntity.status(HttpStatus.OK.value()).body(
             GenericResponse(
                 status = "success",
@@ -80,8 +97,9 @@ class InventoryController(
     @ApiResponses(value = [
         ApiResponse(description = "ok", responseCode = "200")
     ])
-    fun getFabricRolls(): ResponseEntity<GenericResponse<Any>> {
-        val response = inventoryService.getFabricRolls()
+    fun getFabricRolls(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<GenericResponse<Any>> {
+        val user = validateUser(jwt, usuarioRepository)
+        val response = inventoryService.getFabricRolls(user.uuid)
         return ResponseEntity.status(HttpStatus.OK.value()).body(
             GenericResponse(
                 status = "success",
@@ -164,9 +182,11 @@ class InventoryController(
     ])
     fun convertFabricRollsToFabricPieces(
         @RequestBody convertFabricRollRequest: ConvertFabricRollRequest,
+        @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<GenericResponse<Any>> {
         return try {
-            inventoryService.convertFabricRoll(convertFabricRollRequest)
+            val user = validateUser(jwt, usuarioRepository)
+            inventoryService.convertFabricRoll(convertFabricRollRequest, user)
             ResponseEntity.status(HttpStatus.OK.value()).body(
                 GenericResponse(
                     status = "success",
@@ -283,10 +303,49 @@ class InventoryController(
     @ApiResponses(value = [
         ApiResponse(description = "Moldes cortados obtenido correctamente", responseCode = "200")
     ])
-    fun getFabricPieces(): ResponseEntity<GenericResponse<Any>> {
-        val response = inventoryService.getFabricPieces()
+    fun getFabricPieces(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<GenericResponse<Any>> {
+        val user = validateUser(jwt, usuarioRepository)
+        val response = inventoryService.getFabricPieces(user.uuid)
         return ResponseEntity.ok().body(
             GenericResponse(status = "success", data = response)
         )
     }
+
+    @PatchMapping("/fabricPiece/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Actualizar un molde cortado")
+    @ApiResponses(value = [
+        ApiResponse(description = "Molde actualizado correctamente", responseCode = "200"),
+        ApiResponse(description = "Error en los parámetros enviados", responseCode = "400"),
+        ApiResponse(description = "No autorizado a obtener este molde cortado", responseCode = "401"),
+        ApiResponse(description = "Molde cortado no encontrado", responseCode = "404")
+    ])
+    fun updateFabricPiece(@RequestBody updateGarmentRequest: UpdateFabricPieceRequest, @PathVariable("id") id: UUID): ResponseEntity<GenericResponse<Any>> {
+        val response = inventoryService.updateFabricPiece(id, updateGarmentRequest)
+        return try {
+            ResponseEntity.status(HttpStatus.OK.value()).body(
+                GenericResponse(
+                    status = "success",
+                    data = response
+                )
+            )
+        } catch (ex: RuntimeException) {
+            when (ex) {
+                is FabricPieceNotFoundException ->
+                    ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(GenericResponse(
+                        status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                    ))
+                is FabricPieceOutOfStockException ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(GenericResponse(
+                        status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                    ))
+                else -> throw ex
+            }
+        }
+    }
+}
+
+fun validateUser(jwt: Jwt, usuarioRepository: UsuarioRepository): Usuario {
+    val extId = jwt.claims["sub"] as String
+    return usuarioRepository.findByExternalId(extId) ?: throw ResponseStatusException(HttpStatus.FORBIDDEN)
 }

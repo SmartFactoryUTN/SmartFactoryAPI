@@ -10,4 +10,6 @@ interface FabricPieceRepository: CrudRepository<FabricPiece, UUID> {
     fun getFabricPieceByColorAndMolde(fabricColor: FabricColor, molde: Molde): FabricPiece?
 
     fun getFabricPieceByFabricPieceId(fabricPieceId: UUID): FabricPiece?
+
+    fun findAllByUserUuid(userUuid: UUID): List<FabricPiece>
 }
