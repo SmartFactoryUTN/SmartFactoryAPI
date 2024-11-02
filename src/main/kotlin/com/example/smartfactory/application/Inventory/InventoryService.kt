@@ -161,7 +161,8 @@ class InventoryService(
                         color = fabricRoll.color,
                         molde = mold.mold,
                         stock = 0,
-                        user = usuario
+                        user = usuario,
+                        fabricRoll = fabricRoll
                     )
                 fabricPiece.stock += mold.quantity * roll.quantity * convertFabricRollRequest.layerMultiplier
                 fabricPieceRepository.save(fabricPiece)
