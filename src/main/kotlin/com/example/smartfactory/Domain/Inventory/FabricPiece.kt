@@ -20,5 +20,8 @@ class FabricPiece (
     var stock: Int,
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "usuario_id", nullable = false)
-    var user: Usuario
+    var user: Usuario,
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = [CascadeType.ALL])
+    @JoinColumn(name = "fabric_roll_id")
+    val fabricRoll: FabricRoll? = null
 )
