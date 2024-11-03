@@ -12,7 +12,8 @@ import java.util.*
 class Garment (
     @Id @Column(name = "garment_id", nullable = false)
     val garmentId: UUID,
-    var name: String,
+    var article: String,
+    var description: String,
     var stock: Int,
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime?,
@@ -22,6 +23,7 @@ class Garment (
     var garmentPieces: MutableList<GarmentPiece>,
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnore
     var user: Usuario
 ): Auditable {
 }
