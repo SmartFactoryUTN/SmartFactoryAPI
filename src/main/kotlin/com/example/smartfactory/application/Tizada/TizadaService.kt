@@ -8,6 +8,7 @@ import com.example.smartfactory.Repository.MoldeRepository
 import com.example.smartfactory.Repository.TizadaRepository
 import com.example.smartfactory.Repository.TizadaResultRepository
 import com.example.smartfactory.application.Tizada.Request.*
+import com.example.smartfactory.integration.InvokeTizadaFrontResponse
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -128,11 +129,15 @@ class TizadaService(
     }
 
     @Transactional
-    fun invokeTizada(invokeTizadaRequest: InvokeTizadaRequest): InvokeTizadaResponse? {
+    fun invokeTizada(invokeTizadaRequest: InvokeTizadaRequest): InvokeTizadaFrontResponse? {
         val tizada = this.getTizadaByUUID(UUID.fromString(invokeTizadaRequest.tizadaUUID))
 
         tizada.state = TizadaState.IN_PROGRESS
         tizada.updatedAt = LocalDateTime.now()
+        tizada.invokedAt = tizada.updatedAt
+
+        tizada.configuration.time
+        tizada.estimatedEndTime = tizada.invokedAt!!.plusSeconds(tizada.configuration.time.toLong() / 1000)
 
         val parts = tizada.parts.map { it.toPart() }
 
@@ -144,9 +149,9 @@ class TizadaService(
             configuration = tizada.configuration.toInvokeConfiguration()
         )
         val jsonPayload = Json.encodeToString(invokeTizadaPayload)
-        val response = lambdaService.invokeLambdaAsync(jsonPayload)
+        lambdaService.invokeLambdaAsync(jsonPayload)
         tizadaRepository.save(tizada)
-        return response
+        return InvokeTizadaFrontResponse(tizada.invokedAt!!, tizada.estimatedEndTime!!)
     }
 
     fun saveTizadaFinalizada(request: TizadaNotificationRequest) {

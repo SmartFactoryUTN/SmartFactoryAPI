@@ -7,6 +7,7 @@ import com.example.smartfactory.Repository.TizadaRepository
 import com.example.smartfactory.Repository.TizadaResultRepository
 import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.TizadaService
+import com.example.smartfactory.integration.InvokeTizadaFrontResponse
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import io.mockk.*
@@ -409,6 +410,7 @@ class TizadaServiceTest {
             owner = UUID.randomUUID(),
             results = mutableListOf(),
         )
+
         tizada.moldesDeTizada = mutableListOf()
         val invokeResponse = InvokeTizadaResponse(HttpStatus.ACCEPTED.toString(), "")
 
@@ -421,9 +423,10 @@ class TizadaServiceTest {
 
         // Assert
         assertNotNull(result)
-        assertEquals(invokeResponse, result)
         assertEquals(TizadaState.IN_PROGRESS, tizada.state)
         assertNotNull(tizada.updatedAt)
+        assertNotNull(tizada.invokedAt)
+        assertNotNull(tizada.estimatedEndTime)
         coVerify { lambdaService.invokeLambdaAsync(any()) }
         coVerify { tizadaRepository.save(tizada) }
     }

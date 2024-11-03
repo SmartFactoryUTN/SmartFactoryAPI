@@ -49,10 +49,10 @@ class TizadaController(
 
         return try {
             val response = tizadaService.invokeTizada(request)
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                 TizadaResponse(
                     status = "success",
-                    data = mapOf("tizada" to response)
+                    data = response
                 )
             )
         } catch (e: Exception){

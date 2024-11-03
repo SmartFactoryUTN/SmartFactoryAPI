@@ -16,6 +16,7 @@ import software.amazon.awssdk.services.lambda.model.InvocationType
 import software.amazon.awssdk.services.lambda.model.InvokeRequest
 import software.amazon.awssdk.services.lambda.model.InvokeResponse
 import java.nio.charset.StandardCharsets
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
@@ -125,3 +126,5 @@ class LambdaService(
 }
 
 data class InvokeTizadaResponse(val statusCode: String, val payload: String)
+
+data class InvokeTizadaFrontResponse(val invokedAt: LocalDateTime, val estimatedEndTime: LocalDateTime)

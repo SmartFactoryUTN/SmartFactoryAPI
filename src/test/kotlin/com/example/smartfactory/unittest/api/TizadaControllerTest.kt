@@ -10,6 +10,7 @@ import com.example.smartfactory.api.TizadaController
 import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import com.example.smartfactory.application.Tizada.TizadaService
+import com.example.smartfactory.integration.InvokeTizadaFrontResponse
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -74,10 +75,12 @@ class TizadaControllerTest {
     @Test
     fun invokeTizada() {
         // Arrange
+        val invokedAt = LocalDateTime.now()
         val invokeTizadaResponseMock = InvokeTizadaResponse("202", "''")
+        val invokeTizadaFrontMock = InvokeTizadaFrontResponse(invokedAt, invokedAt)
 
         every { lambdaService.invokeLambdaAsync(any()) } returns invokeTizadaResponseMock
-        every { tizadaService.invokeTizada(any()) } returns invokeTizadaResponseMock
+        every { tizadaService.invokeTizada(any()) } returns invokeTizadaFrontMock
 
         val payload = InvokeTizadaRequest(
             tizadaUUID = UUID.randomUUID().toString(),
@@ -85,7 +88,10 @@ class TizadaControllerTest {
         )
         val expectedResponse = TizadaResponse(
             status = "success",
-            data = mapOf("tizada" to invokeTizadaResponseMock)
+            data = mapOf(
+                "estimatedEndTime" to invokedAt,
+                "invokedAt" to invokedAt
+            )
         )
 
         // Act
@@ -94,19 +100,40 @@ class TizadaControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonInvokeTizadaRequest.write(payload).json)
         )
-            .andExpect(status().isNoContent) // Expect 204 status
+            .andExpect(status().isOk) // Expect 200 status
             .andReturn().response
 
         val actualResponse = objectMapper.readValue(response.contentAsString, TizadaResponse::class.java)
 
         val nestedData = actualResponse.data as Map<*, *>
-        val actualTizadaResponse = nestedData["tizada"] as Map<*, *>
+
+        val parsedEstimatedEndTime: ArrayList<Int> = nestedData["estimatedEndTime"] as ArrayList<Int>
+        val parsedInvokedAt: ArrayList<Int> = nestedData["invokedAt"] as ArrayList<Int>
+
+        val actualEstimatedEndTime = LocalDateTime.of(
+            parsedEstimatedEndTime[0],
+            parsedEstimatedEndTime[1],
+            parsedEstimatedEndTime[2],
+            parsedEstimatedEndTime[3],
+            parsedEstimatedEndTime[4],
+            parsedEstimatedEndTime[5],
+            parsedEstimatedEndTime[6],
+        )
+
+        val actualInvokedAt = LocalDateTime.of(
+            parsedInvokedAt[0],
+            parsedInvokedAt[1],
+            parsedInvokedAt[2],
+            parsedInvokedAt[3],
+            parsedInvokedAt[4],
+            parsedInvokedAt[5],
+            parsedInvokedAt[6],
+        )
 
         // Assert response matches the expected response
         assertEquals(expectedResponse.status, actualResponse.status)
-        assertEquals(invokeTizadaResponseMock.statusCode, actualTizadaResponse["statusCode"].toString())
-        assertEquals(invokeTizadaResponseMock.payload, actualTizadaResponse["payload"].toString())
-        assertEquals(expectedResponse.status, actualResponse.status)
+        assertEquals(expectedResponse.data?.get("estimatedEndTime"), actualEstimatedEndTime)
+        assertEquals(expectedResponse.data?.get("invokedAt"), actualInvokedAt)
     }
 
     @Suppress("MaxLineLength")

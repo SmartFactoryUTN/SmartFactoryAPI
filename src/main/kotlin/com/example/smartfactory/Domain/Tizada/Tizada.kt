@@ -32,6 +32,8 @@ class Tizada(
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime? = null,
     override var deletedAt: LocalDateTime? = null,
+    var invokedAt: LocalDateTime? = null,
+    var estimatedEndTime: LocalDateTime? = null
 ) : Auditable {
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY, mappedBy = "moldeDeTizadaId.tizadaId")
     @JsonIgnore
