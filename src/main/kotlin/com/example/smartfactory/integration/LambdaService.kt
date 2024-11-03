@@ -113,7 +113,6 @@ class LambdaService(
             .addAttributes("path", "d", "fill", "stroke", "stroke-width")
             .addAttributes("circle", "cx", "cy", "r", "fill", "stroke")
             .addAttributes("rect", "x", "y", "width", "height", "fill", "stroke")
-            .addAttributes("g", "transform")
             .addAttributes("line", "x1", "y1", "x2", "y2", "stroke")
             .addAttributes("polygon", "points", "fill", "stroke")
             .addAttributes("polyline", "points", "fill", "stroke")
