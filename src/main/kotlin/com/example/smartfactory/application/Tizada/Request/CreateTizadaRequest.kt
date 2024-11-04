@@ -36,7 +36,11 @@ data class Bin(
     @field:NotEmpty(message = "Bin UUID cannot be empty")
     val uuid: String,
     @field:Min(value = 1, message = "Quantity must be at least 1")
-    val quantity: Int
+    val quantity: Int,
+    @field:Min(value = 1, message = "Height must be at least 1")
+    val height: Double,
+    @field:Min(value = 1, message = "Width must be at least 1")
+    val width: Double
 )
 
 @Serializable

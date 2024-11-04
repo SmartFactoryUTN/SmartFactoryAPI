@@ -1,6 +1,7 @@
 package com.example.smartfactory.integration
 
 import aws.sdk.kotlin.services.s3.S3Client
+import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
 import aws.sdk.kotlin.services.s3.model.PutObjectRequest
 import aws.sdk.kotlin.services.s3.model.S3Exception
 import aws.smithy.kotlin.runtime.content.ByteStream
@@ -60,6 +61,7 @@ class LambdaService(
                 key = fileName
                 body = fileBytes
                 contentType = "image/svg+xml"
+                acl = ObjectCannedAcl.PublicRead
             }
 
             // Upload the file to S3
