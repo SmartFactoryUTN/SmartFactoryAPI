@@ -195,17 +195,18 @@ class InventoryService(
         garmentRepository.save(garment)
     }
 
-    fun createColor(createColorRequest: CreateColorRequest): FabricColor {
+    fun createColor(createColorRequest: CreateColorRequest, user: Usuario): FabricColor {
         val uuid = UUID.randomUUID()
         val fabricColor = FabricColor(
             fabricColorId = uuid,
-            name = createColorRequest.name
+            name = createColorRequest.name,
+            user = user
         )
         return fabricColorRepository.save(fabricColor)
     }
 
-    fun getColors(): List<FabricColor> {
-        return fabricColorRepository.findAll().toList()
+    fun getColors(user: Usuario): List<FabricColor> {
+        return fabricColorRepository.getFabricColorsByUserUuid(user.uuid)
     }
 
     fun getDetailedGarment(garmentId: UUID): GetDetailedGarmentResponse {

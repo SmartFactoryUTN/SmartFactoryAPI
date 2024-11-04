@@ -217,8 +217,9 @@ class InventoryController(
     @ApiResponses(value = [
         ApiResponse(description = "Color creado correctamente", responseCode = "200")
     ])
-    fun createColor(@Valid @RequestBody createColorRequest: CreateColorRequest): ResponseEntity<GenericResponse<Any>> {
-        val response = inventoryService.createColor(createColorRequest)
+    fun createColor(@Valid @RequestBody createColorRequest: CreateColorRequest, jwt: Jwt): ResponseEntity<GenericResponse<Any>> {
+        val user = validateUser(jwt, usuarioRepository)
+        val response = inventoryService.createColor(createColorRequest, user)
         return ResponseEntity.status(HttpStatus.OK.value()).body(
                 GenericResponse(
                     status = "success",
@@ -233,8 +234,9 @@ class InventoryController(
     @ApiResponses(value = [
         ApiResponse(description = "Colores obtenidos correctamente", responseCode = "200")
     ])
-    fun getColors(): ResponseEntity<GenericResponse<Any>> {
-        val response = inventoryService.getColors()
+    fun getColors(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<GenericResponse<Any>> {
+        val user = validateUser(jwt, usuarioRepository)
+        val response = inventoryService.getColors(user)
         return ResponseEntity.status(HttpStatus.OK.value()).body(
             GenericResponse(
                 status = "success",

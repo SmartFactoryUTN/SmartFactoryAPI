@@ -1,9 +1,8 @@
 package com.example.smartfactory.Domain.Inventory
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import com.example.smartfactory.Domain.Usuarios.Usuario
+import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.*
 import java.util.*
 
 @Entity
@@ -11,5 +10,9 @@ import java.util.*
 class FabricColor (
     @Id @Column(name="fabric_color_id")
     val fabricColorId: UUID,
-    val name: String
+    val name: String,
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnore
+    val user: Usuario
 )

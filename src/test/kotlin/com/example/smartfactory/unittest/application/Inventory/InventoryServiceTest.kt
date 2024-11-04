@@ -68,7 +68,7 @@ internal class InventoryServiceTest {
             email = "test@example.com",
             externalId = "external-123"
         )
-        val fabricColor = FabricColor(UUID.randomUUID(), "Blue")
+        val fabricColor = FabricColor(UUID.randomUUID(), "Blue", user)
         val fabricRoll = FabricRoll(
             fabricRollId = garmentComponent.fabricRollId,
             name = "Roll Test",
@@ -195,7 +195,7 @@ internal class InventoryServiceTest {
             externalId = "external-123"
         )
         val molde = Molde(moldeId, user.uuid, "Test Molde", "http://example.com", "Description", 10.0, true, LocalDateTime.now())
-        val fabricColor = FabricColor(UUID.randomUUID(), "Red")
+        val fabricColor = FabricColor(UUID.randomUUID(), "Red", user)
         val fabricRoll = FabricRoll(fabricRollId, "Roll Test", "Description test", fabricColor, 50, user, LocalDateTime.now(), null, null)
         val newFabricPiece = FabricPiece(UUID.randomUUID(), molde, 0, user, fabricRoll, "New Piece")
 
@@ -223,7 +223,7 @@ internal class InventoryServiceTest {
             externalId = "external-123"
         )
         val molde = Molde(moldeId, user.uuid, "Test Molde", "http://example.com", "Description", 10.0, true, LocalDateTime.now())
-        val fabricColor = FabricColor(UUID.randomUUID(), "Red")
+        val fabricColor = FabricColor(UUID.randomUUID(), "Red", user)
         val fabricRoll = FabricRoll(fabricRollId, "Roll Test", "Description test", fabricColor, 50, user, LocalDateTime.now(), null, null)
         val existingFabricPiece = FabricPiece(UUID.randomUUID(), molde, 10, user, fabricRoll, "Existing Piece")
 
@@ -242,7 +242,7 @@ internal class InventoryServiceTest {
         val fabricRollId = UUID.randomUUID()
         val updateRequest = UpdateFabricRollRequest(name = "Updated Roll", stock = 100, description = "Updated description")
         val user = Usuario(UUID.randomUUID(), null, null, "Test User", "test@example.com", "external-123")
-        val fabricColor = FabricColor(UUID.randomUUID(), "Blue")
+        val fabricColor = FabricColor(UUID.randomUUID(), "Blue", user)
         val fabricRoll = FabricRoll(fabricRollId, "Original Roll", "Original description", fabricColor, 50, user, LocalDateTime.now(), null, null)
 
         every { fabricRollRepository.getFabricRollByFabricRollId(fabricRollId) } returns fabricRoll
@@ -275,7 +275,7 @@ internal class InventoryServiceTest {
     @Test
     fun `convertFabricRoll should update fabric roll stock and create fabric pieces when tizada state is FINISHED`() {
         val user = Usuario(UUID.randomUUID(), null, null, "Test User", "test@example.com", "external-123")
-        val fabricColor = FabricColor(UUID.randomUUID(), "Blue")
+        val fabricColor = FabricColor(UUID.randomUUID(), "Blue", user)
         val fabricRollId = UUID.randomUUID()
         val fabricRoll = FabricRoll(fabricRollId, "Roll Test", "Description", fabricColor, 50, user, LocalDateTime.now(), null, null)
         val molde = Molde(UUID.randomUUID(), user.uuid, "Molde Test", "http://example.com/molde", "Description", 10.0, true, LocalDateTime.now())
