@@ -217,7 +217,7 @@ class InventoryController(
     @ApiResponses(value = [
         ApiResponse(description = "Color creado correctamente", responseCode = "200")
     ])
-    fun createColor(@Valid @RequestBody createColorRequest: CreateColorRequest, jwt: Jwt): ResponseEntity<GenericResponse<Any>> {
+    fun createColor(@Valid @RequestBody createColorRequest: CreateColorRequest, @AuthenticationPrincipal jwt: Jwt): ResponseEntity<GenericResponse<Any>> {
         val user = validateUser(jwt, usuarioRepository)
         val response = inventoryService.createColor(createColorRequest, user)
         return ResponseEntity.status(HttpStatus.OK.value()).body(
