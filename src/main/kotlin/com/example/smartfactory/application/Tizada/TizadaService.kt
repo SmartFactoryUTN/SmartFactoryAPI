@@ -9,7 +9,6 @@ import com.example.smartfactory.Repository.TizadaRepository
 import com.example.smartfactory.Repository.TizadaResultRepository
 import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.integration.InvokeTizadaFrontResponse
-import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.transaction.Transactional
