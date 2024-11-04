@@ -2,7 +2,6 @@ package com.example.smartfactory.api
 
 import com.example.smartfactory.Domain.Usuarios.Usuario
 import com.example.smartfactory.Repository.UsuarioRepository
-import com.example.smartfactory.application.Inventory.InventoryService
 import com.example.smartfactory.application.Molde.MoldeService
 import com.example.smartfactory.application.Tizada.Response.UsuarioResponse
 import com.example.smartfactory.application.Tizada.TizadaService

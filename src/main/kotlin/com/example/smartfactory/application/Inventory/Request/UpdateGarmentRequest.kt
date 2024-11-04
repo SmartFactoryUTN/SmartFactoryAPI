@@ -1,6 +1,7 @@
 package com.example.smartfactory.application.Inventory.Request
 
 data class UpdateGarmentRequest(
-    val name: String?,
+    val article: String?,
+    val description: String?,
     val stock: Int?
 )

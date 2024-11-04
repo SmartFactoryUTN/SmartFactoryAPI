@@ -8,13 +8,13 @@ import java.util.*
 data class CreateGarmentRequest (
     @field:NotNull(value = "Name cannot be null")
     @Schema(
-        description = "Nombre de la prenda",
+        description = "Artículo de la prenda",
         required = true,
         type = "string",
-        example = "Mi remera talle S"
+        example = "Art. 01"
     )
-    val name: String,
-
+    val article: String,
+    val description: String,
     @field:NotNull(value = "Molds cannot be null")
     @Schema(
         description = "Moldes de la prenda. ID del molde + cantidad de veces que aparece ese molde en la prenda",
@@ -27,5 +27,5 @@ data class CreateGarmentRequest (
 data class GarmentComponents(
     val moldeId: UUID,
     val quantity: Int,
-    val fabricColorId: UUID
+    val fabricRollId: UUID
 )
