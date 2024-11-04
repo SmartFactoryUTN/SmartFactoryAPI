@@ -1,6 +1,5 @@
 package com.example.smartfactory.Repository
 
-import com.example.smartfactory.Domain.Inventory.FabricColor
 import com.example.smartfactory.Domain.Inventory.FabricPiece
 import com.example.smartfactory.Domain.Inventory.FabricRoll
 import com.example.smartfactory.Domain.Molde.Molde
