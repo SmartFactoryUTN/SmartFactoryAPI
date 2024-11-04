@@ -7,5 +7,7 @@ data class CreateFabricRollRequest (
     @field:NotNull(value = "Name cannot be null or blank")
     val name: String,
     @field:NotNull(value = "Color cannot be null or blank")
-    val fabricColorId: UUID
+    val fabricColorId: UUID,
+    @field:NotNull(value = "Description cannot be null or blank")
+    val description: String
 )

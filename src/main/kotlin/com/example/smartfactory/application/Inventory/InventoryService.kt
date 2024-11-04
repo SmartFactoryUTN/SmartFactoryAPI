@@ -85,6 +85,7 @@ class InventoryService(
         val fabricRoll = FabricRoll(
             fabricRollId = fabricUUID,
             name = createFabricRollRequest.name,
+            description = createFabricRollRequest.description,
             color = fabricColor,
             stock = 0,
             createdAt = LocalDateTime.now(),
@@ -131,6 +132,7 @@ class InventoryService(
                 "No se encontró el rollo de tella con ID $fabricRollId"
             )
         updateFabricRollRequest.name?.let { fabricRoll.name = it }
+        updateFabricRollRequest.description?.let { fabricRoll.description }
         updateFabricRollRequest.stock?.let {
             if (it < 0) {
                 throw FabricRollOutOfStockException(
