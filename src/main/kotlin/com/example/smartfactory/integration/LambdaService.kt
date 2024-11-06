@@ -111,7 +111,7 @@ class LambdaService(
         val doc: Document = Jsoup.parse(svgContent, "", org.jsoup.parser.Parser.xmlParser())
 
         val safelist = Safelist()
-            .addTags("svg", "path", "circle", "rect", "g", "line", "polygon", "polyline", "text")
+            .addTags("svg", "path", "circle", "rect", "line", "polygon", "polyline", "text")
             .addAttributes("svg", "xmlns", "viewBox", "width", "height")
             .addAttributes("path", "d", "fill", "stroke", "stroke-width")
             .addAttributes("circle", "cx", "cy", "r", "fill", "stroke")
