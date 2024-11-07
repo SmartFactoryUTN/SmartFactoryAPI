@@ -85,6 +85,7 @@ class InventoryService(
         val fabricRoll = FabricRoll(
             fabricRollId = fabricUUID,
             name = createFabricRollRequest.name,
+            description = createFabricRollRequest.description,
             color = fabricColor,
             stock = 0,
             createdAt = LocalDateTime.now(),
@@ -131,6 +132,7 @@ class InventoryService(
                 "No se encontró el rollo de tella con ID $fabricRollId"
             )
         updateFabricRollRequest.name?.let { fabricRoll.name = it }
+        updateFabricRollRequest.description?.let { fabricRoll.description }
         updateFabricRollRequest.stock?.let {
             if (it < 0) {
                 throw FabricRollOutOfStockException(
@@ -193,17 +195,18 @@ class InventoryService(
         garmentRepository.save(garment)
     }
 
-    fun createColor(createColorRequest: CreateColorRequest): FabricColor {
+    fun createColor(createColorRequest: CreateColorRequest, user: Usuario): FabricColor {
         val uuid = UUID.randomUUID()
         val fabricColor = FabricColor(
             fabricColorId = uuid,
-            name = createColorRequest.name
+            name = createColorRequest.name,
+            user = user
         )
         return fabricColorRepository.save(fabricColor)
     }
 
-    fun getColors(): List<FabricColor> {
-        return fabricColorRepository.findAll().toList()
+    fun getColors(user: Usuario): List<FabricColor> {
+        return fabricColorRepository.getFabricColorsByUserUuid(user.uuid)
     }
 
     fun getDetailedGarment(garmentId: UUID): GetDetailedGarmentResponse {

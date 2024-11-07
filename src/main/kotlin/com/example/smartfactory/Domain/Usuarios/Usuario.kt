@@ -1,6 +1,7 @@
 package com.example.smartfactory.Domain.Usuarios
 
 import com.example.smartfactory.Domain.Auditable
+import com.example.smartfactory.Domain.Inventory.FabricColor
 import com.example.smartfactory.Domain.Inventory.FabricPiece
 import com.example.smartfactory.Domain.Inventory.FabricRoll
 import com.example.smartfactory.Domain.Inventory.Garment
@@ -34,6 +35,9 @@ class Usuario(
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     var fabricPieces: List<FabricPiece>? = null,
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    var fabricColors: List<FabricColor>? = null,
     val subscription: String = "PREMIUM",
     override var createdAt: LocalDateTime = LocalDateTime.now(),
     override var updatedAt: LocalDateTime? = null,

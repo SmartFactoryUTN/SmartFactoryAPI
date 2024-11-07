@@ -13,6 +13,7 @@ data class FabricRoll (
     @Id @Column(name = "fabric_roll_id", nullable = false)
     val fabricRollId: UUID,
     var name: String,
+    var description: String?,
     @ManyToOne(cascade = [(CascadeType.ALL)], fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "fabric_color_id")
     var color: FabricColor,
