@@ -22,6 +22,7 @@ data class FabricRoll (
     @JoinColumn(name = "usuario_id", nullable = false)
     @JsonIgnore
     var user: Usuario,
+    var active: Boolean = true,
     override var createdAt: LocalDateTime,
     override var updatedAt: LocalDateTime?,
     override var deletedAt: LocalDateTime?

@@ -11,5 +11,5 @@ interface FabricPieceRepository: CrudRepository<FabricPiece, UUID> {
 
     fun getFabricPieceByFabricPieceId(fabricPieceId: UUID): FabricPiece?
 
-    fun findAllByUserUuid(userUuid: UUID): List<FabricPiece>
+    fun findAllByUserUuidAndActive(userUuid: UUID, active: Boolean = true): List<FabricPiece>
 }

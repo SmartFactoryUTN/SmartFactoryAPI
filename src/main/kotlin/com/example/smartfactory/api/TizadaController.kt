@@ -55,7 +55,7 @@ class TizadaController(
                     data = response
                 )
             )
-        } catch (e: Exception){
+        } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 TizadaResponse(
                     status = "error",
@@ -81,7 +81,7 @@ class TizadaController(
     )
     fun notificationTizada(@RequestBody request: TizadaNotificationRequest): ResponseEntity<TizadaResponse<Any>> {
 
-        if (tizadaService.findTizadaResult(request.tizadaUUID)  != null){
+        if (tizadaService.findTizadaResult(request.tizadaUUID) != null) {
 
             logger.info { "Skipping notification for tizada: ${request.tizadaUUID}" }
 
@@ -97,9 +97,9 @@ class TizadaController(
             )
 
         }
-        if (request.status == "success"){
+        if (request.status == "success") {
             tizadaService.saveTizadaFinalizada(request)
-        }else{
+        } else {
             tizadaService.saveTizadaFinalizadaConError(request)
         }
 
@@ -166,10 +166,12 @@ class TizadaController(
                 )
             )
         } catch (ex: TizadaNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(TizadaResponse(
-                status = "fail",
-                data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
-            ))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                TizadaResponse(
+                    status = "fail",
+                    data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                )
+            )
         }
     }
 
@@ -192,10 +194,12 @@ class TizadaController(
             tizadaService.deleteTizada(id)
             ResponseEntity.noContent().build()
         } catch (ex: TizadaNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(TizadaResponse(
-                status = "fail",
-                data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
-            ))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                TizadaResponse(
+                    status = "fail",
+                    data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                )
+            )
         }
     }
 
@@ -219,9 +223,11 @@ class TizadaController(
                 TizadaResponse(status = "success", data = tizada)
             )
         } catch (ex: TizadaNotFoundException) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(TizadaResponse(
-                status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
-            ))
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                TizadaResponse(
+                    status = "fail", data = mapOf("exception" to ex.javaClass.simpleName, "message" to ex.message)
+                )
+            )
         }
     }
 }

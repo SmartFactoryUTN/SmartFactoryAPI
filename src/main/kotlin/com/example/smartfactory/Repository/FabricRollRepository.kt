@@ -6,5 +6,5 @@ import java.util.*
 
 interface FabricRollRepository: CrudRepository<FabricRoll, UUID> {
     fun getFabricRollByFabricRollId(id: UUID): FabricRoll?
-    fun findAllByUserUuid(usuarioUuid: UUID): List<FabricRoll>
+    fun findFabricRollsByUserUuidAndActive(usuarioUuid: UUID, active: Boolean = true): List<FabricRoll>
 }

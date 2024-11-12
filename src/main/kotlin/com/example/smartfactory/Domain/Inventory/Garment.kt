@@ -24,7 +24,8 @@ class Garment (
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "usuario_id", nullable = false)
     @JsonIgnore
-    var user: Usuario
+    var user: Usuario,
+    var active: Boolean = true
 ): Auditable {
 }
 
