@@ -61,7 +61,8 @@ class InventoryService(
                     fabricRoll = fabricRoll,
                     molde = molde,
                     stock = 0,
-                    user = user
+                    user = user,
+                    createdAt = LocalDateTime.now()
                 )
             )
         return fabricPiece
@@ -98,12 +99,12 @@ class InventoryService(
     }
 
     fun getGarments(userUUID: UUID): List<Garment> {
-        val garments = garmentRepository.findGarmentsByUserUuid(userUUID)
+        val garments = garmentRepository.findGarmentsByUserUuidAndActive(userUUID)
         return garments
     }
 
     fun getFabricRolls(userUUID: UUID): List<FabricRoll> {
-        return fabricRollRepository.findAllByUserUuid(userUUID)
+        return fabricRollRepository.findFabricRollsByUserUuidAndActive(userUUID)
     }
 
     fun updateGarment(garmentId: UUID, updateGarmentRequest: UpdateGarmentRequest): UpdateGarmentResponse {
@@ -165,7 +166,8 @@ class InventoryService(
                         fabricRoll = fabricRoll,
                         molde = mold.mold,
                         stock = 0,
-                        user = usuario
+                        user = usuario,
+                        createdAt = LocalDateTime.now()
                     )
                 fabricPiece.stock += mold.quantity * roll.quantity * convertFabricRollRequest.layerMultiplier
                 fabricPieceRepository.save(fabricPiece)
@@ -237,14 +239,15 @@ class InventoryService(
     }
 
     fun getFabricPieces(user: UUID): Any {
-        val fabricPieces = fabricPieceRepository.findAllByUserUuid(user)
+        val fabricPieces = fabricPieceRepository.findAllByUserUuidAndActive(user)
         return fabricPieces
     }
 
     fun updateFabricPiece(id: UUID, updateGarmentRequest: UpdateFabricPieceRequest): Any {
-        val fabricPiece = fabricPieceRepository.getFabricPieceByFabricPieceId(id) ?:
-            throw FabricPieceNotFoundException("No pudimos encontrar el molde cortado con ID $id")
-        updateGarmentRequest.name?.let { fabricPiece.name = it}
+        val fabricPiece = fabricPieceRepository.getFabricPieceByFabricPieceId(id) ?: throw FabricPieceNotFoundException(
+            "No pudimos encontrar el molde cortado con ID $id"
+        )
+        updateGarmentRequest.name?.let { fabricPiece.name = it }
         updateGarmentRequest.stock?.let {
             if (it < 0) {
                 throw FabricPieceOutOfStockException("El stock ingresado (${updateGarmentRequest.stock}) debe ser una cantidad positiva")
@@ -253,5 +256,31 @@ class InventoryService(
         }
         fabricPieceRepository.save(fabricPiece)
         return "Molde cortado ${fabricPiece.name} actualizado correctamente"
+    }
+
+    fun deleteFabricRoll(id: UUID) {
+        val fabricRoll = fabricRollRepository.getFabricRollByFabricRollId(id)
+            ?: throw FabricRollNotFoundException("No pudimos encontrar el rollo de tela con ID $id")
+        fabricRoll.active = false
+        fabricRoll.deletedAt = LocalDateTime.now()
+        fabricRollRepository.save(fabricRoll)
+    }
+
+    fun deleteFabricPiece(id: UUID) {
+        val fabricPiece = fabricPieceRepository.getFabricPieceByFabricPieceId(id) ?: throw FabricPieceNotFoundException(
+            "No pudimos encontrar el molde cortado con ID $id"
+        )
+        fabricPiece.deletedAt = LocalDateTime.now()
+        fabricPiece.active = false
+        fabricPieceRepository.save(fabricPiece)
+    }
+
+    fun deleteGarment(id: UUID) {
+        val garment = garmentRepository.getGarmentByGarmentId(id) ?: throw GarmentNotFoundException(
+            "No pudimos encontrar la prenda con ID $id"
+        )
+        garment.deletedAt = LocalDateTime.now()
+        garment.active = false
+        garmentRepository.save(garment)
     }
 }
