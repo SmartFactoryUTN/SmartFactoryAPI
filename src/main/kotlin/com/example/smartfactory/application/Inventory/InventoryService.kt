@@ -98,9 +98,13 @@ class InventoryService(
         return fabricUUID
     }
 
-    fun getGarments(userUUID: UUID): List<Garment> {
+    fun getGarments(userUUID: UUID): List<GetDetailedGarmentResponse> {
         val garments = garmentRepository.findGarmentsByUserUuidAndActive(userUUID)
-        return garments
+        val response = mutableListOf<GetDetailedGarmentResponse>()
+        for (garment in garments) {
+            response.add(getDetailedGarment(garmentId = garment.garmentId))
+        }
+        return response
     }
 
     fun getFabricRolls(userUUID: UUID): List<FabricRoll> {
@@ -133,7 +137,7 @@ class InventoryService(
                 "No se encontró el rollo de tella con ID $fabricRollId"
             )
         updateFabricRollRequest.name?.let { fabricRoll.name = it }
-        updateFabricRollRequest.description?.let { fabricRoll.description }
+        updateFabricRollRequest.description?.let { fabricRoll.description = it }
         updateFabricRollRequest.stock?.let {
             if (it < 0) {
                 throw FabricRollOutOfStockException(
@@ -170,6 +174,8 @@ class InventoryService(
                         createdAt = LocalDateTime.now()
                     )
                 fabricPiece.stock += mold.quantity * roll.quantity * convertFabricRollRequest.layerMultiplier
+                fabricPiece.active = true
+                fabricPiece.deletedAt = null
                 fabricPieceRepository.save(fabricPiece)
             }
             fabricRoll.stock -= roll.quantity
@@ -191,6 +197,7 @@ class InventoryService(
                 throw FabricPieceOutOfStockException("No se pueden restar ${garmentPiece.quantity * convertFabricPiecesRequest.quantity}, hay ${fabricPiece.stock} en stock")
             }
             fabricPiece.stock -= garmentPiece.quantity * convertFabricPiecesRequest.quantity
+            fabricPiece.deletedAt = null
             fabricPieceRepository.save(fabricPiece)
         }
         garment.stock += convertFabricPiecesRequest.quantity
@@ -230,6 +237,7 @@ class InventoryService(
             )
         }
         val response = GetDetailedGarmentResponse(
+            garmentId = garmentId,
             article = garment.article,
             description = garment.description,
             stock = garment.stock,
@@ -263,6 +271,7 @@ class InventoryService(
             ?: throw FabricRollNotFoundException("No pudimos encontrar el rollo de tela con ID $id")
         fabricRoll.active = false
         fabricRoll.deletedAt = LocalDateTime.now()
+        fabricRoll.stock = 0
         fabricRollRepository.save(fabricRoll)
     }
 
@@ -272,6 +281,7 @@ class InventoryService(
         )
         fabricPiece.deletedAt = LocalDateTime.now()
         fabricPiece.active = false
+        fabricPiece.stock = 0
         fabricPieceRepository.save(fabricPiece)
     }
 
@@ -281,6 +291,11 @@ class InventoryService(
         )
         garment.deletedAt = LocalDateTime.now()
         garment.active = false
+        garment.stock = 0
         garmentRepository.save(garment)
+    }
+
+    fun calculateGarmentConvert() {
+
     }
 }
