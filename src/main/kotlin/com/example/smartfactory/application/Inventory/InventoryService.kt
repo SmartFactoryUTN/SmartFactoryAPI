@@ -62,9 +62,11 @@ class InventoryService(
                     molde = molde,
                     stock = 0,
                     user = user,
-                    createdAt = LocalDateTime.now()
+                    createdAt = LocalDateTime.now(),
+                    active = true
                 )
             )
+        fabricPiece.active = true
         return fabricPiece
     }
 
@@ -230,8 +232,9 @@ class InventoryService(
                     "name" to fabricPiece.name.lowercase()
                         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                     "fabricRoll" to fabricPiece.fabricRoll,
-                    "moldeId" to fabricPiece.molde.uuid,
+                    "molde" to fabricPiece.molde,
                     "url" to fabricPiece.molde.url,
+                    "stock" to fabricPiece.stock,
                     "quantity" to it.quantity,
                 )
             )
