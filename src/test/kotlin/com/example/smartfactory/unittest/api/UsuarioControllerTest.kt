@@ -84,7 +84,9 @@ class UsuarioControllerTest {
                 "id" to usuarioUUID,
                 "extId" to "auth0|1234567890",
                 "name" to "John Doe",
-                "email" to "john.doe@example.com"
+                "email" to "john.doe@example.com",
+                "subscription" to "PREMIUM",
+                "credits" to 100
             )
         )
 

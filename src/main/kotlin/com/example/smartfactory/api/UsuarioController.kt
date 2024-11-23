@@ -69,7 +69,9 @@ class UsuarioController(
                 "id" to user.uuid,
                 "extId" to user.externalId,
                 "name" to user.name,
-                "email" to user.email
+                "email" to user.email,
+                "credits" to user.credits,
+                "subscription" to user.subscription
             ))
         )
     }
