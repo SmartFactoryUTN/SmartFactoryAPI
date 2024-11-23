@@ -37,14 +37,15 @@ class UsuarioController(
             // If not, create and save the new user
             val newUser = Usuario(
                 uuid = UUID.randomUUID(),
-                externalId = userRegistrationRequest.userId,
-                email = userRegistrationRequest.email,
-                name = userRegistrationRequest.name ?: userRegistrationRequest.email,
-                parts = null,
                 tizadas = null,
+                parts = null,
+                name = userRegistrationRequest.name ?: userRegistrationRequest.email,
+                email = userRegistrationRequest.email,
+                externalId = userRegistrationRequest.userId,
                 fabricRolls = null,
                 garments = null,
-                fabricPieces = null
+                fabricPieces = null,
+                credits = 100
             )
             usuarioRepository.save(newUser)
             return ResponseEntity("User created successfully", HttpStatus.CREATED)

@@ -1,6 +1,7 @@
 package com.example.smartfactory.Exceptions.handler
 
 import com.example.smartfactory.Exceptions.UploadMoldeException
+import com.example.smartfactory.Exceptions.UsuarioNotFoundException
 import com.example.smartfactory.application.Tizada.Response.TizadaResponse
 import jakarta.validation.ConstraintViolationException
 import org.springframework.http.ResponseEntity
@@ -53,6 +54,16 @@ class GlobalExceptionHandler {
             TizadaResponse(
                 status = "fail",
                 data = mapOf("message" to ex.localizedMessage)
+            )
+        )
+    }
+
+    @ExceptionHandler(UsuarioNotFoundException::class)
+    fun handleUsuarioNotFoundException(ex: UsuarioNotFoundException): ResponseEntity<TizadaResponse<Any>> {
+        return ResponseEntity.badRequest().body(
+            TizadaResponse(
+                status = "fail",
+                data = mapOf("message" to ex.message)
             )
         )
     }

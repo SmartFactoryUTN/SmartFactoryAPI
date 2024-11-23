@@ -22,11 +22,11 @@ class UsuarioRepositoryTest {
         val usuarioUUID = UUID.randomUUID()
         val usuario = Usuario(
             uuid = usuarioUUID,
+            tizadas = null,
+            parts = null,
+            name = "Gaston",
             email = "gasti@smartfactory.com",
             externalId = "extId|123",
-            name = "Gaston",
-            parts = null,
-            tizadas = null,
         )
         // Act
         val savedUsuario = usuarioRepository.save(usuario)
@@ -36,5 +36,6 @@ class UsuarioRepositoryTest {
         assertEquals("gasti@smartfactory.com", savedUsuario.email)
         assertEquals("extId|123", savedUsuario.externalId)
         assertEquals(usuarioUUID, savedUsuario.uuid)
+        assertEquals(100, savedUsuario.credits)
     }
 }

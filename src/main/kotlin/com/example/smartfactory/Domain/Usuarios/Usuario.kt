@@ -39,7 +39,8 @@ class Usuario(
     @JsonIgnore
     var fabricColors: List<FabricColor>? = null,
     val subscription: String = "PREMIUM",
+    var credits: Int = 100,
     override var createdAt: LocalDateTime = LocalDateTime.now(),
     override var updatedAt: LocalDateTime? = null,
-    override var deletedAt: LocalDateTime? = null
+    override var deletedAt: LocalDateTime? = null,
 ) : Auditable

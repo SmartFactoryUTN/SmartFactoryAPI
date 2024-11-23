@@ -58,12 +58,13 @@ class UsuarioControllerTest {
         val usuarioUUID = UUID.randomUUID()
         val user = Usuario(
             uuid = usuarioUUID,
-            externalId = userExtId,
+            tizadas = null,
+            parts = null,
             name = "John Doe",
             email = "john.doe@example.com",
-            parts = null,
-            tizadas = null,
-            subscription = "PREMIUM")
+            externalId = userExtId,
+            subscription = "PREMIUM"
+        )
 
         every { usuarioRepository.findByExternalId(userExtId) } returns user
 
@@ -143,11 +144,11 @@ class UsuarioControllerTest {
 
         val existingUser = Usuario(
             uuid = UUID.randomUUID(),
-            externalId = userRegistrationRequest.userId,
-            email = "john.doe@example.com",
-            name = "John Doe",
+            tizadas = null,
             parts = null,
-            tizadas = null
+            name = "John Doe",
+            email = "john.doe@example.com",
+            externalId = userRegistrationRequest.userId
         )
 
         every { usuarioRepository.findByExternalId(userRegistrationRequest.userId) } returns existingUser
@@ -178,8 +179,8 @@ class UsuarioControllerTest {
             tizadas =  null,
             parts = null,
             name = "user",
-            externalId = "auth0|12345",
-            email = "john.doe@example.com"
+            email = "john.doe@example.com",
+            externalId = "auth0|12345"
         )
         val expectedMoldes = listOf(
             Molde(
@@ -227,8 +228,8 @@ class UsuarioControllerTest {
             tizadas =  null,
             parts = null,
             name = "user",
-            externalId = "auth0|12345",
-            email = "john.doe@example.com"
+            email = "john.doe@example.com",
+            externalId = "auth0|12345"
         )
 
         every { usuarioRepository.getUsuarioByUuid(userUUID) } returns user
