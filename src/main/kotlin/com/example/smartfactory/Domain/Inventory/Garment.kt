@@ -26,8 +26,7 @@ class Garment (
     @JsonIgnore
     var user: Usuario,
     var active: Boolean = true
-): Auditable {
-}
+): Auditable
 
 @Entity
 @Table(name = "garment_pieces")

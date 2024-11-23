@@ -7,6 +7,7 @@ import com.example.smartfactory.Repository.TizadaRepository
 import com.example.smartfactory.Repository.TizadaResultRepository
 import com.example.smartfactory.application.Tizada.Request.*
 import com.example.smartfactory.application.Tizada.TizadaService
+import com.example.smartfactory.application.Usuario.UsuarioService
 import com.example.smartfactory.integration.InvokeTizadaResponse
 import com.example.smartfactory.integration.LambdaService
 import io.mockk.*
@@ -33,6 +34,8 @@ class TizadaServiceTest {
     private lateinit var lambdaService: LambdaService
     @MockK
     private lateinit var tizadaResultRepository: TizadaResultRepository
+    @MockK
+    private lateinit var usuarioService: UsuarioService
 
 
     @BeforeEach
@@ -41,7 +44,15 @@ class TizadaServiceTest {
         moldeRepository = mockk()
         lambdaService = mockk()
         tizadaResultRepository = mockk()
-        tizadaService = TizadaService(tizadaRepository, moldeRepository, lambdaService, tizadaResultRepository)
+        usuarioService = mockk()
+
+        tizadaService = TizadaService(
+            tizadaRepository,
+            moldeRepository,
+            lambdaService,
+            tizadaResultRepository,
+            usuarioService
+        )
     }
 
     @Test
@@ -463,12 +474,17 @@ class TizadaServiceTest {
             timeoutReached = false,
             status = TizadaResultStatus.SUCCESS.toString()
         )
+        val tizadaConfiguration = TizadaConfiguration(
+            id = UUID.randomUUID(),
+            time = 10,
+            utilizationPercentage = 80
+        )
         val tizada = Tizada(
             uuid = tizadaUUID,
             name = "Test Tizada",
             owner = UUID.randomUUID(),
             state = TizadaState.IN_PROGRESS,
-            configuration = mockk(),
+            configuration = tizadaConfiguration,
             bin = mockk(),
             parts = mutableListOf(),
             results = mutableListOf(),
@@ -493,6 +509,7 @@ class TizadaServiceTest {
         every { moldeRepository.findMoldeByUuid(any()) } returns mockk()
         every { tizadaRepository.save(any()) } returns tizada
         every { tizadaResultRepository.save(any()) } returns tizadaResult
+        every { usuarioService.consumeUsuarioCredits(any<Int>(), any<UUID>()) } just Runs
 
         // Act
         tizadaService.saveTizadaFinalizada(request)
