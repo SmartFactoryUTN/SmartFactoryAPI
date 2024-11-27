@@ -21,7 +21,7 @@ class UsuarioService(
             ?: throw UsuarioNotFoundException("Usuario no encontrado uuid: $usuarioUUID")
         val usuarioCredits = usuario.credits
         val newCredits = max(
-            usuarioCredits - amount,
+            usuarioCredits - (amount / 60000),
             0
         )
         usuario.credits = newCredits
